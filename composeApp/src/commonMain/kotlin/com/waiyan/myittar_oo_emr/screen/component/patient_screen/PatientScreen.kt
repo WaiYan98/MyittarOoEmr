@@ -27,10 +27,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,52 +37,47 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Blue
-import androidx.compose.ui.graphics.Color.Companion.Cyan
 import androidx.compose.ui.graphics.Color.Companion.Gray
-import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
 import com.waiyan.myittar_oo_emr.screen.component.MyittarOoEmrAppBar
-import com.waiyan.myittar_oo_emr.ui.theme.BackgroundColor
-import com.waiyan.myittar_oo_emr.ui.theme.White
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun PatientScreen(
-    patientViewModel: PatientViewModel = koinViewModel<PatientViewModel>()
+    patientViewModel: PatientViewModel = koinViewModel<PatientViewModel>(),
+    onClickAdd: () -> Unit
 ) {
 
     val patients by patientViewModel.patientFlow.collectAsStateWithLifecycle()
     var searchTxt by mutableStateOf("")
 
-    Scaffold(
-        modifier = Modifier.padding(
-            start = 16.dp,
-            end = 16.dp,
-        ),
-        containerColor = White,
-        topBar = {
-            MyittarOoEmrAppBar(Modifier.fillMaxWidth())
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = {}) {
-                Icon(
-                    Icons.Filled.Add,
-                    "insert_data"
-                )
-            }
-        }) { values ->
-        MaterialTheme {
+    MyAppTheme {
+        Scaffold(
+            topBar = {
+                MyittarOoEmrAppBar(Modifier.fillMaxWidth())
+            },
+            floatingActionButton = {
+                FloatingActionButton(onClick = onClickAdd) {
+                    Icon(
+                        Icons.Filled.Add,
+                        "insert_data"
+                    )
+                }
+            }) { values ->
             Column(
                 modifier = Modifier.fillMaxSize()
-                    .padding(values)
+                    .padding(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = values.calculateTopPadding(),
+                        bottom = values.calculateBottomPadding()
+                    )
             ) {
 
                 SearchBar(searchTxt) { onValueChange ->
@@ -106,6 +99,7 @@ fun PatientScreen(
                     }
                 }
             }
+
         }
     }
 }
@@ -130,10 +124,8 @@ fun SearchBar(
         },
         shape = RoundedCornerShape(16.dp),
         colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = Green,
-            focusedIndicatorColor = BackgroundColor,
-            unfocusedIndicatorColor = BackgroundColor,
-            disabledContainerColor = BackgroundColor
+            focusedIndicatorColor = MaterialTheme.colorScheme.background,
+            unfocusedIndicatorColor = MaterialTheme.colorScheme.background,
         )
     )
 }
@@ -149,7 +141,7 @@ fun PatientCard(
     Card(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth()
-                .background(White)
+//                .background(White)
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {

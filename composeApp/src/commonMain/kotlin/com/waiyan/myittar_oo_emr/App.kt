@@ -2,6 +2,7 @@ package com.waiyan.myittar_oo_emr
 
 import androidx.compose.runtime.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.PatientFormScreen
 import com.waiyan.myittar_oo_emr.screen.component.patient_screen.PatientScreen
 import com.waiyan.myittar_oo_emr.screen.component.patient_screen.PatientViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -19,5 +20,5 @@ fun App(patientViewModel: PatientViewModel = koinViewModel<PatientViewModel>()) 
 
     }
 
-    PatientScreen()
+    PatientFormScreen()
 }
