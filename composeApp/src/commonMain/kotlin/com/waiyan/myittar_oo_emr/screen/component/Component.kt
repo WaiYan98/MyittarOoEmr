@@ -1,11 +1,14 @@
 package com.waiyan.myittar_oo_emr.screen.component
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -14,6 +17,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Report
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +32,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -143,6 +148,149 @@ fun LargeInputField(
     }
 
 }
+
+@Composable
+fun DisplayInfoCard(
+    label: String,
+    value: String
+
+) {
+    HorizontalDivider(
+        thickness = 1.dp,
+        color = MaterialTheme.colorScheme.primary
+    )
+    Box(
+        contentAlignment = Alignment.TopStart
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth()
+                .padding(top = 16.dp),
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Text(
+                modifier = Modifier.fillMaxWidth(0.25f),
+                text = label,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.TopStart
+            ) {
+                Text(
+                    value
+                )
+            }
+        }
+
+    }
+}
+
+@Composable
+fun TableHeader(
+    title1: String,
+    title2: String,
+    title3: String,
+    title4: String
+) {
+
+
+    Row(
+        modifier = Modifier.fillMaxWidth()
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.primary,
+                shape = RoundedCornerShape(
+                    topStart = 8.dp,
+                    topEnd = 8.dp
+                )
+            )
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Title(text = title1, fontSize = 16.sp)
+        }
+
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Title(text = title2, fontSize = 16.sp)
+        }
+
+
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Title(text = title3, fontSize = 16.sp)
+        }
+
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Title(text = title4, fontSize = 16.sp)
+        }
+    }
+}
+
+@Composable
+fun TableBody(
+    data1: String,
+    data2: String,
+    data3: String,
+    data4: String
+) {
+
+    Row(
+        modifier = Modifier.fillMaxWidth()
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text("10/05/2025")
+        }
+
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text("Common cold, slight fever.")
+        }
+
+
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(text = "Paracetamol, rest.")
+        }
+
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(text = " 5,000 MMK")
+        }
+    }
+
+}
+
+
+
 
 
 
