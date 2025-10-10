@@ -10,12 +10,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Report
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -287,6 +289,87 @@ fun TableBody(
         }
     }
 
+}
+
+@Composable
+fun TitleCard(
+    title1: String,
+    title2: String
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Card(
+            modifier = Modifier.wrapContentWidth(),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Box(
+                modifier = Modifier.wrapContentWidth()
+                    .padding(16.dp),
+            ) {
+                Title(text = title1, fontSize = 24.sp)
+            }
+        }
+
+        Card(
+            modifier = Modifier.wrapContentWidth(),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Box(
+                modifier = Modifier.wrapContentWidth()
+                    .padding(16.dp),
+            ) {
+                Title(text = title2, fontSize = 24.sp)
+            }
+        }
+    }
+}
+
+@Composable
+fun ReportCard(
+    title1: String,
+    value1: String,
+    title2: String,
+    value2: String
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Card(
+            modifier = Modifier.weight(1f),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(32.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.Start
+            ) {
+                Title(title1, fontSize = 16.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+                Title(value1, fontSize = 24.sp)
+            }
+        }
+
+        Spacer(Modifier.width(16.dp))
+
+        Card(
+            modifier = Modifier.weight(1f),
+            shape = RoundedCornerShape(8.dp),
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(32.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.Start
+            ) {
+                Title(title2, fontSize = 16.sp)
+                Spacer(modifier = Modifier.height(8.dp))
+                Title(value2, fontSize = 24.sp)
+            }
+        }
+    }
 }
 
 
