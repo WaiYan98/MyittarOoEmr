@@ -1,6 +1,5 @@
 package com.waiyan.myittar_oo_emr.screen.component.patient_form_screen
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,14 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,19 +25,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.waiyan.myittar_oo_emr.screen.component.AppBar
 import com.waiyan.myittar_oo_emr.screen.component.InputField
 import com.waiyan.myittar_oo_emr.screen.component.LargeInputField
 import com.waiyan.myittar_oo_emr.screen.component.Title
 import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
 
 @Composable
-fun PatientFormScreen() {
+fun PatientFormScreen(
+    onClickBack: () -> Unit,
+    onClickSave: () -> Unit,
+    onClickCancel: () -> Unit
+) {
 
     var selectedOption by remember { mutableStateOf("Male") }
 
     MyAppTheme {
         Scaffold(
-            topBar = { AppBar() }
+            topBar = {
+                AppBar(title = "Form", onClickBack)
+            }
         ) { values ->
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -57,27 +59,13 @@ fun PatientFormScreen() {
                     "",
                     {},
                     selectedOption,
-                    onSelectItem = { selectedOption = it })
+                    onSelectItem = { selectedOption = it },
+                    onClickSave = onClickSave,
+                    onClickCancel = onClickCancel
+                )
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AppBar() {
-    TopAppBar(
-        title = {
-            Row {
-
-                Image(
-                    Icons.Filled.Star,
-                    contentDescription = "logo"
-                )
-                Text("MyittarOoEmr")
-            }
-        }
-    )
 }
 
 @Composable
@@ -88,7 +76,9 @@ fun Form(
     age: String,
     onAgeChange: (String) -> Unit,
     selectedOption: String,
-    onSelectItem: (String) -> Unit
+    onSelectItem: (String) -> Unit,
+    onClickSave: () -> Unit,
+    onClickCancel: () -> Unit
 ) {
 
     LazyColumn(Modifier.padding(bottom = 24.dp)) {
@@ -252,7 +242,7 @@ fun Form(
 
                 Row(modifier = Modifier.align(Alignment.End)) {
                     Button(
-                        onClick = {},
+                        onClick = onClickCancel,
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text("Cancel")
@@ -260,8 +250,10 @@ fun Form(
 
                     Spacer(modifier = Modifier.width(16.dp))
 
-                    Button(onClick = {},
-                        shape = RoundedCornerShape(8.dp)) {
+                    Button(
+                        onClick = onClickSave,
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
                         Text("Save Patient")
                     }
 

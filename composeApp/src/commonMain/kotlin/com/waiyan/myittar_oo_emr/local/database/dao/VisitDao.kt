@@ -1,4 +1,4 @@
-package com.waiyan.myittar_oo_emr.local.database.Dao
+package com.waiyan.myittar_oo_emr.local.database.dao
 
 import androidx.room.Dao
 import androidx.room.Upsert

@@ -10,10 +10,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.waiyan.myittar_oo_emr.screen.component.MyittarOoEmrAppBar
 import com.waiyan.myittar_oo_emr.screen.component.ReportCard
 import com.waiyan.myittar_oo_emr.screen.component.TableBody
@@ -24,10 +29,23 @@ import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
 
 
 @Composable
-fun ReportScreen() {
+fun ReportScreen(navController: NavController) {
+
+    var selectedPageIndex by remember { mutableStateOf(1) }
+
     MyAppTheme {
         Scaffold(
-            topBar = { MyittarOoEmrAppBar(modifier = Modifier) }
+            topBar = {
+                MyittarOoEmrAppBar(
+                    modifier = Modifier,
+                    onClickReport = { selectedPageIndex = 1 },
+                    onClickHome = {
+                        navController.navigateUp()
+                        selectedPageIndex = 0
+                    },
+                    selectedPageIndex = selectedPageIndex
+                )
+            }
         ) { values ->
 
             Box(

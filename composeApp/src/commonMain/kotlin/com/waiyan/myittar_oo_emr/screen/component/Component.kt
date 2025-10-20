@@ -1,11 +1,14 @@
 package com.waiyan.myittar_oo_emr.screen.component
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -13,23 +16,27 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Report
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Diamond
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
@@ -38,48 +45,61 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyittarOoEmrAppBar(modifier: Modifier) {
-
+fun MyittarOoEmrAppBar(
+    modifier: Modifier,
+    onClickHome: () -> Unit,
+    onClickReport: () -> Unit,
+    selectedPageIndex: Int
+) {
     TopAppBar(
         title = {
-            Row {
-                Icon(
-                    Icons.Filled.Star,
-                    "logo"
-                )
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
 
+            ) {
+
+                IconButton(
+                    onClick = {},
+                ) {
+                    Icon(
+                        Icons.Filled.Diamond,
+                        "logo"
+                    )
+                }
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Text("Myittar Oo Emr")
             }
         },
         actions = {
-            IconButton(onClick = {}) {
-                Icon(
-                    Icons.Filled.Home,
-                    "home"
-                )
+            TextButton(
+                modifier = Modifier.border(
+                    1.dp,
+                    color = if (selectedPageIndex == 0) MaterialTheme.colorScheme.primary
+                    else Color(0x00000000),
+                    shape = RoundedCornerShape(16.dp)
+                ),
+                onClick = onClickHome,
+            ) {
+                Title("Home", fontSize = 24.sp)
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
-            IconButton(onClick = {}) {
-                Icon(
-                    Icons.Filled.History,
-                    "home"
-                )
+            TextButton(
+                modifier = Modifier.border(
+                    1.dp,
+                    color = if (selectedPageIndex == 1) MaterialTheme.colorScheme.primary
+                    else Color(0x00000000),
+                    shape = RoundedCornerShape(16.dp)
+                ),
+                onClick = onClickReport,
+            ) {
+                Title("Report", fontSize = 24.sp)
             }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            IconButton(onClick = {}) {
-                Icon(
-                    Icons.Filled.Report,
-                    "home"
-                )
-            }
-        })
-
+        }
+    )
 }
 
 @Composable
@@ -372,6 +392,43 @@ fun ReportCard(
     }
 }
 
+@Composable
+fun ShowLoading() {
+    Box(
+        modifier = Modifier.fillMaxSize()
+            .background(
+                Color(0x00000000)
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        CircularProgressIndicator(
+            color = Red
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AppBar(
+    title: String,
+    onClickBack: () -> Unit
+) {
+    TopAppBar(
+        navigationIcon = {
+            IconButton(
+                onClick = onClickBack,
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    "back_arrow"
+                )
+            }
+        },
+        title = {
+            Title(title, fontSize = 24.sp)
+        }
+    )
+}
 
 
 

@@ -31,8 +31,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,23 +46,47 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
 import com.waiyan.myittar_oo_emr.screen.component.MyittarOoEmrAppBar
+import com.waiyan.myittar_oo_emr.screen.component.PatientHistoryScreen
+import com.waiyan.myittar_oo_emr.screen.component.ReportScreen
+import com.waiyan.myittar_oo_emr.screen.component.ShowLoading
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun PatientScreen(
+    navController: NavController,
     patientViewModel: PatientViewModel = koinViewModel<PatientViewModel>(),
     onClickAdd: () -> Unit
 ) {
 
-    val patients by patientViewModel.patientFlow.collectAsStateWithLifecycle()
+    val uiState by patientViewModel.uiState.collectAsStateWithLifecycle()
     var searchTxt by mutableStateOf("")
+    var selectedPageIndex by remember { mutableStateOf(0) }
+
+    LaunchedEffect(key1 = Unit) {
+        patientViewModel.getAllPatient()
+    }
+
+
+
+    if (uiState.onError != null) {
+        //show error
+    }
 
     MyAppTheme {
         Scaffold(
             topBar = {
-                MyittarOoEmrAppBar(Modifier.fillMaxWidth())
+                MyittarOoEmrAppBar(
+                    Modifier.fillMaxWidth(),
+                    onClickHome = { selectedPageIndex = 0 },
+                    onClickReport = {
+                        navController.navigate(ReportScreen)
+                        selectedPageIndex = 1
+                    },
+                    selectedPageIndex = selectedPageIndex
+                )
             },
             floatingActionButton = {
                 FloatingActionButton(onClick = onClickAdd) {
@@ -70,7 +96,13 @@ fun PatientScreen(
                     )
                 }
             }) { values ->
-            Column(
+
+
+            if (uiState.isLoading) {
+                ShowLoading()
+            }
+
+            LazyColumn(
                 modifier = Modifier.fillMaxSize()
                     .padding(
                         start = 16.dp,
@@ -79,38 +111,46 @@ fun PatientScreen(
                         bottom = values.calculateBottomPadding()
                     )
             ) {
+                item {
+                    SearchBar(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = searchTxt,
+                    ) { onValueChange ->
+                        searchTxt = onValueChange
+                    }
 
-                SearchBar(searchTxt) { onValueChange ->
-                    searchTxt = onValueChange
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(patients) { patient ->
-                        PatientCard(
-                            id = patient.id.toString(),
-                            name = patient.name,
-                            age = patient.age.toString(),
-                            gender = "Male",
-                            address = patient.address
-                        )
-                        Spacer(Modifier.height(16.dp))
+                items(
+                    uiState.success,
+                    key = { patient -> patient.id }
+                ) { patient ->
+                    PatientCard(
+                        id = patient.id.toString(),
+                        name = patient.name,
+                        age = patient.age.toString(),
+                        gender = patient.gender,
+                        address = patient.address
+                    ) {
+                        navController.navigate(PatientHistoryScreen)
                     }
+                    Spacer(Modifier.height(16.dp))
                 }
             }
-
         }
+
     }
 }
 
 @Composable
 fun SearchBar(
+    modifier: Modifier,
     value: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
 ) {
     TextField(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier,
         value = value,
         onValueChange = onValueChange,
         leadingIcon = {
@@ -136,9 +176,13 @@ fun PatientCard(
     name: String,
     age: String,
     gender: String,
-    address: String
+    address: String,
+    onclickPatient: () -> Unit
 ) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onclickPatient
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth()
 //                .background(White)
@@ -151,7 +195,7 @@ fun PatientCard(
                 "profile_img",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.clip(CircleShape)
-                    .size(100.dp)
+                    .size(48.dp)
                     .background(Red)
             )
 

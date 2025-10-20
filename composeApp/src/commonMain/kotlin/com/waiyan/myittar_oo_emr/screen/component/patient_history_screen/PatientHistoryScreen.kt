@@ -16,19 +16,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.waiyan.myittar_oo_emr.screen.component.AppBar
 import com.waiyan.myittar_oo_emr.screen.component.DisplayInfoCard
-import com.waiyan.myittar_oo_emr.screen.component.MyittarOoEmrAppBar
 import com.waiyan.myittar_oo_emr.screen.component.TableBody
 import com.waiyan.myittar_oo_emr.screen.component.TableHeader
 import com.waiyan.myittar_oo_emr.screen.component.Title
 import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
 
 @Composable
-fun PatientHistoryScreen() {
+fun PatientHistoryScreen(
+    onClickBack: () -> Unit
+) {
 
     MyAppTheme {
         Scaffold(
-            topBar = { MyittarOoEmrAppBar(Modifier) }
+            topBar = { AppBar(title = "History", onClickBack) }
         ) { values ->
             Box(
                 modifier = Modifier.fillMaxSize()

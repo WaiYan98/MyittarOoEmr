@@ -13,12 +13,10 @@ class PatientViewModel(
     private val emrRepository: EmrRepository
 ) : ViewModel() {
 
-    init {
-        getAllPatient()
-    }
-
-    private var _patientFlow: MutableStateFlow<List<Patient>> = MutableStateFlow(emptyList())
-    val patientFlow: StateFlow<List<Patient>> = _patientFlow
+    private var _uiState: MutableStateFlow<PatientScreenUiState> = MutableStateFlow(
+        PatientScreenUiState()
+    )
+    val uiState: StateFlow<PatientScreenUiState> = _uiState
 
 
     fun insertPatient(patient: Patient) {
@@ -27,11 +25,12 @@ class PatientViewModel(
         }
     }
 
-    private fun getAllPatient() {
+    fun getAllPatient() {
         viewModelScope.launch {
+            _uiState.value = PatientScreenUiState(isLoading = true)
             emrRepository.getAllPatient()
                 .collect {
-                    _patientFlow.value = it
+                    _uiState.value = PatientScreenUiState(success = it)
                 }
         }
     }
