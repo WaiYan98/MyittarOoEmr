@@ -25,25 +25,41 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.waiyan.myittar_oo_emr.screen.component.AppBar
 import com.waiyan.myittar_oo_emr.screen.component.InputField
 import com.waiyan.myittar_oo_emr.screen.component.LargeInputField
 import com.waiyan.myittar_oo_emr.screen.component.Title
 import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun PatientFormScreen(
-    onClickBack: () -> Unit,
-    onClickSave: () -> Unit,
-    onClickCancel: () -> Unit
+    viewModel: PatientFormViewModel = koinViewModel<PatientFormViewModel>(),
+    navController: NavController
 ) {
 
-    var selectedOption by remember { mutableStateOf("Male") }
+    var name: String by remember { mutableStateOf("") }
+    var age: String by remember { mutableStateOf("") }
+    var phone: String by remember { mutableStateOf("") }
+    var address: String by remember { mutableStateOf("") }
+    var allergies: String by remember { mutableStateOf("") }
+    var chronicConditions: String by remember { mutableStateOf("") }
+    var currentMedication: String by remember { mutableStateOf("") }
+    var prescription: String by remember { mutableStateOf("") }
+    var fee: String by remember { mutableStateOf("") }
+    var diagnosis: String by remember { mutableStateOf("") }
+    var followUpDate: String by remember { mutableStateOf("") }
+    var reasonForFollowUp: String by remember { mutableStateOf("") }
+
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var selectedGender by remember { mutableStateOf(Gender.MALE) }
 
     MyAppTheme {
         Scaffold(
             topBar = {
-                AppBar(title = "Form", onClickBack)
+                AppBar(title = "Form", onClickBack = { navController.navigateUp() })
             }
         ) { values ->
             Box(
@@ -54,14 +70,53 @@ fun PatientFormScreen(
                     Modifier
                         .fillMaxWidth(0.75f)
                         .padding(values),
-                    "",
-                    {},
-                    "",
-                    {},
-                    selectedOption,
-                    onSelectItem = { selectedOption = it },
-                    onClickSave = onClickSave,
-                    onClickCancel = onClickCancel
+                    name = name,
+                    onNameChange = { name = it },
+                    age = age,
+                    onAgeChange = { age = it },
+                    phone = phone,
+                    onPhoneChange = { phone = it },
+                    address = address,
+                    onAddressChange = { address = it },
+                    allergies = allergies,
+                    onAllergiesChange = { allergies = it },
+                    chronicConditions = chronicConditions,
+                    onChronicConditionsChange = { chronicConditions = it },
+                    currentMedication = currentMedication,
+                    onCurrentMedicationChange = { currentMedication = it },
+                    prescription = prescription,
+                    onPrescriptionChange = { prescription = it },
+                    fee = fee,
+                    onFeeChange = { fee = it },
+                    diagnosis = diagnosis,
+                    onDiagnosisChange = { diagnosis = it },
+                    followUpDate = followUpDate,
+                    onFollowUpDateChange = { followUpDate = it },
+                    reasonForFollowUp = reasonForFollowUp,
+                    onReasonForFollowUpChange = { reasonForFollowUp = it },
+                    selectedOption = selectedGender,
+                    onSelectGender = { selectedGender = it },
+                    onClickSave = {
+                        viewModel.insertPatientInfo(
+                            name = name,
+                            age = age,
+                            gender = selectedGender,
+                            phone = phone,
+                            address = address,
+                            allergies = allergies,
+                            chronicConditions = chronicConditions,
+                            currentMedication = currentMedication,
+                            prescription = prescription,
+                            fee = fee,
+                            diagnosis = diagnosis,
+                            followUpDate = followUpDate,
+                            reasonForFollowUp = reasonForFollowUp
+                        )
+                        if (uiState.success) {
+                            navController.navigateUp()
+                        }
+                    },
+                    onClickCancel = { navController.navigateUp() }
                 )
             }
         }
@@ -75,8 +130,29 @@ fun Form(
     onNameChange: (String) -> Unit,
     age: String,
     onAgeChange: (String) -> Unit,
-    selectedOption: String,
-    onSelectItem: (String) -> Unit,
+    selectedOption: Gender,
+    onSelectGender: (Gender) -> Unit,
+    phone: String,
+    onPhoneChange: (String) -> Unit,
+    address: String,
+    onAddressChange: (String) -> Unit,
+    allergies: String,
+    onAllergiesChange: (String) -> Unit,
+    chronicConditions: String,
+    onChronicConditionsChange: (String) -> Unit,
+    currentMedication: String,
+    onCurrentMedicationChange: (String) -> Unit,
+    prescription: String,
+    onPrescriptionChange: (String) -> Unit,
+    fee: String,
+    onFeeChange: (String) -> Unit,
+    diagnosis: String,
+    onDiagnosisChange: (String) -> Unit,
+    followUpDate: String,
+    onFollowUpDateChange: (String) -> Unit,
+    reasonForFollowUp: String,
+    onReasonForFollowUpChange: (String) -> Unit,
+
     onClickSave: () -> Unit,
     onClickCancel: () -> Unit
 ) {
@@ -123,15 +199,15 @@ fun Form(
 
                 GenderFilterChip(
                     selectedOption = selectedOption,
-                    onSelectItem = onSelectItem
+                    onSelectItem = onSelectGender
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 InputField(
                     label = "Phone Number",
-                    value = age,
-                    onValueChange = onAgeChange,
+                    value = phone,
+                    onValueChange = onPhoneChange,
                     placeholder = "Enter phone number"
                 )
 
@@ -139,8 +215,8 @@ fun Form(
 
                 InputField(
                     label = "Address",
-                    value = age,
-                    onValueChange = onAgeChange,
+                    value = address,
+                    onValueChange = onAddressChange,
                     placeholder = "Enter address"
                 )
 
@@ -159,8 +235,8 @@ fun Form(
 
                 InputField(
                     label = "Known Allergies",
-                    value = age,
-                    onValueChange = onAgeChange,
+                    value = allergies,
+                    onValueChange = onAllergiesChange,
                     placeholder = "e.g.,  Penicillin, None _________"
                 )
 
@@ -168,8 +244,8 @@ fun Form(
 
                 InputField(
                     label = "Chronic Conditions",
-                    value = age,
-                    onValueChange = onAgeChange,
+                    value = chronicConditions,
+                    onValueChange = onChronicConditionsChange,
                     placeholder = "e.g.,Diabetes, High Blood Pressure"
                 )
 
@@ -177,8 +253,8 @@ fun Form(
 
                 InputField(
                     label = "Current Medications: What medicines they take every day.",
-                    value = age,
-                    onValueChange = onAgeChange,
+                    value = currentMedication,
+                    onValueChange = onCurrentMedicationChange,
                     placeholder = "e.g.,Aspirin, Metformin"
                 )
 
@@ -193,22 +269,24 @@ fun Form(
 
                 LargeInputField(
                     label = "Diagnosis / Reason for Visit",
-                    value = "",
-                    onValueChange = {})
+                    value = diagnosis,
+                    onValueChange = onDiagnosisChange
+                )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 LargeInputField(
                     label = "Prescription",
-                    value = "",
-                    onValueChange = {})
+                    value = prescription,
+                    onValueChange = onPrescriptionChange
+                )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 InputField(
                     label = "Consultation Fee (MMK)",
-                    value = age,
-                    onValueChange = onAgeChange,
+                    value = fee,
+                    onValueChange = onFeeChange,
                     placeholder = "Enter  consultation fee"
                 )
 
@@ -223,8 +301,8 @@ fun Form(
 
                 InputField(
                     label = "Follow-Up Date",
-                    value = age,
-                    onValueChange = onAgeChange,
+                    value = followUpDate,
+                    onValueChange = onFollowUpDateChange,
                     placeholder = "Pick a Date"
                 )
 
@@ -232,8 +310,8 @@ fun Form(
 
                 InputField(
                     label = "Reason for Follow-Up",
-                    value = age,
-                    onValueChange = onAgeChange,
+                    value = reasonForFollowUp,
+                    onValueChange = onReasonForFollowUpChange,
                     placeholder = "General check-up in 1 year"
                 )
 
@@ -270,10 +348,10 @@ fun Form(
 
 @Composable
 fun GenderFilterChip(
-    selectedOption: String,
-    onSelectItem: (String) -> Unit
+    selectedOption: Gender,
+    onSelectItem: (Gender) -> Unit
 ) {
-    val genderOptionList = listOf("Male", "Female", "Other")
+    val genderOptionList = listOf(Gender.MALE, Gender.FEMALE, Gender.OTHER)
 
     Row(
         modifier = Modifier.fillMaxSize(),
@@ -285,7 +363,7 @@ fun GenderFilterChip(
                 selected = option == selectedOption,
                 label = {
                     Text(
-                        option,
+                        option.name,
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
                 },

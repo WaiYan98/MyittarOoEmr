@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface EmrRepository {
 
-    suspend fun insertPatient(patient: Patient)
+    suspend fun insertPatient(patient: Patient): Result<Long>
     suspend fun insertMedicalInfo(medicalInfo: MedicalInfo)
     suspend fun insertVisit(visit: Visit)
     suspend fun insertFollowUp(followUp: FollowUp)

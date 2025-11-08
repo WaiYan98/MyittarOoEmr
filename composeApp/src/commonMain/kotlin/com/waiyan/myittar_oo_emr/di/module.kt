@@ -7,6 +7,7 @@ import com.waiyan.myittar_oo_emr.local.database.dao.PatientDao
 import com.waiyan.myittar_oo_emr.local.database.dao.VisitDao
 import com.waiyan.myittar_oo_emr.local_service.EmrRepository
 import com.waiyan.myittar_oo_emr.local_service.EmrRepositoryImpl
+import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.PatientFormViewModel
 import com.waiyan.myittar_oo_emr.screen.component.patient_screen.PatientViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind
@@ -19,6 +20,7 @@ expect val platformModule: Module
 val shareModule = module {
     singleOf(::EmrRepositoryImpl) { bind<EmrRepository>() }
     viewModelOf(::PatientViewModel)
+    viewModelOf(::PatientFormViewModel)
     single<PatientDao> { get<EmrDatabase>().getPatientDao() }
     single<MedicalInfoDao> { get<EmrDatabase>().getMedicalInfoDao() }
     single<VisitDao> { get<EmrDatabase>().getVisitDao() }

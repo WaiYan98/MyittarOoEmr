@@ -22,9 +22,11 @@ class EmrRepositoryImpl(
     private val followUpDao: FollowUpDao
 ) : EmrRepository {
 
-    override suspend fun insertPatient(patient: Patient) = withContext(Dispatchers.IO) {
-        patientDao.insertPatient(patient)
-    }
+    override suspend fun insertPatient(patient: Patient): Result<Long> = withContext(Dispatchers.IO) {
+            runCatching {
+               patientDao.insertPatient(patient)
+            }
+        }
 
     override suspend fun insertMedicalInfo(medicalInfo: MedicalInfo) = withContext(Dispatchers.IO) {
         medicalInfoDao.insert(medicalInfo)
@@ -38,7 +40,12 @@ class EmrRepositoryImpl(
         followUpDao.insert(followUp)
     }
 
-    override fun getAllPatient(): Flow<List<Patient>> = patientDao.getAllPatient()
+    override fun getAllPatient(): Flow<List<Patient>> = try {
+        patientDao.getAllPatient()
+    } catch (e: Exception) {
+        throw Exception(e.message)
+    }
+
 
     override fun getPatientWithDetail(patientId: Long): Flow<PatientWithDetail> =
         patientDao.getPatientWithDetail(patientId)

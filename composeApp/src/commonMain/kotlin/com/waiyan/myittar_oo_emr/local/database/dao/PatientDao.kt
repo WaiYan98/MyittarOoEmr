@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 interface PatientDao {
 
     @Insert
-    suspend fun insertPatient(patient: Patient)
+    suspend fun insertPatient(patient: Patient): Long
 
     @Query("SELECT * FROM Patient")
     fun getAllPatient(): Flow<List<Patient>>

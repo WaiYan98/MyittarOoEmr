@@ -40,10 +40,7 @@ fun MyittarOoEmrApp() {
         }
 
         composable<PatientFormScreen> {
-            PatientFormScreen(
-                onClickSave = { navController.navigateUp() },
-                onClickCancel = { navController.navigateUp() },
-                onClickBack = { navController.navigateUp() })
+            PatientFormScreen(navController = navController)
         }
 
         composable<ReportScreen> {
