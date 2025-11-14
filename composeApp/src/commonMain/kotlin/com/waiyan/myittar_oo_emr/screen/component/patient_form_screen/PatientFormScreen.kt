@@ -13,16 +13,22 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -52,14 +58,32 @@ fun PatientFormScreen(
     var diagnosis: String by remember { mutableStateOf("") }
     var followUpDate: String by remember { mutableStateOf("") }
     var reasonForFollowUp: String by remember { mutableStateOf("") }
+    val snackBarHotState = remember { SnackbarHostState() }
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var selectedGender by remember { mutableStateOf(Gender.MALE) }
+
+    LaunchedEffect(key1 = uiState.success) {
+        if (uiState.success == "Success") {
+            navController.navigateUp()
+        }
+    }
+
+    LaunchedEffect(key1 = uiState.onError) {
+        uiState.onError?.let { error ->
+            snackBarHotState.showSnackbar(error)
+            viewModel.onClearError()
+        }
+    }
+
 
     MyAppTheme {
         Scaffold(
             topBar = {
                 AppBar(title = "Form", onClickBack = { navController.navigateUp() })
+            },
+            snackbarHost = {
+                SnackbarHost(hostState = snackBarHotState)
             }
         ) { values ->
             Box(
@@ -112,9 +136,6 @@ fun PatientFormScreen(
                             followUpDate = followUpDate,
                             reasonForFollowUp = reasonForFollowUp
                         )
-                        if (uiState.success) {
-                            navController.navigateUp()
-                        }
                     },
                     onClickCancel = { navController.navigateUp() }
                 )
@@ -192,7 +213,8 @@ fun Form(
                     label = "Age",
                     value = age,
                     onValueChange = onAgeChange,
-                    placeholder = "36 years"
+                    placeholder = "36 years",
+                    keyboardType = KeyboardType.Number
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -208,7 +230,8 @@ fun Form(
                     label = "Phone Number",
                     value = phone,
                     onValueChange = onPhoneChange,
-                    placeholder = "Enter phone number"
+                    placeholder = "Enter phone number",
+                    keyboardType = KeyboardType.Number
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -287,7 +310,8 @@ fun Form(
                     label = "Consultation Fee (MMK)",
                     value = fee,
                     onValueChange = onFeeChange,
-                    placeholder = "Enter  consultation fee"
+                    placeholder = "Enter  consultation fee",
+                    keyboardType = KeyboardType.Number
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -308,12 +332,24 @@ fun Form(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                InputField(
-                    label = "Reason for Follow-Up",
-                    value = reasonForFollowUp,
-                    onValueChange = onReasonForFollowUpChange,
-                    placeholder = "General check-up in 1 year"
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    InputField(
+                        label = "Reason for Follow-Up",
+                        value = reasonForFollowUp,
+                        onValueChange = onReasonForFollowUpChange,
+                        placeholder = "General check-up in 1 year"
+                    )
+
+                    Checkbox(
+                        checked = true,
+                        onCheckedChange = {
+
+                        })
+
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 

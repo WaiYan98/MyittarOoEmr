@@ -9,6 +9,7 @@ import com.waiyan.myittar_oo_emr.local_service.EmrRepository
 import com.waiyan.myittar_oo_emr.local_service.EmrRepositoryImpl
 import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.PatientFormViewModel
 import com.waiyan.myittar_oo_emr.screen.component.patient_screen.PatientViewModel
+import com.waiyan.myittar_oo_emr.usecase.PatientFormUseCase
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
@@ -25,4 +26,5 @@ val shareModule = module {
     single<MedicalInfoDao> { get<EmrDatabase>().getMedicalInfoDao() }
     single<VisitDao> { get<EmrDatabase>().getVisitDao() }
     single<FollowUpDao> { get<EmrDatabase>().getFollowUpDao() }
+    singleOf(::PatientFormUseCase)
 }

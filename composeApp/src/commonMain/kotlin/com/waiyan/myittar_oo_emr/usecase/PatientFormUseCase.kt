@@ -21,7 +21,8 @@ class PatientFormUseCase(
             patientForm.name,
             patientForm.age,
             patientForm.phone,
-            patientForm.address
+            patientForm.address,
+            patientForm.fee
         )
         return when (isValidate) {
             is ValidationResult.Success -> {
@@ -29,31 +30,32 @@ class PatientFormUseCase(
                 val result = emrRepository.insertPatient(patient)
                 result.fold(
                     onSuccess = { id ->
-                        coroutineScope {
-                            val medicalInfo = patientForm.patientFormToMedicalInfo(id)
-                            val followUp = patientForm.patientFormToFollowUp(id)
-                            val visit = patientForm.patientFormToVisit(id)
-
+                        return runCatching {
                             coroutineScope {
-                                val medicalInfoDeferred =
-                                    async { emrRepository.insertMedicalInfo(medicalInfo) }
-                                val visitDeferred = async { emrRepository.insertVisit(visit) }
-                                val followUpDeferred =
-                                    async { emrRepository.insertFollowUp(followUp) }
+                                val medicalInfo = patientForm.patientFormToMedicalInfo(id)
+                                val followUp = patientForm.patientFormToFollowUp(id)
+                                val visit = patientForm.patientFormToVisit(id)
 
-                                awaitAll(medicalInfoDeferred, visitDeferred, followUpDeferred)
+                                coroutineScope {
+                                    val medicalInfoDeferred =
+                                        async { emrRepository.insertMedicalInfo(medicalInfo) }
+                                    val visitDeferred = async { emrRepository.insertVisit(visit) }
+                                    val followUpDeferred =
+                                        async { emrRepository.insertFollowUp(followUp) }
 
-                                Result.success(Unit)
+                                    awaitAll(medicalInfoDeferred, visitDeferred, followUpDeferred)
+                                    Result.success(Unit)
+                                }
                             }
                         }
                     },
-                    onFailure = {
-                        Result.failure(Exception())
+                    onFailure = { exception ->
+                        Result.failure(exception)
                     })
             }
 
             is ValidationResult.Failure -> {
-                Result.failure<Unit>(exception = Exception(isValidate.message))
+                Result.failure(exception = Exception(isValidate.message))
             }
         }
     }
@@ -94,4 +96,4 @@ class PatientFormUseCase(
             reasonForVisit = this.reasonForFollowUp
         )
     }
-
+}
