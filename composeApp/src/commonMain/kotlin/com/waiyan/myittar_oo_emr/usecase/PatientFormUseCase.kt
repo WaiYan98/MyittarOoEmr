@@ -7,16 +7,21 @@ import com.waiyan.myittar_oo_emr.data.entity.MedicalInfo
 import com.waiyan.myittar_oo_emr.data.entity.Patient
 import com.waiyan.myittar_oo_emr.data.entity.Visit
 import com.waiyan.myittar_oo_emr.local_service.EmrRepository
+import com.waiyan.myittar_oo_emr.util.LocalTime
 import com.waiyan.myittar_oo_emr.util.Validator
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.datetime.LocalDate
 
 class PatientFormUseCase(
-    private val emrRepository: EmrRepository
+    private val emrRepository: EmrRepository,
 ) {
 
-    suspend fun insertPatientInfo(patientForm: PatientForm): Result<Unit> {
+    suspend fun insertPatientInfo(
+        patientForm: PatientForm,
+        isFollowUpCheckBoxChecked: Boolean
+    ): Result<Unit> {
         val isValidate = Validator.validatePatientInfo(
             patientForm.name,
             patientForm.age,
@@ -33,17 +38,21 @@ class PatientFormUseCase(
                         return runCatching {
                             coroutineScope {
                                 val medicalInfo = patientForm.patientFormToMedicalInfo(id)
-                                val followUp = patientForm.patientFormToFollowUp(id)
                                 val visit = patientForm.patientFormToVisit(id)
 
                                 coroutineScope {
                                     val medicalInfoDeferred =
                                         async { emrRepository.insertMedicalInfo(medicalInfo) }
                                     val visitDeferred = async { emrRepository.insertVisit(visit) }
-                                    val followUpDeferred =
-                                        async { emrRepository.insertFollowUp(followUp) }
 
-                                    awaitAll(medicalInfoDeferred, visitDeferred, followUpDeferred)
+                                    if (isFollowUpCheckBoxChecked) {
+                                        val followUp = patientForm.patientFormToFollowUp(id)
+                                        val followUpDeferred =
+                                            async { emrRepository.insertFollowUp(followUp) }
+                                        followUpDeferred.await()
+                                    }
+
+                                    awaitAll(medicalInfoDeferred, visitDeferred)
                                     Result.success(Unit)
                                 }
                             }
@@ -82,7 +91,7 @@ class PatientFormUseCase(
     private fun PatientForm.patientFormToVisit(patientId: Long): Visit {
         return Visit(
             patientId = patientId,
-            date = "",
+            date = LocalTime.getCurrentTimeMillis(),
             diagnosis = this.diagnosis,
             prescription = this.prescription,
             fee = this.fee.toLong()

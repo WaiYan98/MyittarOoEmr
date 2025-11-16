@@ -64,6 +64,9 @@ kotlin {
 
             //navigation
             implementation(libs.navigation.compose)
+
+            //kotlinXDateTime
+            implementation(libs.kotlinx.datetime)
         }
 
         commonTest.dependencies {

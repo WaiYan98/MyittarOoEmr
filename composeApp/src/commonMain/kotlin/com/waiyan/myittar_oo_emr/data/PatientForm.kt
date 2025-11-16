@@ -14,6 +14,6 @@ data class PatientForm(
     val prescription: String,
     val fee: String,
     val diagnosis: String,
-    val followUpDate: String,
+    val followUpDate: Long,
     val reasonForFollowUp: String
 )

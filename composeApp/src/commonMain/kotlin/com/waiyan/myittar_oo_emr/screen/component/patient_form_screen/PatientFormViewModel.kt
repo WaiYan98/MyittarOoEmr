@@ -35,8 +35,9 @@ class PatientFormViewModel(
         prescription: String,
         fee: String,
         diagnosis: String,
-        followUpDate: String,
-        reasonForFollowUp: String
+        followUpDate: Long,
+        reasonForFollowUp: String,
+        isChecked:Boolean
     ) = viewModelScope.launch {
         _uiState.value = PatientFormUiState(isLoading = true)
         val patientForm = PatientForm(
@@ -54,7 +55,7 @@ class PatientFormViewModel(
             followUpDate = followUpDate,
             reasonForFollowUp = reasonForFollowUp
         )
-        patientFormUseCase.insertPatientInfo(patientForm)
+        patientFormUseCase.insertPatientInfo(patientForm,isChecked)
             .fold(
                 onSuccess = {
                     _uiState.value = PatientFormUiState(success = "Success")

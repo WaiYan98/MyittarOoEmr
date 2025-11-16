@@ -8,7 +8,7 @@ data class Visit(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,
     val patientId: Long,
-    val date: String,
+    val date: Long,
     val diagnosis: String,
     val prescription: String,
     val fee: Long

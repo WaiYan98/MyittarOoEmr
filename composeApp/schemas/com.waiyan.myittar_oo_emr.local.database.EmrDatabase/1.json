@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "4d9c5155f49dce842bac92f0b1f0ba0d",
+    "identityHash": "65bfebbfc0cc96e510dd4d6a29d7f7cf",
     "entities": [
       {
         "tableName": "Patient",
@@ -96,7 +96,7 @@
       },
       {
         "tableName": "FollowUp",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `patientId` INTEGER NOT NULL, `date` TEXT NOT NULL, `reasonForVisit` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `patientId` INTEGER NOT NULL, `date` INTEGER NOT NULL, `reasonForVisit` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -113,7 +113,7 @@
           {
             "fieldPath": "date",
             "columnName": "date",
-            "affinity": "TEXT",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -132,7 +132,7 @@
       },
       {
         "tableName": "Visit",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `patientId` INTEGER NOT NULL, `date` TEXT NOT NULL, `diagnosis` TEXT NOT NULL, `prescription` TEXT NOT NULL, `fee` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `patientId` INTEGER NOT NULL, `date` INTEGER NOT NULL, `diagnosis` TEXT NOT NULL, `prescription` TEXT NOT NULL, `fee` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -149,7 +149,7 @@
           {
             "fieldPath": "date",
             "columnName": "date",
-            "affinity": "TEXT",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -181,7 +181,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4d9c5155f49dce842bac92f0b1f0ba0d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '65bfebbfc0cc96e510dd4d6a29d7f7cf')"
     ]
   }
 }

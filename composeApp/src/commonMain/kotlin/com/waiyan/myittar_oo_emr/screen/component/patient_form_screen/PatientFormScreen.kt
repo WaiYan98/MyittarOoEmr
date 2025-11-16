@@ -1,5 +1,7 @@
 package com.waiyan.myittar_oo_emr.screen.component.patient_form_screen
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,14 +14,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,6 +48,7 @@ import com.waiyan.myittar_oo_emr.screen.component.InputField
 import com.waiyan.myittar_oo_emr.screen.component.LargeInputField
 import com.waiyan.myittar_oo_emr.screen.component.Title
 import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
+import com.waiyan.myittar_oo_emr.util.LocalTime
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -59,6 +70,8 @@ fun PatientFormScreen(
     var followUpDate: String by remember { mutableStateOf("") }
     var reasonForFollowUp: String by remember { mutableStateOf("") }
     val snackBarHotState = remember { SnackbarHostState() }
+    var isChecked by remember { mutableStateOf(false) }
+    var followUpTimeStamp by remember { mutableStateOf(0L) }
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var selectedGender by remember { mutableStateOf(Gender.MALE) }
@@ -133,11 +146,16 @@ fun PatientFormScreen(
                             prescription = prescription,
                             fee = fee,
                             diagnosis = diagnosis,
-                            followUpDate = followUpDate,
-                            reasonForFollowUp = reasonForFollowUp
+                            followUpDate = followUpTimeStamp,
+                            reasonForFollowUp = reasonForFollowUp,
+                            isChecked = isChecked
                         )
                     },
-                    onClickCancel = { navController.navigateUp() }
+                    onClickCancel = { navController.navigateUp() },
+                    isChecked = isChecked,
+                    onCheckedChange = { isChecked = it },
+                    followUpTimeStamp = followUpTimeStamp,
+                    followUpTimeStampChange = { followUpTimeStamp = it }
                 )
             }
         }
@@ -173,7 +191,10 @@ fun Form(
     onFollowUpDateChange: (String) -> Unit,
     reasonForFollowUp: String,
     onReasonForFollowUpChange: (String) -> Unit,
-
+    isChecked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    followUpTimeStamp: Long,
+    followUpTimeStampChange: (Long) -> Unit,
     onClickSave: () -> Unit,
     onClickCancel: () -> Unit
 ) {
@@ -201,6 +222,7 @@ fun Form(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 InputField(
+                    modifier = Modifier,
                     label = "Full Name",
                     value = name,
                     onValueChange = onNameChange,
@@ -210,6 +232,7 @@ fun Form(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 InputField(
+                    modifier = Modifier,
                     label = "Age",
                     value = age,
                     onValueChange = onAgeChange,
@@ -227,6 +250,7 @@ fun Form(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 InputField(
+                    modifier = Modifier,
                     label = "Phone Number",
                     value = phone,
                     onValueChange = onPhoneChange,
@@ -237,6 +261,7 @@ fun Form(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 InputField(
+                    modifier = Modifier,
                     label = "Address",
                     value = address,
                     onValueChange = onAddressChange,
@@ -257,6 +282,7 @@ fun Form(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 InputField(
+                    modifier = Modifier,
                     label = "Known Allergies",
                     value = allergies,
                     onValueChange = onAllergiesChange,
@@ -266,6 +292,7 @@ fun Form(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 InputField(
+                    modifier = Modifier,
                     label = "Chronic Conditions",
                     value = chronicConditions,
                     onValueChange = onChronicConditionsChange,
@@ -275,6 +302,7 @@ fun Form(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 InputField(
+                    modifier = Modifier,
                     label = "Current Medications: What medicines they take every day.",
                     value = currentMedication,
                     onValueChange = onCurrentMedicationChange,
@@ -307,6 +335,7 @@ fun Form(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 InputField(
+                    modifier = Modifier,
                     label = "Consultation Fee (MMK)",
                     value = fee,
                     onValueChange = onFeeChange,
@@ -316,40 +345,32 @@ fun Form(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Title(
-                    "Needs Follow-Up?",
-                    fontSize = 24.sp
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                InputField(
-                    label = "Follow-Up Date",
-                    value = followUpDate,
-                    onValueChange = onFollowUpDateChange,
-                    placeholder = "Pick a Date"
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    InputField(
-                        label = "Reason for Follow-Up",
-                        value = reasonForFollowUp,
-                        onValueChange = onReasonForFollowUpChange,
-                        placeholder = "General check-up in 1 year"
+                    Title(
+                        "Needs Follow-Up?",
+                        fontSize = 24.sp
                     )
 
                     Checkbox(
-                        checked = true,
-                        onCheckedChange = {
-
-                        })
-
+                        checked = isChecked,
+                        onCheckedChange = onCheckedChange
+                    )
                 }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                if (isChecked) ShowFollowUpForm(
+                    followUpDate = followUpDate,
+                    onFollowUpDateChange = onFollowUpDateChange,
+                    reasonForFollowUp = reasonForFollowUp,
+                    onReasonForFollowUpChange = onReasonForFollowUpChange,
+                    followUpTimeStamp = followUpTimeStamp,
+                    followUpTimeStampChange = followUpTimeStampChange
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -378,7 +399,85 @@ fun Form(
         }
 
     }
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ShowFollowUpForm(
+    followUpTimeStamp: Long,
+    followUpTimeStampChange: (Long) -> Unit,
+    followUpDate: String,
+    onFollowUpDateChange: (String) -> Unit,
+    reasonForFollowUp: String,
+    onReasonForFollowUpChange: (String) -> Unit
+) {
+
+    var showDatePicker by remember { mutableStateOf(false) }
+
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState()
+        DatePickerDialog(
+            confirmButton = {
+                Button(
+                    content = { Text("Confirm") },
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { timeStamp ->
+                            val followUpDate = LocalTime.getHumanDate(timeStamp)
+                            onFollowUpDateChange(followUpDate)
+                            followUpTimeStampChange(timeStamp)
+                            showDatePicker = false
+                        }
+                    }
+                )
+            },
+            dismissButton = {
+                Button(
+                    content = { Text("Cancle") },
+                    onClick = {
+                        showDatePicker = false
+                    }
+                )
+            },
+            onDismissRequest = {
+                showDatePicker = false
+            },
+            content = {
+                DatePicker(state = datePickerState)
+            }
+        )
+    }
+
+    Box {
+        InputField(
+            modifier = Modifier.clickable { showDatePicker = true },
+            readOnly = true,
+            label = "Follow-Up Date",
+            value = followUpDate,
+            onValueChange = {},
+            placeholder = "Pick a Date",
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.DateRange,
+                    contentDescription = "Date Icon"
+                )
+            }
+        )
+
+        Spacer(
+            modifier = Modifier.matchParentSize()
+                .background(Color.Transparent)
+                .clickable { showDatePicker = true })
+    }
+
+    Spacer(modifier = Modifier.height(24.dp))
+
+    InputField(
+        modifier = Modifier,
+        label = "Reason for Follow-Up",
+        value = reasonForFollowUp,
+        onValueChange = onReasonForFollowUpChange,
+        placeholder = "General check-up in 1 year"
+    )
 }
 
 
