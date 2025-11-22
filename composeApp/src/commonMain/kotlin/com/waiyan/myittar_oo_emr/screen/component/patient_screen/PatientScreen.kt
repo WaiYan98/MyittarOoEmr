@@ -132,8 +132,8 @@ fun PatientScreen(
                         age = patient.age.toString(),
                         gender = patient.gender,
                         address = patient.address
-                    ) {
-                        navController.navigate(PatientHistoryScreen)
+                    ) { patientId ->
+                        navController.navigate(PatientHistoryScreen(patientId))
                     }
                     Spacer(Modifier.height(16.dp))
                 }
@@ -177,11 +177,11 @@ fun PatientCard(
     age: String,
     gender: String,
     address: String,
-    onclickPatient: () -> Unit
+    onclickPatient: (Long) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        onClick = onclickPatient
+        onClick = { onclickPatient(id.toLong()) }
     ) {
         Row(
             modifier = Modifier.fillMaxWidth()

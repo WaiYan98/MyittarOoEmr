@@ -14,7 +14,7 @@ import kotlinx.serialization.Serializable
 object PatientScreen
 
 @Serializable
-object PatientHistoryScreen
+data class PatientHistoryScreen(val patientId: Long)
 
 @Serializable
 object PatientFormScreen

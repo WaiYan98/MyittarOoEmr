@@ -56,6 +56,6 @@ fun PatientForm.patientFormToFollowUp(patientId: Long): FollowUp {
     return FollowUp(
         patientId = patientId,
         date = this.followUpDate,
-        reasonForVisit = this.reasonForFollowUp
+        reasonForFollowUp = this.reasonForFollowUp
     )
 }

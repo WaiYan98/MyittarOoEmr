@@ -12,7 +12,7 @@ object LocalTime {
 
     @OptIn(ExperimentalTime::class)
     fun getCurrentTimeMillis(): Long {
-        return Clock.System.now().epochSeconds
+        return Clock.System.now().toEpochMilliseconds()
     }
 
     @OptIn(ExperimentalTime::class)

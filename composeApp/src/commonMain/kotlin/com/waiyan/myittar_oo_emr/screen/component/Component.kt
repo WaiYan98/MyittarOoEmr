@@ -295,14 +295,14 @@ fun TableBody(
             modifier = Modifier.weight(1f),
             contentAlignment = Alignment.CenterStart
         ) {
-            Text("10/05/2025")
+            Text(data1)
         }
 
         Box(
             modifier = Modifier.weight(1f),
             contentAlignment = Alignment.CenterStart
         ) {
-            Text("Common cold, slight fever.")
+            Text(data2)
         }
 
 
@@ -310,14 +310,14 @@ fun TableBody(
             modifier = Modifier.weight(1f),
             contentAlignment = Alignment.CenterStart
         ) {
-            Text(text = "Paracetamol, rest.")
+            Text(text = data3)
         }
 
         Box(
             modifier = Modifier.weight(1f),
             contentAlignment = Alignment.CenterStart
         ) {
-            Text(text = " 5,000 MMK")
+            Text(text = data4)
         }
     }
 

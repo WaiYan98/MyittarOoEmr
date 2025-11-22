@@ -1,5 +1,6 @@
 package com.waiyan.myittar_oo_emr.usecase
 
+import androidx.compose.ui.util.packFloats
 import com.waiyan.myittar_oo_emr.data.PatientForm
 import com.waiyan.myittar_oo_emr.data.ValidationResult
 import com.waiyan.myittar_oo_emr.data.patientFormToFollowUp
@@ -8,7 +9,6 @@ import com.waiyan.myittar_oo_emr.data.patientFormToPatient
 import com.waiyan.myittar_oo_emr.data.patientFormToVisit
 import com.waiyan.myittar_oo_emr.local_service.EmrRepository
 import com.waiyan.myittar_oo_emr.util.Validator
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -16,26 +16,37 @@ import kotlinx.coroutines.coroutineScope
 class PatientFormUseCase(
     private val emrRepository: EmrRepository,
 ) {
-
     suspend fun insertPatientInfo(
         patientForm: PatientForm,
         isFollowUpCheckBoxChecked: Boolean
     ): Result<Unit> {
-        val isValidate = Validator.validatePatientInfo(
+        val isValidatePatient = Validator.validatePatientInfo(
             patientForm.name,
             patientForm.age,
             patientForm.phone,
             patientForm.address,
-            patientForm.fee
         )
 
-        if (isValidate is ValidationResult.Failure) {
-            return Result.failure(Exception(isValidate.message))
+        if (isValidatePatient is ValidationResult.Failure) {
+            return Result.failure(Exception(isValidatePatient.message))
+        }
+
+        val isValidateVisitAndFollowUp = Validator.validateVisitAndFollowUp(
+            diagnosis = patientForm.diagnosis,
+            prescription = patientForm.prescription,
+            fee = patientForm.fee,
+            followUpDate = patientForm.followUpDate,
+            reasonForFollowUp = patientForm.reasonForFollowUp,
+            isCheckedFollowUP = isFollowUpCheckBoxChecked
+        )
+
+        if (isValidateVisitAndFollowUp is ValidationResult.Failure) {
+            return Result.failure(Exception(isValidateVisitAndFollowUp.message))
         }
 
         val patient = patientForm.patientFormToPatient()
         val patientId = emrRepository.insertPatient(patient).getOrElse { exception ->
-            return Result.failure(Exception(exception.message))
+            return Result.failure(exception)
         }
 
         return runCatching {

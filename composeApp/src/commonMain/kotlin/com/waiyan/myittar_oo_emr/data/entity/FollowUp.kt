@@ -9,5 +9,5 @@ data class FollowUp(
     val id: Long = 0L,
     val patientId: Long,
     val date: Long,
-    val reasonForVisit: String
+    val reasonForFollowUp: String
 )

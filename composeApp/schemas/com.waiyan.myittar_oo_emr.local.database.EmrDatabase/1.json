@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "65bfebbfc0cc96e510dd4d6a29d7f7cf",
+    "identityHash": "de0f79b7b1e103c903a013d5db469781",
     "entities": [
       {
         "tableName": "Patient",
@@ -96,7 +96,7 @@
       },
       {
         "tableName": "FollowUp",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `patientId` INTEGER NOT NULL, `date` INTEGER NOT NULL, `reasonForVisit` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `patientId` INTEGER NOT NULL, `date` INTEGER NOT NULL, `reasonForFollowUp` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -117,8 +117,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "reasonForVisit",
-            "columnName": "reasonForVisit",
+            "fieldPath": "reasonForFollowUp",
+            "columnName": "reasonForFollowUp",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -181,7 +181,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '65bfebbfc0cc96e510dd4d6a29d7f7cf')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'de0f79b7b1e103c903a013d5db469781')"
     ]
   }
 }

@@ -309,65 +309,26 @@ fun Form(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Title(
-                    "Details for Today's Visit",
-                    fontSize = 24.sp
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                LargeInputField(
-                    label = "Diagnosis / Reason for Visit",
-                    value = diagnosis,
-                    onValueChange = onDiagnosisChange
+                VisitForm(
+                    diagnosis = diagnosis,
+                    onDiagnosisChange = onDiagnosisChange,
+                    prescription = prescription,
+                    onPrescriptionChange = onPrescriptionChange,
+                    fee = fee,
+                    onFeeChange = onFeeChange
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                LargeInputField(
-                    label = "Prescription",
-                    value = prescription,
-                    onValueChange = onPrescriptionChange
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                InputField(
-                    modifier = Modifier,
-                    label = "Consultation Fee (MMK)",
-                    value = fee,
-                    onValueChange = onFeeChange,
-                    placeholder = "Enter  consultation fee",
-                    keyboardType = KeyboardType.Number
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Title(
-                        "Needs Follow-Up?",
-                        fontSize = 24.sp
-                    )
-
-                    Checkbox(
-                        checked = isChecked,
-                        onCheckedChange = onCheckedChange
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                if (isChecked) ShowFollowUpForm(
+                ShowFollowUpForm(
+                    followUpTimeStamp = followUpTimeStamp,
+                    isChecked = isChecked,
+                    onCheckedChange = onCheckedChange,
+                    followUpTimeStampChange = followUpTimeStampChange,
                     followUpDate = followUpDate,
                     onFollowUpDateChange = onFollowUpDateChange,
                     reasonForFollowUp = reasonForFollowUp,
-                    onReasonForFollowUpChange = onReasonForFollowUpChange,
-                    followUpTimeStamp = followUpTimeStamp,
-                    followUpTimeStampChange = followUpTimeStampChange
+                    onReasonForFollowUpChange = onReasonForFollowUpChange
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -401,80 +362,142 @@ fun Form(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ShowFollowUpForm(
+fun ShowFollowUpForm(
     followUpTimeStamp: Long,
+    isChecked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
     followUpTimeStampChange: (Long) -> Unit,
     followUpDate: String,
     onFollowUpDateChange: (String) -> Unit,
     reasonForFollowUp: String,
     onReasonForFollowUpChange: (String) -> Unit
 ) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Title(
+            "Needs Follow-Up?",
+            fontSize = 24.sp
+        )
 
-    var showDatePicker by remember { mutableStateOf(false) }
+        Checkbox(
+            checked = isChecked,
+            onCheckedChange = onCheckedChange
+        )
+    }
 
-    if (showDatePicker) {
-        val datePickerState = rememberDatePickerState()
-        DatePickerDialog(
-            confirmButton = {
-                Button(
-                    content = { Text("Confirm") },
-                    onClick = {
-                        datePickerState.selectedDateMillis?.let { timeStamp ->
-                            val followUpDate = LocalTime.getHumanDate(timeStamp)
-                            onFollowUpDateChange(followUpDate)
-                            followUpTimeStampChange(timeStamp)
+    if (isChecked) {
+        var showDatePicker by remember { mutableStateOf(false) }
+
+        if (showDatePicker) {
+            val datePickerState = rememberDatePickerState()
+            DatePickerDialog(
+                confirmButton = {
+                    Button(
+                        content = { Text("Confirm") },
+                        onClick = {
+                            datePickerState.selectedDateMillis?.let { timeStamp ->
+                                val followUpDate = LocalTime.getHumanDate(timeStamp)
+                                onFollowUpDateChange(followUpDate)
+                                followUpTimeStampChange(timeStamp)
+                                showDatePicker = false
+                            }
+                        }
+                    )
+                },
+                dismissButton = {
+                    Button(
+                        content = { Text("Cancle") },
+                        onClick = {
                             showDatePicker = false
                         }
-                    }
-                )
-            },
-            dismissButton = {
-                Button(
-                    content = { Text("Cancle") },
-                    onClick = {
-                        showDatePicker = false
-                    }
-                )
-            },
-            onDismissRequest = {
-                showDatePicker = false
-            },
-            content = {
-                DatePicker(state = datePickerState)
-            }
-        )
-    }
+                    )
+                },
+                onDismissRequest = {
+                    showDatePicker = false
+                },
+                content = {
+                    DatePicker(state = datePickerState)
+                }
+            )
+        }
 
-    Box {
+        Box {
+            InputField(
+                modifier = Modifier.clickable { showDatePicker = true },
+                readOnly = true,
+                label = "Follow-Up Date",
+                value = followUpDate,
+                onValueChange = {},
+                placeholder = "Pick a Date",
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.DateRange,
+                        contentDescription = "Date Icon"
+                    )
+                }
+            )
+
+            Spacer(
+                modifier = Modifier.matchParentSize()
+                    .background(Color.Transparent)
+                    .clickable { showDatePicker = true })
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
         InputField(
-            modifier = Modifier.clickable { showDatePicker = true },
-            readOnly = true,
-            label = "Follow-Up Date",
-            value = followUpDate,
-            onValueChange = {},
-            placeholder = "Pick a Date",
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Filled.DateRange,
-                    contentDescription = "Date Icon"
-                )
-            }
+            modifier = Modifier,
+            label = "Reason for Follow-Up",
+            value = reasonForFollowUp,
+            onValueChange = onReasonForFollowUpChange,
+            placeholder = "General check-up in 1 year"
         )
-
-        Spacer(
-            modifier = Modifier.matchParentSize()
-                .background(Color.Transparent)
-                .clickable { showDatePicker = true })
     }
+}
+
+@Composable
+fun VisitForm(
+    diagnosis: String,
+    onDiagnosisChange: (String) -> Unit,
+    prescription: String,
+    onPrescriptionChange: (String) -> Unit,
+    fee: String,
+    onFeeChange: (String) -> Unit
+) {
+
+    Title(
+        "Details for Today's Visit",
+        fontSize = 24.sp
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    LargeInputField(
+        label = "Diagnosis / Reason for Visit",
+        value = diagnosis,
+        onValueChange = onDiagnosisChange
+    )
+
+    Spacer(modifier = Modifier.height(24.dp))
+
+    LargeInputField(
+        label = "Prescription",
+        value = prescription,
+        onValueChange = onPrescriptionChange
+    )
 
     Spacer(modifier = Modifier.height(24.dp))
 
     InputField(
         modifier = Modifier,
-        label = "Reason for Follow-Up",
-        value = reasonForFollowUp,
-        onValueChange = onReasonForFollowUpChange,
-        placeholder = "General check-up in 1 year"
+        label = "Consultation Fee (MMK)",
+        value = fee,
+        onValueChange = onFeeChange,
+        placeholder = "Enter  consultation fee",
+        keyboardType = KeyboardType.Number
     )
 }
 

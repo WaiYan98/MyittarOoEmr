@@ -13,6 +13,8 @@ import com.waiyan.myittar_oo_emr.local.database.dao.VisitDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 
 class EmrRepositoryImpl(
@@ -38,20 +40,28 @@ class EmrRepositoryImpl(
         runCatching { visitDao.insert(visit) }
     }
 
-    override suspend fun insertFollowUp(followUp: FollowUp): Result<Unit> = withContext(Dispatchers.IO) {
+    override suspend fun insertFollowUp(followUp: FollowUp): Result<Unit> =
+        withContext(Dispatchers.IO) {
             runCatching { followUpDao.insert(followUp) }
         }
 
-    override fun getAllPatient(): Flow<List<Patient>> = try {
-        patientDao.getAllPatient()
-    } catch (e: Exception) {
-        throw Exception(e.message)
-    }
+    override fun getAllPatient(): Flow<List<Patient>> =
+        patientDao.getAllPatient().catch { exception ->
+            throw Exception("Failed to get all patients", exception)
+        }
+            .flowOn(Dispatchers.IO)
+
 
     override fun getPatientWithDetail(patientId: Long): Flow<PatientWithDetail> =
-        patientDao.getPatientWithDetail(patientId)
+        patientDao.getPatientWithDetail(patientId).catch { exception ->
+            throw Exception("Failed to get patient with detail", exception)
+        }
+            .flowOn(Dispatchers.IO)
 
     override fun getPatientWithVisitAndFollowUp(): Flow<List<PatientWithVisitAndFollowUp>> =
-        patientDao.getPatientWithVisitAndFollowUp()
+        patientDao.getPatientWithVisitAndFollowUp().catch { exception ->
+            throw Exception("Failed to get patient with visit and follow up", exception)
+        }
+            .flowOn(Dispatchers.IO)
 
 }
