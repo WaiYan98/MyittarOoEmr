@@ -64,4 +64,24 @@ class EmrRepositoryImpl(
         }
             .flowOn(Dispatchers.IO)
 
+    override fun getAllFollowUp(): Flow<List<FollowUp>> =
+        followUpDao.getAllFollowUp().catch { exception ->
+            throw Exception("Failed to get all follow up", exception)
+        }
+            .flowOn(Dispatchers.IO)
+
+
+    override fun getAllVisit(): Flow<List<Visit>> =
+        visitDao.getAllVisit().catch { exception ->
+            throw Exception("Failed to get all visit", exception)
+        }
+            .flowOn(Dispatchers.IO)
+
+    override fun getPatientById(patientId: Long): Flow<Patient> =
+        patientDao.getPatientById(patientId).catch { exception ->
+            throw Exception("Failed to get patient by id", exception)
+        }
+            .flowOn(Dispatchers.IO)
+
+
 }

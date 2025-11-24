@@ -1,7 +1,7 @@
 package com.waiyan.myittar_oo_emr.util
 
 import com.waiyan.myittar_oo_emr.data.ValidationResult
-import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Clock
 
 object Validator {
 

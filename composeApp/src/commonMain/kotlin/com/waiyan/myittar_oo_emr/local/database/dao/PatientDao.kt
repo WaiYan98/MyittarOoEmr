@@ -25,4 +25,9 @@ interface PatientDao {
     @Transaction
     @Query("SELECT * FROM Patient")
     fun getPatientWithVisitAndFollowUp(): Flow<List<PatientWithVisitAndFollowUp>>
+
+    @Query("SELECT * FROM Patient WHERE id=:patientId")
+    fun getPatientById(patientId: Long): Flow<Patient>
+
+
 }

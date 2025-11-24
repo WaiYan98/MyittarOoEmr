@@ -20,4 +20,12 @@ interface EmrRepository {
     fun getPatientWithDetail(patientId: Long): Flow<PatientWithDetail>
 
     fun getPatientWithVisitAndFollowUp(): Flow<List<PatientWithVisitAndFollowUp>>
+
+    fun getAllFollowUp(): Flow<List<FollowUp>>
+
+    fun getAllVisit(): Flow<List<Visit>>
+
+    fun getPatientById(patientId: Long): Flow<Patient>
+
+
 }

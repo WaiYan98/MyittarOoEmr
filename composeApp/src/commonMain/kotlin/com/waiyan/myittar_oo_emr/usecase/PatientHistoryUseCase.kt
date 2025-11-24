@@ -3,8 +3,6 @@ package com.waiyan.myittar_oo_emr.usecase
 import com.waiyan.myittar_oo_emr.data.PatientWithDetail
 import com.waiyan.myittar_oo_emr.data.ValidationResult
 import com.waiyan.myittar_oo_emr.data.VisitAndFollowUpForm
-import com.waiyan.myittar_oo_emr.data.entity.FollowUp
-import com.waiyan.myittar_oo_emr.data.entity.Visit
 import com.waiyan.myittar_oo_emr.data.toFollowUp
 import com.waiyan.myittar_oo_emr.data.toVisit
 import com.waiyan.myittar_oo_emr.local_service.EmrRepository
@@ -43,7 +41,7 @@ class PatientHistoryUseCase(private val emrRepository: EmrRepository) {
             )
         )
 
-        runCatching {
+        return runCatching {
             coroutineScope {
                 val taskDeferred = mutableListOf<Deferred<Unit>>()
 
@@ -53,14 +51,14 @@ class PatientHistoryUseCase(private val emrRepository: EmrRepository) {
 
                 if (isCheckedFollowUp) {
                     val followUp = visitAndFollowUpForm.toFollowUp()
-                    val followUpDeferred = async { emrRepository.insertFollowUp(followUp).getOrThrow() }
+                    val followUpDeferred =
+                        async { emrRepository.insertFollowUp(followUp).getOrThrow() }
                     taskDeferred.add(followUpDeferred)
                 }
                 taskDeferred.awaitAll()
             }
         }
 
-        return Result.success(Unit)
     }
 
 

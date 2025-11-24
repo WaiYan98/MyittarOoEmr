@@ -8,8 +8,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,7 +22,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.waiyan.myittar_oo_emr.data.UpcomingFollowUp
 import com.waiyan.myittar_oo_emr.screen.component.MyittarOoEmrAppBar
 import com.waiyan.myittar_oo_emr.screen.component.ReportCard
 import com.waiyan.myittar_oo_emr.screen.component.TableBody
@@ -26,12 +32,26 @@ import com.waiyan.myittar_oo_emr.screen.component.TableHeader
 import com.waiyan.myittar_oo_emr.screen.component.Title
 import com.waiyan.myittar_oo_emr.screen.component.TitleCard
 import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
+import org.koin.compose.viewmodel.koinViewModel
 
 
 @Composable
-fun ReportScreen(navController: NavController) {
+fun ReportScreen(
+    navController: NavController,
+    viewModel: ReportScreenViewModel = koinViewModel<ReportScreenViewModel>()
+) {
 
     var selectedPageIndex by remember { mutableStateOf(1) }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackBarHostState = remember { SnackbarHostState() }
+
+
+    LaunchedEffect(key1 = uiState.error) {
+        uiState.error?.let {
+            snackBarHostState.showSnackbar(it)
+        }
+        viewModel.onClearError()
+    }
 
     MyAppTheme {
         Scaffold(
@@ -45,6 +65,9 @@ fun ReportScreen(navController: NavController) {
                     },
                     selectedPageIndex = selectedPageIndex
                 )
+            },
+            snackbarHost = {
+                SnackbarHost(snackBarHostState)
             }
         ) { values ->
 
@@ -53,14 +76,29 @@ fun ReportScreen(navController: NavController) {
                     .padding(values),
                 contentAlignment = Alignment.TopCenter
             ) {
-                ReportDisplay()
+
+                uiState.success?.let { report ->
+                    ReportDisplay(
+                        patientSeen = report.todayPatientsSeen.toString(),
+                        todayIncome = report.todayIncome.toString(),
+                        thisMonthIncome = report.thisMonthIncome.toString(),
+                        thisYearIncome = report.thisYearIncome.toString(),
+                        upcomingFollowUps = report.upcomingFollowUps
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun ReportDisplay() {
+fun ReportDisplay(
+    patientSeen: String,
+    todayIncome: String,
+    thisMonthIncome: String,
+    thisYearIncome: String,
+    upcomingFollowUps: List<UpcomingFollowUp>
+) {
     LazyColumn(
         modifier = Modifier.fillMaxWidth(0.75f),
         horizontalAlignment = Alignment.Start,
@@ -81,18 +119,18 @@ fun ReportDisplay() {
 
             ReportCard(
                 title1 = "Patients Seen",
-                value1 = "12",
+                value1 = patientSeen,
                 title2 = "Today's Income",
-                value2 = "650,000 MMK"
+                value2 = "$todayIncome MMK"
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             ReportCard(
                 title1 = "This Month",
-                value1 = "870,000 MMK",
+                value1 = "$thisMonthIncome MMK",
                 title2 = "This Year",
-                value2 = "9,450,000 MMK"
+                value2 = "$thisYearIncome MMK"
             )
 
             Spacer(Modifier.height(32.dp))
@@ -112,12 +150,12 @@ fun ReportDisplay() {
             )
         }
 
-        items(count = 10) {
+        items(upcomingFollowUps) {
             TableBody(
-                data1 = "2025-09-23",
-                data2 = "Olivia Bennett",
-                data3 = "Routine Checkup",
-                data4 = "2 days"
+                data1 = it.followUpDate,
+                data2 = it.patientName,
+                data3 = it.reasonForFollowUp,
+                data4 = it.timeUntil
             )
         }
     }
