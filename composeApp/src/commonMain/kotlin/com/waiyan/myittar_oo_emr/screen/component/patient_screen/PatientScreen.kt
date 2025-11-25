@@ -27,10 +27,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,7 +48,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LifecycleEventEffect
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
 import com.waiyan.myittar_oo_emr.screen.component.MyittarOoEmrAppBar
@@ -62,31 +71,54 @@ fun PatientScreen(
 ) {
 
     val uiState by patientViewModel.uiState.collectAsStateWithLifecycle()
-    var searchTxt by mutableStateOf("")
+    val searchQuery by patientViewModel.searchQuery.collectAsStateWithLifecycle()
     var selectedPageIndex by remember { mutableStateOf(0) }
+    val snackBarHostState = remember { SnackbarHostState() }
+    val lifeCycleOwner = LocalLifecycleOwner.current
 
-    LaunchedEffect(key1 = Unit) {
-        patientViewModel.getAllPatient()
+    LaunchedEffect(key1 = uiState.onError) {
+        uiState.onError?.let {
+            snackBarHostState.showSnackbar(it)
+            patientViewModel.onClearError()
+        }
     }
 
+    DisposableEffect(lifeCycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                patientViewModel.getAllPatient()
+            }
+        }
+        lifeCycleOwner.lifecycle.addObserver(observer)
 
-
-    if (uiState.onError != null) {
-        //show error
+        onDispose { lifeCycleOwner.lifecycle.removeObserver(observer) }
     }
 
     MyAppTheme {
         Scaffold(
             topBar = {
-                MyittarOoEmrAppBar(
-                    Modifier.fillMaxWidth(),
-                    onClickHome = { selectedPageIndex = 0 },
-                    onClickReport = {
-                        navController.navigate(ReportScreen)
-                        selectedPageIndex = 1
-                    },
-                    selectedPageIndex = selectedPageIndex
-                )
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    MyittarOoEmrAppBar(
+                        Modifier.fillMaxWidth(),
+                        onClickHome = { selectedPageIndex = 0 },
+                        onClickReport = {
+                            navController.navigate(ReportScreen)
+                            selectedPageIndex = 1
+                        },
+                        selectedPageIndex = selectedPageIndex
+                    )
+
+                    SearchBar(
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp),
+                        value = searchQuery,
+                        onValueChange = patientViewModel::onSearchQueryChanged
+                    )
+
+                }
+            },
+            snackbarHost = {
+                SnackbarHost(snackBarHostState)
             },
             floatingActionButton = {
                 FloatingActionButton(onClick = onClickAdd) {
@@ -112,13 +144,6 @@ fun PatientScreen(
                     )
             ) {
                 item {
-                    SearchBar(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = searchTxt,
-                    ) { onValueChange ->
-                        searchTxt = onValueChange
-                    }
-
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 

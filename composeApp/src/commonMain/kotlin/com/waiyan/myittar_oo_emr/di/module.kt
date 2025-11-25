@@ -13,6 +13,7 @@ import com.waiyan.myittar_oo_emr.screen.component.patient_screen.PatientViewMode
 import com.waiyan.myittar_oo_emr.screen.component.report_screen.ReportScreenViewModel
 import com.waiyan.myittar_oo_emr.usecase.PatientFormUseCase
 import com.waiyan.myittar_oo_emr.usecase.PatientHistoryUseCase
+import com.waiyan.myittar_oo_emr.usecase.PatientUseCase
 import com.waiyan.myittar_oo_emr.usecase.ReportUseCase
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind
@@ -35,4 +36,5 @@ val shareModule = module {
     singleOf(::PatientFormUseCase)
     singleOf(::PatientHistoryUseCase)
     singleOf(::ReportUseCase)
+    singleOf(::PatientUseCase)
 }
