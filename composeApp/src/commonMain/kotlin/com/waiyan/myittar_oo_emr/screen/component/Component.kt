@@ -28,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -180,8 +181,9 @@ fun LargeInputField(
 @Composable
 fun DisplayInfoCard(
     label: String,
-    value: String
-
+    value: String,
+    isEditing: Boolean,
+    onEditValueChange: (String) -> Unit
 ) {
     HorizontalDivider(
         thickness = 1.dp,
@@ -193,21 +195,30 @@ fun DisplayInfoCard(
         Row(
             modifier = Modifier.fillMaxWidth()
                 .padding(top = 16.dp),
-            horizontalArrangement = Arrangement.Start
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 modifier = Modifier.fillMaxWidth(0.25f),
                 text = label,
                 color = MaterialTheme.colorScheme.primary
             )
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.TopStart
-            ) {
-                Text(
-                    value
-                )
-            }
+
+            TextField(
+                value = value,
+                readOnly = !isEditing,
+                onValueChange = onEditValueChange,
+                enabled = isEditing,
+                colors = TextFieldDefaults.colors(
+                    disabledContainerColor = if (isEditing) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
+                    focusedContainerColor = if (isEditing) MaterialTheme.colorScheme.onPrimary else Color.Transparent,
+                    unfocusedContainerColor = if (isEditing) MaterialTheme.colorScheme.onPrimary else Color.Transparent,
+                    focusedIndicatorColor = if (isEditing) MaterialTheme.colorScheme.secondary else Color.Transparent,
+                    unfocusedIndicatorColor = if (isEditing) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
+                    disabledIndicatorColor = if (isEditing) MaterialTheme.colorScheme.background else Color.Transparent,
+
+                    )
+            )
         }
 
     }

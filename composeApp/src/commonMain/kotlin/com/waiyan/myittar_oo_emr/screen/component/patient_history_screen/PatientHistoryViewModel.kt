@@ -4,6 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.waiyan.myittar_oo_emr.data.VisitAndFollowUpForm
+import com.waiyan.myittar_oo_emr.data.entity.MedicalInfo
+import com.waiyan.myittar_oo_emr.data.entity.Patient
 import com.waiyan.myittar_oo_emr.usecase.PatientHistoryUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -59,6 +61,60 @@ class PatientHistoryViewModel(
                     _uiState.update { it.copy(isLoading = false, error = exception.message) }
                 }
             )
+    }
+
+    fun updatePatientInfo(
+        originalPatient: Patient,
+        editedPatient: Patient
+    ) = viewModelScope.launch {
+        _uiState.update { it.copy(isLoading = true) }
+
+        if (editedPatient == originalPatient) {
+            _uiState.update { it.copy(isLoading = false, notify = "No Changes!") }
+        } else {
+            patientHistoryUseCase.updatePatientInfo(editedPatient)
+                .fold(
+                    onSuccess = {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                notify = "Updated!"
+                            )
+                        }
+                        getPatientHistory(patientId)
+                    },
+                    onFailure = { exception ->
+                        _uiState.update { it.copy(isLoading = false, error = exception.message) }
+                    }
+                )
+        }
+    }
+
+    fun updateMedicalInfo(
+        originalMedicalInfo: MedicalInfo,
+        editedMedicalInfo: MedicalInfo
+    ) = viewModelScope.launch {
+        _uiState.update { it.copy(isLoading = true) }
+
+        if (originalMedicalInfo == editedMedicalInfo) {
+            _uiState.update { it.copy(isLoading = false, notify = "No Changes!") }
+        } else {
+            patientHistoryUseCase.updateMedicalInfo(editedMedicalInfo)
+                .fold(
+                    onSuccess = {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                notify = "Updated!"
+                            )
+                        }
+                        getPatientHistory(patientId)
+                    },
+                    onFailure = { exception ->
+                        _uiState.update { it.copy(isLoading = false, error = exception.message) }
+                    }
+                )
+        }
     }
 
     fun onClearError() {

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 interface VisitDao {
 
     @Upsert
-    suspend fun insert(visit: Visit)
+    suspend fun upsert(visit: Visit)
 
     @Query("SELECT * FROM visit")
     fun getAllVisit(): Flow<List<Visit>>

@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface FollowUpDao {
     @Upsert
-    suspend fun insert(followUp: FollowUp)
+    suspend fun upsert(followUp: FollowUp)
 
     @Query("SELECT * FROM FollowUp ")
     fun getAllFollowUp(): Flow<List<FollowUp>>

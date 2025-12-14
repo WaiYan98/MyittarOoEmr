@@ -24,25 +24,25 @@ class EmrRepositoryImpl(
     private val followUpDao: FollowUpDao
 ) : EmrRepository {
 
-    override suspend fun insertPatient(patient: Patient): Result<Long> =
+    override suspend fun upsertPatient(patient: Patient): Result<Long> =
         withContext(Dispatchers.IO) {
             runCatching {
-                patientDao.insertPatient(patient)
+                patientDao.upsert(patient)
             }
         }
 
-    override suspend fun insertMedicalInfo(medicalInfo: MedicalInfo): Result<Unit> =
+    override suspend fun upsertMedicalInfo(medicalInfo: MedicalInfo): Result<Unit> =
         withContext(Dispatchers.IO) {
-            runCatching { medicalInfoDao.insert(medicalInfo) }
+            runCatching { medicalInfoDao.upsert(medicalInfo) }
         }
 
-    override suspend fun insertVisit(visit: Visit): Result<Unit> = withContext(Dispatchers.IO) {
-        runCatching { visitDao.insert(visit) }
+    override suspend fun upsertVisit(visit: Visit): Result<Unit> = withContext(Dispatchers.IO) {
+        runCatching { visitDao.upsert(visit) }
     }
 
-    override suspend fun insertFollowUp(followUp: FollowUp): Result<Unit> =
+    override suspend fun upsertFollowUp(followUp: FollowUp): Result<Unit> =
         withContext(Dispatchers.IO) {
-            runCatching { followUpDao.insert(followUp) }
+            runCatching { followUpDao.upsert(followUp) }
         }
 
     override fun getAllPatient(): Flow<List<Patient>> =

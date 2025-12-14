@@ -18,7 +18,7 @@ class PatientFormUseCase(
     suspend fun insertPatientInfo(
         patientForm: PatientForm,
         isFollowUpCheckBoxChecked: Boolean
-    ): Result<Unit> {
+    ): Result<Unit> = runCatching {
         val isValidatePatient = Validator.validatePatientInfo(
             patientForm.name,
             patientForm.age,
@@ -27,7 +27,7 @@ class PatientFormUseCase(
         )
 
         if (isValidatePatient is ValidationResult.Failure) {
-            return Result.failure(Exception(isValidatePatient.message))
+            throw Exception(isValidatePatient.message)
         }
 
         val isValidateVisitAndFollowUp = Validator.validateVisitAndFollowUp(
@@ -40,32 +40,29 @@ class PatientFormUseCase(
         )
 
         if (isValidateVisitAndFollowUp is ValidationResult.Failure) {
-            return Result.failure(Exception(isValidateVisitAndFollowUp.message))
+            throw Exception(isValidateVisitAndFollowUp.message)
         }
 
         val patient = patientForm.patientFormToPatient()
-        val patientId = emrRepository.insertPatient(patient).getOrElse { exception ->
-            return Result.failure(exception)
-        }
+        val patientId = emrRepository.upsertPatient(patient).getOrThrow()
 
-        return runCatching {
-            coroutineScope {
-                val medicalInfo = patientForm.patientFormToMedicalInfo(patientId)
-                val visit = patientForm.patientFormToVisit(patientId)
 
-                val deferredTasks = mutableListOf(
-                    async { emrRepository.insertMedicalInfo(medicalInfo).getOrThrow() },
-                    async { emrRepository.insertVisit(visit).getOrThrow() }
-                )
+        coroutineScope {
+            val medicalInfo = patientForm.patientFormToMedicalInfo(patientId)
+            val visit = patientForm.patientFormToVisit(patientId)
 
-                if (isFollowUpCheckBoxChecked) {
-                    val followUp = patientForm.patientFormToFollowUp(patientId)
-                    val followUpDeferred =
-                        async { emrRepository.insertFollowUp(followUp).getOrThrow() }
-                    deferredTasks.add(followUpDeferred)
-                }
-                deferredTasks.awaitAll()
+            val deferredTasks = mutableListOf(
+                async { emrRepository.upsertMedicalInfo(medicalInfo).getOrThrow() },
+                async { emrRepository.upsertVisit(visit).getOrThrow() }
+            )
+
+            if (isFollowUpCheckBoxChecked) {
+                val followUp = patientForm.patientFormToFollowUp(patientId)
+                val followUpDeferred =
+                    async { emrRepository.upsertFollowUp(followUp).getOrThrow() }
+                deferredTasks.add(followUpDeferred)
             }
+            deferredTasks.awaitAll()
         }
 
     }

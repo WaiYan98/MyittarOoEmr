@@ -11,11 +11,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -24,11 +32,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.waiyan.myittar_oo_emr.data.PatientWithDetail
 import com.waiyan.myittar_oo_emr.data.VisitAndFollowUpForm
+import com.waiyan.myittar_oo_emr.data.entity.Patient
 import com.waiyan.myittar_oo_emr.screen.component.AppBar
 import com.waiyan.myittar_oo_emr.screen.component.DisplayInfoCard
 import com.waiyan.myittar_oo_emr.screen.component.ShowLoading
@@ -57,8 +68,17 @@ fun PatientHistoryScreen(
     var followUpDate by remember { mutableStateOf("") }
     var reasonForFollowUp by remember { mutableStateOf("") }
     var isChecked by remember { mutableStateOf(false) }
-
-
+    var editPatientInfoState by remember { mutableStateOf(false) }
+    var editMedicalInfoState by remember { mutableStateOf(false) }
+    var editContactInfoState by remember { mutableStateOf(false) }
+    var name by remember { mutableStateOf("") }
+    var age by remember { mutableStateOf("") }
+    var gender by remember { mutableStateOf("") }
+    var allergies by remember { mutableStateOf("") }
+    var chronicConditions by remember { mutableStateOf("") }
+    var currentMedication by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("") }
 
 
     LaunchedEffect(key1 = uiState.error) {
@@ -82,6 +102,21 @@ fun PatientHistoryScreen(
         }
     }
 
+    LaunchedEffect(key1 = uiState.success) {
+        uiState.success?.let { patientWithDetail ->
+            name = patientWithDetail.patient.name
+            age = patientWithDetail.patient.age.toString()
+            gender = patientWithDetail.patient.gender
+            phone = patientWithDetail.patient.phone
+            address = patientWithDetail.patient.address
+            allergies = patientWithDetail.medicalInfo.allergies
+            chronicConditions = patientWithDetail.medicalInfo.chronicConditions
+            currentMedication = patientWithDetail.medicalInfo.currentMedication
+            phone = patientWithDetail.patient.phone
+            address = patientWithDetail.patient.address
+        }
+    }
+
 
     MyAppTheme {
         Scaffold(
@@ -101,9 +136,10 @@ fun PatientHistoryScreen(
                     ShowLoading()
                 }
 
-                if (uiState.success != null) {
+                uiState.success?.let { patientWithDetail ->
+
                     PatientHistoryDisplay(
-                        patientWithDetail = uiState.success!!,
+                        patientWithDetail = patientWithDetail,
                         isClickedAddNewVisit = isClickedAddNewVisit,
                         diagnosis = diagnosis,
                         onDiagnosisChange = { diagnosis = it },
@@ -134,14 +170,56 @@ fun PatientHistoryScreen(
                                 isCheckedFollowUpForm = isChecked
                             )
 
-                        })
+                        },
+                        onClickEditPatientInfo = {
+                            if (editPatientInfoState) {
+                                val editPatient = Patient(
+                                    id = patientWithDetail.patient.id,
+                                    name = name,
+                                    age = age.toIntOrNull() ?: 0,
+                                    gender = gender,
+                                    phone = phone,
+                                    address = address
+                                )
+                                viewModel.updatePatientInfo(
+                                    patientWithDetail.patient,
+                                    editPatient
+                                )
+                            }
+                            editPatientInfoState = !editPatientInfoState
+                        },
+                        onclickEditContactInfo = {
+                            editContactInfoState = !editContactInfoState
+                        },
+                        onClickEditMedicalInfo = {
+                            editMedicalInfoState = !editMedicalInfoState
+                        },
+                        onEditPatientNameChange = { name = it },
+                        onEditPatientAgeChange = { age = it },
+                        onEditPatientGenderChange = { gender = it },
+                        onEditPatientPhoneChange = { phone = it },
+                        onEditPatientAddressChange = { address = it },
+                        onEditPatientAllergiesChange = { allergies = it },
+                        onEditPatientChronicConditionsChange = { chronicConditions = it },
+                        onEditPatientCurrentMedicationChange = { currentMedication = it },
+                        editPatientInfoState = editPatientInfoState,
+                        editMedicalInfoState = editMedicalInfoState,
+                        editContactInfoState = editContactInfoState,
+                        name = name,
+                        age = age,
+                        gender = gender,
+                        phone = phone,
+                        address = address,
+                        allergies = allergies,
+                        chronicConditions = chronicConditions,
+                        currentMedication = currentMedication
+                    )
                 }
             }
         }
     }
 
 }
-
 
 @Composable
 fun PatientHistoryDisplay(
@@ -163,7 +241,29 @@ fun PatientHistoryDisplay(
     onCheckedChange: (Boolean) -> Unit,
     onClickCancel: () -> Unit,
     onClickSave: (Long) -> Unit,
+    onClickEditPatientInfo: () -> Unit,
+    onClickEditMedicalInfo: () -> Unit,
+    onclickEditContactInfo: () -> Unit,
     onClickAddNewVisit: () -> Unit,
+    onEditPatientNameChange: (String) -> Unit,
+    onEditPatientAgeChange: (String) -> Unit,
+    onEditPatientGenderChange: (String) -> Unit,
+    onEditPatientPhoneChange: (String) -> Unit,
+    onEditPatientAddressChange: (String) -> Unit,
+    onEditPatientAllergiesChange: (String) -> Unit,
+    onEditPatientChronicConditionsChange: (String) -> Unit,
+    onEditPatientCurrentMedicationChange: (String) -> Unit,
+    editPatientInfoState: Boolean,
+    editMedicalInfoState: Boolean,
+    editContactInfoState: Boolean,
+    name: String,
+    age: String,
+    gender: String,
+    phone: String,
+    address: String,
+    allergies: String,
+    chronicConditions: String,
+    currentMedication: String
 ) {
 
     LazyColumn(
@@ -172,62 +272,137 @@ fun PatientHistoryDisplay(
     ) {
         items(1) {
 
-            Title(
-                patientWithDetail.patient.name,
-                fontSize = 32.sp
+            Row {
+                TextField(
+                    value = name,
+                    onValueChange = onEditPatientNameChange,
+                    readOnly = !editPatientInfoState,
+                    enabled = editPatientInfoState,
+                    colors = TextFieldDefaults.colors(
+                        disabledContainerColor = if (editPatientInfoState) MaterialTheme.colorScheme.primary else Color.Transparent,
+                        focusedContainerColor = if (editPatientInfoState) MaterialTheme.colorScheme.primary else Color.Transparent,
+                        unfocusedContainerColor = if (editPatientInfoState) MaterialTheme.colorScheme.primary else Color.Transparent,
+                        focusedIndicatorColor = if (editPatientInfoState) MaterialTheme.colorScheme.primary else Color.Transparent,
+                        unfocusedIndicatorColor = if (editPatientInfoState) MaterialTheme.colorScheme.primary else Color.Transparent,
+                        disabledIndicatorColor = if (editPatientInfoState) MaterialTheme.colorScheme.primary else Color.Transparent
+                    )
+                )
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                IconButton(onClick = onClickEditPatientInfo) {
+                    Icon(
+                        imageVector = if (editPatientInfoState) Icons.Filled.Check else Icons.Filled.Edit,
+                        contentDescription = if (editPatientInfoState) "save_icon" else "edit_icon"
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            DisplayInfoCard(
+                "Age",
+                age,
+                isEditing = editPatientInfoState,
+                onEditValueChange = onEditPatientAgeChange
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            DisplayInfoCard("Age", patientWithDetail.patient.age.toString())
+            DisplayInfoCard(
+                "Gender",
+                gender,
+                isEditing = editPatientInfoState,
+                onEditValueChange = onEditPatientGenderChange
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            DisplayInfoCard("Gender", patientWithDetail.patient.gender)
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            DisplayInfoCard("Id", patientWithDetail.patient.id.toString())
+            DisplayInfoCard(
+                "Id",
+                patientWithDetail.patient.id.toString(),
+                isEditing = false,
+                onEditValueChange = {})
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            Title(
-                "!! CRITICAL MEDICAL INFO !!",
-                fontSize = 32.sp
-            )
+            Row {
+                Title(
+                    "!! CRITICAL MEDICAL INFO !!",
+                    fontSize = 32.sp
+                )
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                IconButton(onClick = onClickEditMedicalInfo) {
+                    Icon(
+                        imageVector = if (editMedicalInfoState) Icons.Filled.Check else Icons.Filled.Edit,
+                        contentDescription = if (editMedicalInfoState) "save_icon" else "edit_icon"
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            DisplayInfoCard("Allergies", patientWithDetail.medicalInfo.allergies)
+            DisplayInfoCard(
+                "Allergies",
+                allergies,
+                isEditing = editMedicalInfoState,
+                onEditValueChange = onEditPatientAllergiesChange
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
             DisplayInfoCard(
                 "Chronic Conditions",
-                patientWithDetail.medicalInfo.chronicConditions
+                chronicConditions,
+                isEditing = editMedicalInfoState,
+                onEditValueChange = onEditPatientChronicConditionsChange
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
             DisplayInfoCard(
                 "Current Medication",
-                patientWithDetail.medicalInfo.currentMedication
+                currentMedication,
+                isEditing = editMedicalInfoState,
+                onEditValueChange = onEditPatientCurrentMedicationChange
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            Title(
-                "Contact & Address Information",
-                fontSize = 32.sp
+            Row {
+                Title(
+                    "Contact & Address Information",
+                    fontSize = 32.sp
+                )
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                IconButton(onClick = onclickEditContactInfo) {
+                    Icon(
+                        imageVector = if (editContactInfoState) Icons.Filled.Check else Icons.Filled.Edit,
+                        contentDescription = if (editContactInfoState) "save_icon" else "edit_icon "
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            DisplayInfoCard(
+                "Phone", phone,
+                isEditing = editContactInfoState,
+                onEditValueChange = onEditPatientPhoneChange
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            DisplayInfoCard("Phone", patientWithDetail.patient.phone)
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            DisplayInfoCard("Address", patientWithDetail.patient.address)
+            DisplayInfoCard(
+                "Address",
+                address,
+                isEditing = editContactInfoState,
+                onEditValueChange = onEditPatientAddressChange
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
 

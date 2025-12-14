@@ -3,6 +3,8 @@ package com.waiyan.myittar_oo_emr.usecase
 import com.waiyan.myittar_oo_emr.data.PatientWithDetail
 import com.waiyan.myittar_oo_emr.data.ValidationResult
 import com.waiyan.myittar_oo_emr.data.VisitAndFollowUpForm
+import com.waiyan.myittar_oo_emr.data.entity.MedicalInfo
+import com.waiyan.myittar_oo_emr.data.entity.Patient
 import com.waiyan.myittar_oo_emr.data.toFollowUp
 import com.waiyan.myittar_oo_emr.data.toVisit
 import com.waiyan.myittar_oo_emr.local_service.EmrRepository
@@ -24,7 +26,7 @@ class PatientHistoryUseCase(private val emrRepository: EmrRepository) {
     suspend fun insertVisitAndFollowUp(
         visitAndFollowUpForm: VisitAndFollowUpForm,
         isCheckedFollowUp: Boolean
-    ): Result<Unit> {
+    ): Result<Unit> = runCatching {
 
         val isValidVisitAndFollowUp = Validator.validateVisitAndFollowUp(
             diagnosis = visitAndFollowUpForm.diagnosis,
@@ -35,31 +37,43 @@ class PatientHistoryUseCase(private val emrRepository: EmrRepository) {
             isCheckedFollowUP = isCheckedFollowUp
         )
 
-        if (isValidVisitAndFollowUp is ValidationResult.Failure) return Result.failure(
-            Exception(
-                isValidVisitAndFollowUp.message
-            )
+        if (isValidVisitAndFollowUp is ValidationResult.Failure) throw Exception(
+            isValidVisitAndFollowUp.message
         )
 
-        return runCatching {
-            coroutineScope {
-                val taskDeferred = mutableListOf<Deferred<Unit>>()
+        coroutineScope {
+            val taskDeferred = mutableListOf<Deferred<Unit>>()
 
-                val visit = visitAndFollowUpForm.toVisit()
-                val patientDeferred = async { emrRepository.insertVisit(visit).getOrThrow() }
-                taskDeferred.add(patientDeferred)
+            val visit = visitAndFollowUpForm.toVisit()
+            val patientDeferred = async { emrRepository.upsertVisit(visit).getOrThrow() }
+            taskDeferred.add(patientDeferred)
 
-                if (isCheckedFollowUp) {
-                    val followUp = visitAndFollowUpForm.toFollowUp()
-                    val followUpDeferred =
-                        async { emrRepository.insertFollowUp(followUp).getOrThrow() }
-                    taskDeferred.add(followUpDeferred)
-                }
-                taskDeferred.awaitAll()
+            if (isCheckedFollowUp) {
+                val followUp = visitAndFollowUpForm.toFollowUp()
+                val followUpDeferred =
+                    async { emrRepository.upsertFollowUp(followUp).getOrThrow() }
+                taskDeferred.add(followUpDeferred)
             }
+            taskDeferred.awaitAll()
         }
-
     }
 
+    suspend fun updatePatientInfo(patient: Patient): Result<Unit> = runCatching {
+        val isValidPatientInfo = Validator.validatePatientInfo(
+            patient.name,
+            patient.age.toString(),
+            patient.phone,
+            patient.address
+        )
+
+        if (isValidPatientInfo is ValidationResult.Failure)
+            throw Exception(isValidPatientInfo.message)
+
+        emrRepository.upsertPatient(patient).getOrThrow()
+    }
+
+    suspend fun updateMedicalInfo(medicalInfo: MedicalInfo): Result<Unit> = runCatching {
+      emrRepository.upsertMedicalInfo(medicalInfo).getOrThrow()
+    }
 
 }
