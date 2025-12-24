@@ -21,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.HeartBroken
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material3.Card
@@ -120,24 +121,51 @@ fun PatientScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    TextButton(
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 16.dp, end = 16.dp)
-                            .border(
-                                1.dp,
-                                color = MaterialTheme.colorScheme.primary,
-                                shape = RoundedCornerShape(16.dp)
-                            ),
-                        onClick = { patientViewModel.backupDatabase() }
+                            .padding(start = 16.dp, end = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Icon(
-                            Icons.Filled.SettingsBackupRestore,
-                            "backup_data",
-                            modifier = Modifier.size(24.dp)
-                        )
+                        TextButton(
+                            modifier = Modifier
+                                .weight(1f)
+                                .border(
+                                    1.dp,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    shape = RoundedCornerShape(16.dp)
+                                ),
+                            onClick = { patientViewModel.backupDatabase() }
+                        ) {
+                            Icon(
+                                Icons.Filled.SettingsBackupRestore,
+                                "backup_data",
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Backup", fontSize = 18.sp)
+                        }
+
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Backup Database", fontSize = 18.sp)
+
+                        TextButton(
+                            modifier = Modifier
+                                .weight(1f)
+                                .border(
+                                    1.dp,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    shape = RoundedCornerShape(16.dp)
+                                ),
+                            onClick = { patientViewModel.restoreDatabase() }
+                        ) {
+                            Icon(
+                                Icons.Filled.Restore,
+                                "restore_data",
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Restore", fontSize = 18.sp)
+                        }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                 }

@@ -14,7 +14,8 @@ import kotlinx.coroutines.launch
 
 class PatientViewModel(
     private val patientUseCase: PatientUseCase,
-    private val backupUseCase: BackupUseCase
+    private val backupUseCase: BackupUseCase,
+    private val restoreUseCase: RestoreUseCase
 ) : ViewModel() {
 
     private var _uiState: MutableStateFlow<PatientScreenUiState> =
@@ -81,6 +82,31 @@ class PatientViewModel(
                         it.copy(
                             isLoading = false,
                             onError = "Backup failed: ${exception.message}"
+                        )
+                    }
+                }
+            )
+        }
+    }
+
+    fun restoreDatabase() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            restoreUseCase().fold(
+                onSuccess = {
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            onError = "Restore successful!"
+                        )
+                    }
+                    getAllPatient() // Refresh patient list after successful restore
+                },
+                onFailure = { exception ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            onError = "Restore failed: ${exception.message}"
                         )
                     }
                 }

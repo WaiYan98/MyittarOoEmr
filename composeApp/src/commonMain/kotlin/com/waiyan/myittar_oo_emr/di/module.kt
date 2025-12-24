@@ -39,4 +39,5 @@ val shareModule = module {
     singleOf(::ReportUseCase)
     singleOf(::PatientUseCase)
     singleOf(::BackupUseCase)
+    singleOf(::RestoreUseCase)
 }

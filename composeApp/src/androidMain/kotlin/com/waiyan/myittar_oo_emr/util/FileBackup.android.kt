@@ -44,3 +44,41 @@ actual suspend fun backupDatabaseFile(): Result<Unit> = withContext(Dispatchers.
         }
     }.backup()
 }
+
+actual suspend fun restoreDatabaseFile(): Result<Unit> = withContext(Dispatchers.IO) {
+    object : KoinComponent {
+        val appContext: AndroidAppContext by inject()
+        fun restore(): Result<Unit> {
+            return try {
+                val context = appContext.context
+                val dbFile = context.getDatabasePath("emr_database.db")
+
+                val downloadsDir =
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                if (!downloadsDir.exists() || !downloadsDir.isDirectory) {
+                    return Result.failure(Exception("Downloads directory not found or is not a directory."))
+                }
+
+                val backupFiles = downloadsDir.listFiles { _, name ->
+                    name.startsWith("emr_backup_") && name.endsWith(".db")
+                }?.sortedByDescending { it.lastModified() }
+
+                val latestBackupFile = backupFiles?.firstOrNull()
+                if (latestBackupFile == null) {
+                    return Result.failure(Exception("No backup files found in Downloads directory."))
+                }
+
+                FileInputStream(latestBackupFile).use { input ->
+                    FileOutputStream(dbFile).use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                Result.success(Unit)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Result.failure(e)
+            }
+        }
+    }.restore()
+}
+
