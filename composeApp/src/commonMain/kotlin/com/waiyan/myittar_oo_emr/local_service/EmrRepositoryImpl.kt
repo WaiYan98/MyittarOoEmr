@@ -11,6 +11,7 @@ import com.waiyan.myittar_oo_emr.local.database.dao.MedicalInfoDao
 import com.waiyan.myittar_oo_emr.local.database.dao.PatientDao
 import com.waiyan.myittar_oo_emr.local.database.dao.VisitDao
 import com.waiyan.myittar_oo_emr.util.backupDatabaseFile
+import com.waiyan.myittar_oo_emr.util.restoreDatabaseFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow

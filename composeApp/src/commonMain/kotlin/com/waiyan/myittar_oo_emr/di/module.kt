@@ -16,6 +16,7 @@ import com.waiyan.myittar_oo_emr.usecase.PatientFormUseCase
 import com.waiyan.myittar_oo_emr.usecase.PatientHistoryUseCase
 import com.waiyan.myittar_oo_emr.usecase.PatientUseCase
 import com.waiyan.myittar_oo_emr.usecase.ReportUseCase
+import com.waiyan.myittar_oo_emr.usecase.RestoreUseCase
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf

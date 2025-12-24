@@ -3,6 +3,7 @@ package com.waiyan.myittar_oo_emr.screen.component.patient_screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -65,6 +66,7 @@ import com.waiyan.myittar_oo_emr.screen.component.MyittarOoEmrAppBar
 import com.waiyan.myittar_oo_emr.screen.component.PatientHistoryScreen
 import com.waiyan.myittar_oo_emr.screen.component.ReportScreen
 import com.waiyan.myittar_oo_emr.screen.component.ShowLoading
+import com.waiyan.myittar_oo_emr.util.PermissionRequester
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -79,6 +81,22 @@ fun PatientScreen(
     var selectedPageIndex by remember { mutableStateOf(0) }
     val snackBarHostState = remember { SnackbarHostState() }
     val lifeCycleOwner = LocalLifecycleOwner.current
+
+    var showPermissionRequester by remember { mutableStateOf(false) }
+    var permissionAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+
+    if (showPermissionRequester) {
+        PermissionRequester(
+            onPermissionGranted = {
+                showPermissionRequester = false
+                permissionAction?.invoke()
+            },
+            onPermissionDenied = {
+                showPermissionRequester = false
+                // TODO: Show a message to the user that permissions are required.
+            }
+        )
+    }
 
     LaunchedEffect(key1 = uiState.onError) {
         uiState.onError?.let {
@@ -135,7 +153,10 @@ fun PatientScreen(
                                     color = MaterialTheme.colorScheme.primary,
                                     shape = RoundedCornerShape(16.dp)
                                 ),
-                            onClick = { patientViewModel.backupDatabase() }
+                            onClick = {
+                                permissionAction = { patientViewModel.backupDatabase() }
+                                showPermissionRequester = true
+                            }
                         ) {
                             Icon(
                                 Icons.Filled.SettingsBackupRestore,
@@ -156,7 +177,10 @@ fun PatientScreen(
                                     color = MaterialTheme.colorScheme.primary,
                                     shape = RoundedCornerShape(16.dp)
                                 ),
-                            onClick = { patientViewModel.restoreDatabase() }
+                            onClick = {
+                                permissionAction = { patientViewModel.restoreDatabase() }
+                                showPermissionRequester = true
+                            }
                         ) {
                             Icon(
                                 Icons.Filled.Restore,
