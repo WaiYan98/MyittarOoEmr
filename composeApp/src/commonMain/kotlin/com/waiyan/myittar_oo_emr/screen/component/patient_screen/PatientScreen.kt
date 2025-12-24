@@ -2,6 +2,7 @@ package com.waiyan.myittar_oo_emr.screen.component.patient_screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.HeartBroken
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -30,6 +32,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -115,6 +118,28 @@ fun PatientScreen(
                         onValueChange = patientViewModel::onSearchQueryChanged
                     )
 
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    TextButton(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp)
+                            .border(
+                                1.dp,
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = RoundedCornerShape(16.dp)
+                            ),
+                        onClick = { /* TODO: Implement backup logic */ }
+                    ) {
+                        Icon(
+                            Icons.Filled.SettingsBackupRestore,
+                            "backup_data",
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Backup Database", fontSize = 18.sp)
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             },
             snackbarHost = {
