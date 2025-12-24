@@ -10,6 +10,7 @@ import com.waiyan.myittar_oo_emr.local.database.dao.FollowUpDao
 import com.waiyan.myittar_oo_emr.local.database.dao.MedicalInfoDao
 import com.waiyan.myittar_oo_emr.local.database.dao.PatientDao
 import com.waiyan.myittar_oo_emr.local.database.dao.VisitDao
+import com.waiyan.myittar_oo_emr.util.backupDatabaseFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
@@ -82,6 +83,10 @@ class EmrRepositoryImpl(
             throw Exception("Failed to get patient by id", exception)
         }
             .flowOn(Dispatchers.IO)
+
+    override suspend fun backupDatabase(): Result<Unit> {
+        return backupDatabaseFile()
+    }
 
 
 }

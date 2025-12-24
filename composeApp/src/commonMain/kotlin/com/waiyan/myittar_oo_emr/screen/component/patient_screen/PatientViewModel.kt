@@ -2,6 +2,7 @@ package com.waiyan.myittar_oo_emr.screen.component.patient_screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.waiyan.myittar_oo_emr.usecase.BackupUseCase
 import com.waiyan.myittar_oo_emr.usecase.PatientUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -12,7 +13,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class PatientViewModel(
-    private val patientUseCase: PatientUseCase
+    private val patientUseCase: PatientUseCase,
+    private val backupUseCase: BackupUseCase
 ) : ViewModel() {
 
     private var _uiState: MutableStateFlow<PatientScreenUiState> =
@@ -62,6 +64,29 @@ class PatientViewModel(
         _searchQuery.value = query
     }
 
+    fun backupDatabase() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            backupUseCase().fold(
+                onSuccess = {
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            onError = "Backup successful!"
+                        )
+                    }
+                },
+                onFailure = { exception ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            onError = "Backup failed: ${exception.message}"
+                        )
+                    }
+                }
+            )
+        }
+    }
 
     fun onClearError() {
         _uiState.update { it.copy(onError = null) }

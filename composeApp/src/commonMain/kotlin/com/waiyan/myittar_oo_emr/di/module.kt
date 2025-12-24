@@ -11,6 +11,7 @@ import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.PatientFor
 import com.waiyan.myittar_oo_emr.screen.component.patient_history_screen.PatientHistoryViewModel
 import com.waiyan.myittar_oo_emr.screen.component.patient_screen.PatientViewModel
 import com.waiyan.myittar_oo_emr.screen.component.report_screen.ReportScreenViewModel
+import com.waiyan.myittar_oo_emr.usecase.BackupUseCase
 import com.waiyan.myittar_oo_emr.usecase.PatientFormUseCase
 import com.waiyan.myittar_oo_emr.usecase.PatientHistoryUseCase
 import com.waiyan.myittar_oo_emr.usecase.PatientUseCase
@@ -37,4 +38,5 @@ val shareModule = module {
     singleOf(::PatientHistoryUseCase)
     singleOf(::ReportUseCase)
     singleOf(::PatientUseCase)
+    singleOf(::BackupUseCase)
 }

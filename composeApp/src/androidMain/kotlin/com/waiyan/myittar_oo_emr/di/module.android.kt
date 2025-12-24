@@ -10,4 +10,5 @@ import org.koin.dsl.module
 actual val platformModule: Module
     get() = module {
         single<EmrDatabase> { getDatabaseBuilder(androidContext()).build() }
+        single { AndroidAppContext(androidContext()) }
     }

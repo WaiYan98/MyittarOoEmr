@@ -27,5 +27,5 @@ interface EmrRepository {
 
     fun getPatientById(patientId: Long): Flow<Patient>
 
-
+    suspend fun backupDatabase(): Result<Unit>
 }

@@ -129,7 +129,7 @@ fun PatientScreen(
                                 color = MaterialTheme.colorScheme.primary,
                                 shape = RoundedCornerShape(16.dp)
                             ),
-                        onClick = { /* TODO: Implement backup logic */ }
+                        onClick = { patientViewModel.backupDatabase() }
                     ) {
                         Icon(
                             Icons.Filled.SettingsBackupRestore,
