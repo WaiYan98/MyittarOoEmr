@@ -1,97 +1,209 @@
 package com.waiyan.myittar_oo_emr.local_service
 
+import com.waiyan.myittar_oo_emr.data.MonthlyIncome
+
 import com.waiyan.myittar_oo_emr.data.PatientWithDetail
+
 import com.waiyan.myittar_oo_emr.data.PatientWithVisitAndFollowUp
+
 import com.waiyan.myittar_oo_emr.data.entity.FollowUp
+
 import com.waiyan.myittar_oo_emr.data.entity.MedicalInfo
+
 import com.waiyan.myittar_oo_emr.data.entity.Patient
+
 import com.waiyan.myittar_oo_emr.data.entity.Visit
+
 import com.waiyan.myittar_oo_emr.local.database.dao.FollowUpDao
+
 import com.waiyan.myittar_oo_emr.local.database.dao.MedicalInfoDao
+
 import com.waiyan.myittar_oo_emr.local.database.dao.PatientDao
+
 import com.waiyan.myittar_oo_emr.local.database.dao.VisitDao
+
 import com.waiyan.myittar_oo_emr.util.backupDatabaseFile
+
 import com.waiyan.myittar_oo_emr.util.restoreDatabaseFile
+
 import kotlinx.coroutines.Dispatchers
+
 import kotlinx.coroutines.IO
+
 import kotlinx.coroutines.flow.Flow
+
 import kotlinx.coroutines.flow.catch
+
 import kotlinx.coroutines.flow.flowOn
+
 import kotlinx.coroutines.withContext
 
+
+
 class EmrRepositoryImpl(
+
     private val patientDao: PatientDao,
+
     private val visitDao: VisitDao,
+
     private val medicalInfoDao: MedicalInfoDao,
+
     private val followUpDao: FollowUpDao
+
 ) : EmrRepository {
 
+
+
     override suspend fun upsertPatient(patient: Patient): Result<Long> =
+
         withContext(Dispatchers.IO) {
+
             runCatching {
+
                 patientDao.upsert(patient)
+
             }
+
         }
+
+
 
     override suspend fun upsertMedicalInfo(medicalInfo: MedicalInfo): Result<Unit> =
+
         withContext(Dispatchers.IO) {
+
             runCatching { medicalInfoDao.upsert(medicalInfo) }
+
         }
+
+
 
     override suspend fun upsertVisit(visit: Visit): Result<Unit> = withContext(Dispatchers.IO) {
+
         runCatching { visitDao.upsert(visit) }
+
     }
 
+
+
     override suspend fun upsertFollowUp(followUp: FollowUp): Result<Unit> =
+
         withContext(Dispatchers.IO) {
+
             runCatching { followUpDao.upsert(followUp) }
+
         }
 
+
+
     override fun getAllPatient(): Flow<List<Patient>> =
+
         patientDao.getAllPatient().catch { exception ->
+
             throw Exception("Failed to get all patients", exception)
+
         }
+
             .flowOn(Dispatchers.IO)
+
+
+
 
 
     override fun getPatientWithDetail(patientId: Long): Flow<PatientWithDetail> =
+
         patientDao.getPatientWithDetail(patientId).catch { exception ->
+
             throw Exception("Failed to get patient with detail", exception)
+
         }
+
             .flowOn(Dispatchers.IO)
+
+
 
     override fun getPatientWithVisitAndFollowUp(): Flow<List<PatientWithVisitAndFollowUp>> =
+
         patientDao.getPatientWithVisitAndFollowUp().catch { exception ->
+
             throw Exception("Failed to get patient with visit and follow up", exception)
+
         }
+
             .flowOn(Dispatchers.IO)
 
+
+
     override fun getAllFollowUp(): Flow<List<FollowUp>> =
+
         followUpDao.getAllFollowUp().catch { exception ->
+
             throw Exception("Failed to get all follow up", exception)
+
         }
+
             .flowOn(Dispatchers.IO)
+
+
+
 
 
     override fun getAllVisit(): Flow<List<Visit>> =
+
         visitDao.getAllVisit().catch { exception ->
+
             throw Exception("Failed to get all visit", exception)
+
         }
+
             .flowOn(Dispatchers.IO)
+
+
+
+    override suspend fun getAllVisitSuspend(): List<Visit> = withContext(Dispatchers.IO) {
+
+        visitDao.getAll()
+
+    }
+
+
 
     override fun getPatientById(patientId: Long): Flow<Patient> =
+
         patientDao.getPatientById(patientId).catch { exception ->
+
             throw Exception("Failed to get patient by id", exception)
+
         }
+
             .flowOn(Dispatchers.IO)
 
+
+
     override suspend fun backupDatabase(): Result<Unit> {
+
         return backupDatabaseFile()
+
     }
+
+
 
     override suspend fun restoreDatabase(uriString: String): Result<Unit> {
+
         return restoreDatabaseFile(uriString)
+
     }
 
+
+
+    override fun getMonthlyIncome(startDate: Long, endDate: Long): Flow<List<MonthlyIncome>> =
+
+        visitDao.getMonthlyIncome(startDate, endDate).catch { exception ->
+
+            throw Exception("Failed to get monthly income", exception)
+
+        }
+
+            .flowOn(Dispatchers.IO)
 
 }

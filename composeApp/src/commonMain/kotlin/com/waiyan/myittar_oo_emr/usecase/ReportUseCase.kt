@@ -1,5 +1,6 @@
 package com.waiyan.myittar_oo_emr.usecase
 
+import com.waiyan.myittar_oo_emr.data.MonthlyIncome
 import com.waiyan.myittar_oo_emr.data.Report
 import com.waiyan.myittar_oo_emr.data.UpcomingFollowUp
 import com.waiyan.myittar_oo_emr.data.entity.FollowUp
@@ -8,6 +9,7 @@ import com.waiyan.myittar_oo_emr.local_service.EmrRepository
 import com.waiyan.myittar_oo_emr.util.LocalTime
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 
@@ -25,11 +27,11 @@ class ReportUseCase(
 
             if (visits.isEmpty() && followUps.isEmpty()) {
                 return@coroutineScope Report(
-                    0,
-                    0,
-                    0,
-                    0,
-                    emptyList()
+                    todayPatientsSeen = 0,
+                    todayIncome = 0,
+                    thisMonthIncome = 0,
+                    thisYearIncome = 0,
+                    upcomingFollowUps = emptyList()
                 )
             }
 
@@ -47,6 +49,10 @@ class ReportUseCase(
                 upcomingFollowUps = upcomingFollowUpsDeferred.await()
             )
         }
+    }
+
+    suspend fun getMonthlyIncomes(startDate: Long, endDate: Long): Flow<List<MonthlyIncome>> {
+        return emrRepository.getMonthlyIncome(startDate, endDate)
     }
 
     private suspend fun getPatientNameById(patientId: Long): String {

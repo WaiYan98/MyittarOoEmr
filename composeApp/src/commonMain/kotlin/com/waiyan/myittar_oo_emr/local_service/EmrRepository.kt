@@ -1,5 +1,6 @@
 package com.waiyan.myittar_oo_emr.local_service
 
+import com.waiyan.myittar_oo_emr.data.MonthlyIncome
 import com.waiyan.myittar_oo_emr.data.PatientWithDetail
 import com.waiyan.myittar_oo_emr.data.PatientWithVisitAndFollowUp
 import com.waiyan.myittar_oo_emr.data.entity.FollowUp
@@ -25,8 +26,13 @@ interface EmrRepository {
 
     fun getAllVisit(): Flow<List<Visit>>
 
+    suspend fun getAllVisitSuspend(): List<Visit>
+
     fun getPatientById(patientId: Long): Flow<Patient>
 
     suspend fun backupDatabase(): Result<Unit>
     suspend fun restoreDatabase(uriString: String): Result<Unit>
+
+    fun getMonthlyIncome(startDate: Long, endDate: Long): Flow<List<MonthlyIncome>>
+
 }
