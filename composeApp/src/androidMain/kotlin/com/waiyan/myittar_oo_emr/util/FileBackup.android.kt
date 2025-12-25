@@ -16,8 +16,17 @@ import java.util.Locale
 actual suspend fun backupDatabaseFile(): Result<Unit> = withContext(Dispatchers.IO) {
     object : KoinComponent {
         val appContext: AndroidAppContext by inject()
+        val database: com.waiyan.myittar_oo_emr.local.database.EmrDatabase by inject()
+
         fun backup(): Result<Unit> {
             return try {
+                android.util.Log.d("BackupDB", "Starting backup process.")
+
+                android.util.Log.d("BackupDB", "Disabling and re-enabling WAL to force checkpoint.")
+                database.openHelper.setWriteAheadLoggingEnabled(false)
+                database.openHelper.setWriteAheadLoggingEnabled(true)
+                android.util.Log.d("BackupDB", "Checkpoint complete.")
+
                 val context = appContext.context
                 val dbFile = context.getDatabasePath("emr_database.db")
 
@@ -36,8 +45,10 @@ actual suspend fun backupDatabaseFile(): Result<Unit> = withContext(Dispatchers.
                         input.copyTo(output)
                     }
                 }
+                android.util.Log.d("BackupDB", "Backup successful.")
                 Result.success(Unit)
             } catch (e: Exception) {
+                android.util.Log.e("BackupDB", "Backup failed with exception.", e)
                 e.printStackTrace()
                 Result.failure(e)
             }
@@ -45,36 +56,33 @@ actual suspend fun backupDatabaseFile(): Result<Unit> = withContext(Dispatchers.
     }.backup()
 }
 
-actual suspend fun restoreDatabaseFile(): Result<Unit> = withContext(Dispatchers.IO) {
+actual suspend fun restoreDatabaseFile(uriString: String): Result<Unit> = withContext(Dispatchers.IO) {
     object : KoinComponent {
         val appContext: AndroidAppContext by inject()
+        val database: com.waiyan.myittar_oo_emr.local.database.EmrDatabase by inject()
+
         fun restore(): Result<Unit> {
             return try {
+                android.util.Log.d("RestoreDB", "Starting restore process with URI: $uriString")
                 val context = appContext.context
                 val dbFile = context.getDatabasePath("emr_database.db")
+                val contentResolver = context.contentResolver
 
-                val downloadsDir =
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                if (!downloadsDir.exists() || !downloadsDir.isDirectory) {
-                    return Result.failure(Exception("Downloads directory not found or is not a directory."))
-                }
+                val uri = android.net.Uri.parse(uriString)
 
-                val backupFiles = downloadsDir.listFiles { _, name ->
-                    name.startsWith("emr_backup_") && name.endsWith(".db")
-                }?.sortedByDescending { it.lastModified() }
+                android.util.Log.d("RestoreDB", "Closing database before restore.")
+                database.close()
 
-                val latestBackupFile = backupFiles?.firstOrNull()
-                if (latestBackupFile == null) {
-                    return Result.failure(Exception("No backup files found in Downloads directory."))
-                }
-
-                FileInputStream(latestBackupFile).use { input ->
+                contentResolver.openInputStream(uri)?.use { input ->
                     FileOutputStream(dbFile).use { output ->
                         input.copyTo(output)
                     }
-                }
+                } ?: return Result.failure(Exception("Could not open input stream for backup file."))
+
+                android.util.Log.d("RestoreDB", "Restore successful.")
                 Result.success(Unit)
             } catch (e: Exception) {
+                android.util.Log.e("RestoreDB", "Restore failed with exception.", e)
                 e.printStackTrace()
                 Result.failure(e)
             }

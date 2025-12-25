@@ -89,8 +89,8 @@ class EmrRepositoryImpl(
         return backupDatabaseFile()
     }
 
-    override suspend fun restoreDatabase(): Result<Unit> {
-        return restoreDatabaseFile()
+    override suspend fun restoreDatabase(uriString: String): Result<Unit> {
+        return restoreDatabaseFile(uriString)
     }
 
 

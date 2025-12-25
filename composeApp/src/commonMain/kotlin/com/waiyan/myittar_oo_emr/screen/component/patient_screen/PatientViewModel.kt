@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.waiyan.myittar_oo_emr.usecase.BackupUseCase
 import com.waiyan.myittar_oo_emr.usecase.PatientUseCase
 import com.waiyan.myittar_oo_emr.usecase.RestoreUseCase
+import com.waiyan.myittar_oo_emr.util.triggerAppRestart
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -90,18 +91,12 @@ class PatientViewModel(
         }
     }
 
-    fun restoreDatabase() {
+    fun restoreDatabase(uriString: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            restoreUseCase().fold(
+            restoreUseCase(uriString).fold(
                 onSuccess = {
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            onError = "Restore successful!"
-                        )
-                    }
-                    getAllPatient() // Refresh patient list after successful restore
+                    triggerAppRestart()
                 },
                 onFailure = { exception ->
                     _uiState.update {

@@ -66,6 +66,7 @@ import com.waiyan.myittar_oo_emr.screen.component.MyittarOoEmrAppBar
 import com.waiyan.myittar_oo_emr.screen.component.PatientHistoryScreen
 import com.waiyan.myittar_oo_emr.screen.component.ReportScreen
 import com.waiyan.myittar_oo_emr.screen.component.ShowLoading
+import com.waiyan.myittar_oo_emr.util.FilePicker
 import com.waiyan.myittar_oo_emr.util.PermissionRequester
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -84,6 +85,7 @@ fun PatientScreen(
 
     var showPermissionRequester by remember { mutableStateOf(false) }
     var permissionAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+    var showFilePicker by remember { mutableStateOf(false) }
 
     if (showPermissionRequester) {
         PermissionRequester(
@@ -97,6 +99,16 @@ fun PatientScreen(
             }
         )
     }
+
+    FilePicker(
+        show = showFilePicker,
+        onFileSelected = { uri ->
+            showFilePicker = false
+            if (uri != null) {
+                patientViewModel.restoreDatabase(uri)
+            }
+        }
+    )
 
     LaunchedEffect(key1 = uiState.onError) {
         uiState.onError?.let {
@@ -178,8 +190,7 @@ fun PatientScreen(
                                     shape = RoundedCornerShape(16.dp)
                                 ),
                             onClick = {
-                                permissionAction = { patientViewModel.restoreDatabase() }
-                                showPermissionRequester = true
+                                showFilePicker = true
                             }
                         ) {
                             Icon(
