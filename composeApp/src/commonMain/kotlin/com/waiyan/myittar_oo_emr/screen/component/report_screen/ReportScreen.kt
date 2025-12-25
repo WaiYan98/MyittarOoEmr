@@ -20,11 +20,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.Icon
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.waiyan.myittar_oo_emr.data.UpcomingFollowUp
+import com.waiyan.myittar_oo_emr.screen.component.InputField
 import com.waiyan.myittar_oo_emr.screen.component.MyittarOoEmrAppBar
 import com.waiyan.myittar_oo_emr.screen.component.ReportCard
 import com.waiyan.myittar_oo_emr.screen.component.TableBody
@@ -44,6 +52,9 @@ fun ReportScreen(
     var selectedPageIndex by remember { mutableStateOf(1) }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackBarHostState = remember { SnackbarHostState() }
+
+    var startDate by remember { mutableStateOf("") }
+    var endDate by remember { mutableStateOf("") }
 
 
     LaunchedEffect(key1 = uiState.error) {
@@ -83,7 +94,11 @@ fun ReportScreen(
                         todayIncome = report.todayIncome.toString(),
                         thisMonthIncome = report.thisMonthIncome.toString(),
                         thisYearIncome = report.thisYearIncome.toString(),
-                        upcomingFollowUps = report.upcomingFollowUps
+                        upcomingFollowUps = report.upcomingFollowUps,
+                        startDate = startDate,
+                        endDate = endDate,
+                        onStartDateChange = { startDate = it },
+                        onEndDateChange = { endDate = it }
                     )
                 }
             }
@@ -97,7 +112,11 @@ fun ReportDisplay(
     todayIncome: String,
     thisMonthIncome: String,
     thisYearIncome: String,
-    upcomingFollowUps: List<UpcomingFollowUp>
+    upcomingFollowUps: List<UpcomingFollowUp>,
+    startDate: String,
+    endDate: String,
+    onStartDateChange: (String) -> Unit,
+    onEndDateChange: (String) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxWidth(0.75f),
@@ -135,6 +154,69 @@ fun ReportDisplay(
 
             Spacer(Modifier.height(32.dp))
 
+            Title("Monthly Income", fontSize = 24.sp)
+
+            Spacer(Modifier.height(16.dp))
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                InputField(
+                    modifier = Modifier.weight(1f),
+                    value = startDate,
+                    onValueChange = onStartDateChange,
+                    label = "Start Date",
+                    placeholder = "Pick Start Date",
+                    readOnly = true,
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.DateRange,
+                            contentDescription = "Start Date Icon"
+                        )
+                    }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                InputField(
+                    modifier = Modifier.weight(1f),
+                    value = endDate,
+                    onValueChange = onEndDateChange,
+                    label = "End Date",
+                    placeholder = "Pick End Date",
+                    readOnly = true,
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.DateRange,
+                            contentDescription = "End Date Icon"
+                        )
+                    }
+                )
+            }
+
+            Spacer(Modifier.height(16.dp))
+        }
+
+        item {
+            TableHeader(
+                title1 = "Month",
+                title2 = "",
+                title3 = "",
+                title4 = "Total Income"
+            )
+        }
+
+        item {
+            // Placeholder for the list
+            TableBody(
+                data1 = "January",
+                data2 = "",
+                data3 = "",
+                data4 = "1,000,000 MMK"
+            )
+        }
+
+        item {
+            Spacer(Modifier.height(32.dp))
+        }
+
+        item {
             Title("Upcoming Follow-Ups", fontSize = 24.sp)
 
             Spacer(Modifier.height(16.dp))

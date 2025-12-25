@@ -129,7 +129,7 @@ fun InputField(
 ) {
 
     Column(
-        modifier = Modifier.fillMaxWidth(0.5f),
+        modifier = modifier,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start
     ) {
