@@ -61,10 +61,17 @@ fun ReportScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackBarHostState = remember { SnackbarHostState() }
 
-    var startDate by remember { mutableStateOf("") }
-    var endDate by remember { mutableStateOf("") }
+    val initialEndDate = LocalTime.getCurrentTimeMillis()
+    val initialStartDate = initialEndDate - 31536000000L // 365 days, one year ago
+
+    var startDate by remember { mutableStateOf(initialStartDate) }
+    var endDate by remember { mutableStateOf(initialEndDate) }
     var showStartDatePicker by remember { mutableStateOf(false) }
     var showEndDatePicker by remember { mutableStateOf(false) }
+
+    LaunchedEffect(true) { // Initial call to load data with default dates
+        viewModel.onDateRangeChanged(startDate, endDate)
+    }
 
     val monthlyIncome by viewModel.monthlyIncomes.collectAsStateWithLifecycle()
 
@@ -76,7 +83,8 @@ fun ReportScreen(
                     content = { Text("Confirm") },
                     onClick = {
                         datePickerState.selectedDateMillis?.let { timeStamp ->
-                            startDate = LocalTime.getHumanDate(timeStamp)
+                            startDate = timeStamp
+                            viewModel.onDateRangeChanged(startDate, endDate)
                             showStartDatePicker = false
                         }
                     }
@@ -107,7 +115,8 @@ fun ReportScreen(
                     content = { Text("Confirm") },
                     onClick = {
                         datePickerState.selectedDateMillis?.let { timeStamp ->
-                            endDate = LocalTime.getHumanDate(timeStamp)
+                            endDate = timeStamp
+                            viewModel.onDateRangeChanged(startDate, endDate)
                             showEndDatePicker = false
                         }
                     }
@@ -168,13 +177,11 @@ fun ReportScreen(
                         thisMonthIncome = report.thisMonthIncome.toString(),
                         thisYearIncome = report.thisYearIncome.toString(),
                         upcomingFollowUps = report.upcomingFollowUps,
-                        startDate = startDate,
-                        endDate = endDate,
-                        onStartDateChange = { startDate = it },
-                        onEndDateChange = { endDate = it },
+                        monthlyIncomes = monthlyIncomes,
+                        startDate = LocalTime.getHumanDate(startDate),
+                        endDate = LocalTime.getHumanDate(endDate),
                         onStartDateClick = { showStartDatePicker = true },
-                        onEndDateClick = { showEndDatePicker = true },
-                        monthlyIncomes = monthlyIncome
+                        onEndDateClick = { showEndDatePicker = true }
                     )
                 }
             }
@@ -192,8 +199,6 @@ fun ReportDisplay(
     upcomingFollowUps: List<UpcomingFollowUp>,
     startDate: String,
     endDate: String,
-    onStartDateChange: (String) -> Unit,
-    onEndDateChange: (String) -> Unit,
     onStartDateClick: () -> Unit,
     onEndDateClick: () -> Unit
 ) {
