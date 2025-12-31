@@ -3,14 +3,7 @@ package com.waiyan.myittar_oo_emr.screen.component.patient_form_screen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.waiyan.myittar_oo_emr.data.PatientForm
-import com.waiyan.myittar_oo_emr.data.ValidationResult
-import com.waiyan.myittar_oo_emr.data.entity.FollowUp
-import com.waiyan.myittar_oo_emr.data.entity.MedicalInfo
-import com.waiyan.myittar_oo_emr.data.entity.Patient
-import com.waiyan.myittar_oo_emr.data.entity.Visit
-import com.waiyan.myittar_oo_emr.local_service.EmrRepository
 import com.waiyan.myittar_oo_emr.usecase.PatientFormUseCase
-import com.waiyan.myittar_oo_emr.util.Validator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

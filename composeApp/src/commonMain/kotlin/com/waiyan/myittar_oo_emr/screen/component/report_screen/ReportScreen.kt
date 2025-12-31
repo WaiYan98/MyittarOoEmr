@@ -177,7 +177,7 @@ fun ReportScreen(
                         thisMonthIncome = report.thisMonthIncome.toString(),
                         thisYearIncome = report.thisYearIncome.toString(),
                         upcomingFollowUps = report.upcomingFollowUps,
-                        monthlyIncomes = monthlyIncomes,
+                        monthlyIncomes = monthlyIncome,
                         startDate = LocalTime.getHumanDate(startDate),
                         endDate = LocalTime.getHumanDate(endDate),
                         onStartDateClick = { showStartDatePicker = true },
