@@ -51,7 +51,7 @@ class PatientViewModel(
     fun getAllPatient() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            patientUseCase.getAllPatients().fold(
+            patientUseCase.getPatientsSortedByRecentVisit().fold(
                 onSuccess = { patients ->
                     _uiState.update { it.copy(isLoading = false, success = patients) }
                 },
