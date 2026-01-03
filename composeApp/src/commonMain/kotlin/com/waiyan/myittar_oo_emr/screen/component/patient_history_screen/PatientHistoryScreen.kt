@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.waiyan.myittar_oo_emr.data.PatientWithDetail
 import com.waiyan.myittar_oo_emr.data.VisitAndFollowUpForm
+import com.waiyan.myittar_oo_emr.data.entity.MedicalInfo
 import com.waiyan.myittar_oo_emr.data.entity.Patient
 import com.waiyan.myittar_oo_emr.screen.component.AppBar
 import com.waiyan.myittar_oo_emr.screen.component.DisplayInfoCard
@@ -125,7 +126,8 @@ fun PatientHistoryScreen(
             }
         ) { values ->
             Box(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .padding(
                         values,
                     ),
@@ -188,9 +190,36 @@ fun PatientHistoryScreen(
                             editPatientInfoState = !editPatientInfoState
                         },
                         onclickEditContactInfo = {
+                            if (editContactInfoState) {
+                                val editPatient = Patient(
+                                    id = patientWithDetail.patient.id,
+                                    name = name,
+                                    age = age.toIntOrNull() ?: 0,
+                                    gender = gender,
+                                    phone = phone,
+                                    address = address
+                                )
+                                viewModel.updatePatientInfo(
+                                    patientWithDetail.patient,
+                                    editPatient
+                                )
+                            }
                             editContactInfoState = !editContactInfoState
                         },
                         onClickEditMedicalInfo = {
+                            if (editMedicalInfoState) {
+                                val editMedicalInfo = MedicalInfo(
+                                    id = patientWithDetail.medicalInfo.id,
+                                    patientId = patientWithDetail.patient.id,
+                                    allergies = allergies,
+                                    chronicConditions = chronicConditions,
+                                    currentMedication = currentMedication
+                                )
+                                viewModel.updateMedicalInfo(
+                                    patientWithDetail.medicalInfo,
+                                    editMedicalInfo
+                                )
+                            }
                             editMedicalInfoState = !editMedicalInfoState
                         },
                         onEditPatientNameChange = { name = it },
