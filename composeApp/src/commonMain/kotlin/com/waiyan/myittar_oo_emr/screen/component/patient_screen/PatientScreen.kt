@@ -62,6 +62,7 @@ import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
 import com.waiyan.myittar_oo_emr.screen.component.MyittarOoEmrAppBar
 import com.waiyan.myittar_oo_emr.screen.component.PatientHistoryScreen
 import com.waiyan.myittar_oo_emr.screen.component.ReportScreen
+import com.waiyan.myittar_oo_emr.screen.component.ShowEmptyMessage
 import com.waiyan.myittar_oo_emr.screen.component.ShowLoading
 import com.waiyan.myittar_oo_emr.util.FilePicker
 import com.waiyan.myittar_oo_emr.util.PermissionRequester
@@ -127,7 +128,8 @@ fun PatientScreen(
 
                     SearchBar(
                         enabled = !uiState.isBackingUp,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .padding(start = 16.dp, end = 16.dp),
                         value = searchQuery,
                         onValueChange = patientViewModel::onSearchQueryChanged
@@ -213,9 +215,14 @@ fun PatientScreen(
                 ShowLoading()
             }
 
+            if (uiState.success.isEmpty()) {
+                ShowEmptyMessage()
+            }
+
             LazyColumn(
                 userScrollEnabled = !uiState.isBackingUp,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .padding(
                         start = 16.dp,
                         end = 16.dp,
@@ -232,7 +239,7 @@ fun PatientScreen(
                     key = { patient -> patient.id }
                 ) { patient ->
                     PatientCard(
-                        enabled =!uiState.isBackingUp,
+                        enabled = !uiState.isBackingUp,
                         id = patient.id.toString(),
                         name = patient.name,
                         age = patient.age.toString(),
@@ -294,7 +301,8 @@ fun PatientCard(
         onClick = { onclickPatient(id.toLong()) }
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
 //                .background(White)
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -304,7 +312,8 @@ fun PatientCard(
                 Icons.Filled.Person,
                 "profile_img",
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.clip(CircleShape)
+                modifier = Modifier
+                    .clip(CircleShape)
                     .size(48.dp)
                     .background(Red)
             )

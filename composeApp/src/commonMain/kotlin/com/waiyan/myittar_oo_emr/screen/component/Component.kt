@@ -171,7 +171,8 @@ fun LargeInputField(
         Text(label)
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .height(144.dp),
             shape = RoundedCornerShape(8.dp),
             value = value,
@@ -196,7 +197,8 @@ fun DisplayInfoCard(
         contentAlignment = Alignment.TopStart
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(top = 16.dp),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
@@ -237,7 +239,8 @@ fun TableHeader(
 
 
     Row(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .border(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.primary,
@@ -290,7 +293,8 @@ fun TableBody(
 ) {
 
     Row(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .border(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.primary,
@@ -345,7 +349,8 @@ fun TitleCard(
             shape = RoundedCornerShape(8.dp)
         ) {
             Box(
-                modifier = Modifier.wrapContentWidth()
+                modifier = Modifier
+                    .wrapContentWidth()
                     .padding(16.dp),
             ) {
                 Title(text = title1, fontSize = 24.sp)
@@ -357,7 +362,8 @@ fun TitleCard(
             shape = RoundedCornerShape(8.dp)
         ) {
             Box(
-                modifier = Modifier.wrapContentWidth()
+                modifier = Modifier
+                    .wrapContentWidth()
                     .padding(16.dp),
             ) {
                 Title(text = title2, fontSize = 24.sp)
@@ -381,7 +387,8 @@ fun ReportCard(
             shape = RoundedCornerShape(8.dp)
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(32.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.Start
@@ -399,7 +406,8 @@ fun ReportCard(
             shape = RoundedCornerShape(8.dp),
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(32.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.Start
@@ -415,7 +423,8 @@ fun ReportCard(
 @Composable
 fun ShowLoading() {
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
             .background(
                 Color(0x00000000)
             ),
@@ -424,6 +433,17 @@ fun ShowLoading() {
         CircularProgressIndicator(
             color = Red
         )
+    }
+}
+
+@Composable
+fun ShowEmptyMessage() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text("Empty Patient")
     }
 }
 
