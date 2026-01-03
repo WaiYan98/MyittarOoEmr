@@ -80,22 +80,7 @@ fun PatientScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     val lifeCycleOwner = LocalLifecycleOwner.current
 
-    var showPermissionRequester by remember { mutableStateOf(false) }
-    var permissionAction by remember { mutableStateOf<(() -> Unit)?>(null) }
     var showFilePicker by remember { mutableStateOf(false) }
-
-    if (showPermissionRequester) {
-        PermissionRequester(
-            onPermissionGranted = {
-                showPermissionRequester = false
-                permissionAction?.invoke()
-            },
-            onPermissionDenied = {
-                showPermissionRequester = false
-                // TODO: Show a message to the user that permissions are required.
-            }
-        )
-    }
 
     FilePicker(
         show = showFilePicker,
@@ -166,8 +151,7 @@ fun PatientScreen(
                                     shape = RoundedCornerShape(16.dp)
                                 ),
                             onClick = {
-                                permissionAction = { patientViewModel.backupDatabase() }
-                                showPermissionRequester = true
+                                patientViewModel.backupDatabase()
                             }
                         ) {
                             Icon(

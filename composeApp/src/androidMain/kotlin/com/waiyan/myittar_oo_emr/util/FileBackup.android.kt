@@ -1,12 +1,13 @@
 package com.waiyan.myittar_oo_emr.util
 
-import android.os.Environment
+import android.content.ContentValues
+import android.os.Build
+import android.provider.MediaStore
 import com.waiyan.myittar_oo_emr.di.AndroidAppContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -19,33 +20,49 @@ actual suspend fun backupDatabaseFile(): Result<Unit> = withContext(Dispatchers.
         val database: com.waiyan.myittar_oo_emr.local.database.EmrDatabase by inject()
 
         fun backup(): Result<Unit> {
-            return try {
-                android.util.Log.d("BackupDB", "Starting backup process.")
+            val context = appContext.context
+            val contentResolver = context.contentResolver
+            val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
+            val backupFileName = "emr_backup_${dateFormat.format(Date())}.db"
 
-                val context = appContext.context
-                val dbFile = context.getDatabasePath("emr_database.db")
+            val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+            } else {
+                MediaStore.Downloads.EXTERNAL_CONTENT_URI
+            }
 
-                val downloadsDir =
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                if (!downloadsDir.exists()) {
-                    downloadsDir.mkdirs()
+            val contentValues = ContentValues().apply {
+                put(MediaStore.Downloads.DISPLAY_NAME, backupFileName)
+                put(MediaStore.Downloads.MIME_TYPE, "application/octet-stream")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    put(MediaStore.Downloads.IS_PENDING, 1)
                 }
+            }
 
-                val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
-                val backupFileName = "emr_backup_${dateFormat.format(Date())}.db"
-                val backupFile = File(downloadsDir, backupFileName)
+            val uri = contentResolver.insert(collection, contentValues)
+                ?: return Result.failure(Exception("Failed to create new MediaStore entry."))
 
-                FileInputStream(dbFile).use { input ->
-                    FileOutputStream(backupFile).use { output ->
-                        input.copyTo(output)
+            try {
+                contentResolver.openOutputStream(uri)?.use { outputStream ->
+                    val dbFile = context.getDatabasePath("emr_database.db")
+                    FileInputStream(dbFile).use { inputStream ->
+                        inputStream.copyTo(outputStream)
                     }
+                } ?: return Result.failure(Exception("Failed to open output stream."))
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    contentValues.clear()
+                    contentValues.put(MediaStore.Downloads.IS_PENDING, 0)
+                    contentResolver.update(uri, contentValues, null, null)
                 }
                 android.util.Log.d("BackupDB", "Backup successful.")
-                Result.success(Unit)
+                return Result.success(Unit)
             } catch (e: Exception) {
+                // If something fails, delete the created entry
+                contentResolver.delete(uri, null, null)
                 android.util.Log.e("BackupDB", "Backup failed with exception.", e)
                 e.printStackTrace()
-                Result.failure(e)
+                return Result.failure(e)
             }
         }
     }.backup()
