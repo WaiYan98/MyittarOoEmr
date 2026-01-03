@@ -22,11 +22,6 @@ actual suspend fun backupDatabaseFile(): Result<Unit> = withContext(Dispatchers.
             return try {
                 android.util.Log.d("BackupDB", "Starting backup process.")
 
-                android.util.Log.d("BackupDB", "Disabling and re-enabling WAL to force checkpoint.")
-                database.openHelper.setWriteAheadLoggingEnabled(false)
-                database.openHelper.setWriteAheadLoggingEnabled(true)
-                android.util.Log.d("BackupDB", "Checkpoint complete.")
-
                 val context = appContext.context
                 val dbFile = context.getDatabasePath("emr_database.db")
 

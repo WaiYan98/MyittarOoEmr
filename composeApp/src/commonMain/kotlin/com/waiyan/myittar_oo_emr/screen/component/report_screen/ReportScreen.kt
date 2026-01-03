@@ -156,7 +156,8 @@ fun ReportScreen(
                         navController.navigateUp()
                         selectedPageIndex = 0
                     },
-                    selectedPageIndex = selectedPageIndex
+                    selectedPageIndex = selectedPageIndex,
+                    enabled = true
                 )
             },
             snackbarHost = {
@@ -165,7 +166,8 @@ fun ReportScreen(
         ) { values ->
 
             Box(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .padding(values),
                 contentAlignment = Alignment.TopCenter
             ) {
@@ -259,7 +261,8 @@ fun ReportDisplay(
                         }
                     )
                     Spacer(
-                        modifier = Modifier.matchParentSize()
+                        modifier = Modifier
+                            .matchParentSize()
                             .background(Color.Transparent)
                             .clickable { onStartDateClick() }
                     )
@@ -281,7 +284,8 @@ fun ReportDisplay(
                         }
                     )
                     Spacer(
-                        modifier = Modifier.matchParentSize()
+                        modifier = Modifier
+                            .matchParentSize()
                             .background(Color.Transparent)
                             .clickable { onEndDateClick() }
                     )

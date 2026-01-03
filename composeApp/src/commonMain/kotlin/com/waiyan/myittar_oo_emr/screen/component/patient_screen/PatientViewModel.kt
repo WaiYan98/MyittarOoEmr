@@ -30,6 +30,7 @@ class PatientViewModel(
         combine(_searchQuery, _uiState) { _searchQuery, _uiState ->
             PatientScreenUiState(
                 isLoading = _uiState.isLoading,
+                isBackingUp = _uiState.isBackingUp,
                 onError = _uiState.onError,
                 success = if (_searchQuery.isBlank()) {
                     _uiState.success
@@ -69,12 +70,18 @@ class PatientViewModel(
 
     fun backupDatabase() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            _uiState.update {
+                it.copy(
+                    isLoading = true,
+                    isBackingUp = true
+                )
+            }
             backupUseCase().fold(
                 onSuccess = {
                     _uiState.update {
                         it.copy(
                             isLoading = false,
+                            isBackingUp = false,
                             onError = "Backup successful!"
                         )
                     }
@@ -83,6 +90,7 @@ class PatientViewModel(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
+                            isBackingUp = false,
                             onError = "Backup failed: ${exception.message}"
                         )
                     }

@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun MyittarOoEmrAppBar(
     modifier: Modifier,
+    enabled: Boolean,
     onClickHome: () -> Unit,
     onClickReport: () -> Unit,
     selectedPageIndex: Int
@@ -74,6 +75,7 @@ fun MyittarOoEmrAppBar(
         },
         actions = {
             TextButton(
+                enabled = enabled,
                 modifier = Modifier.border(
                     1.dp,
                     color = if (selectedPageIndex == 0) MaterialTheme.colorScheme.primary
@@ -88,6 +90,7 @@ fun MyittarOoEmrAppBar(
             Spacer(modifier = Modifier.width(8.dp))
 
             TextButton(
+                enabled = enabled,
                 modifier = Modifier.border(
                     1.dp,
                     color = if (selectedPageIndex == 1) MaterialTheme.colorScheme.primary

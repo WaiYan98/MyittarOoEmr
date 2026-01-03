@@ -55,11 +55,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
 import com.waiyan.myittar_oo_emr.screen.component.MyittarOoEmrAppBar
@@ -133,7 +130,8 @@ fun PatientScreen(
             topBar = {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     MyittarOoEmrAppBar(
-                        Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !uiState.isBackingUp,
                         onClickHome = { selectedPageIndex = 0 },
                         onClickReport = {
                             navController.navigate(ReportScreen)
@@ -143,6 +141,7 @@ fun PatientScreen(
                     )
 
                     SearchBar(
+                        enabled = !uiState.isBackingUp,
                         modifier = Modifier.fillMaxWidth()
                             .padding(start = 16.dp, end = 16.dp),
                         value = searchQuery,
@@ -158,6 +157,7 @@ fun PatientScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         TextButton(
+                            enabled = !uiState.isBackingUp,
                             modifier = Modifier
                                 .weight(1f)
                                 .border(
@@ -182,6 +182,7 @@ fun PatientScreen(
                         Spacer(modifier = Modifier.width(8.dp))
 
                         TextButton(
+                            enabled = !uiState.isBackingUp,
                             modifier = Modifier
                                 .weight(1f)
                                 .border(
@@ -209,7 +210,13 @@ fun PatientScreen(
                 SnackbarHost(snackBarHostState)
             },
             floatingActionButton = {
-                FloatingActionButton(onClick = onClickAdd) {
+                FloatingActionButton(
+                    onClick = {
+                        if (!uiState.isBackingUp) {
+                            onClickAdd()
+                        }
+                    }
+                ) {
                     Icon(
                         Icons.Filled.Add,
                         "insert_data"
@@ -223,6 +230,7 @@ fun PatientScreen(
             }
 
             LazyColumn(
+                userScrollEnabled = !uiState.isBackingUp,
                 modifier = Modifier.fillMaxSize()
                     .padding(
                         start = 16.dp,
@@ -240,6 +248,7 @@ fun PatientScreen(
                     key = { patient -> patient.id }
                 ) { patient ->
                     PatientCard(
+                        enabled =!uiState.isBackingUp,
                         id = patient.id.toString(),
                         name = patient.name,
                         age = patient.age.toString(),
@@ -259,10 +268,12 @@ fun PatientScreen(
 @Composable
 fun SearchBar(
     modifier: Modifier,
+    enabled: Boolean,
     value: String,
     onValueChange: (String) -> Unit,
 ) {
     TextField(
+        enabled = enabled,
         modifier = modifier,
         value = value,
         onValueChange = onValueChange,
@@ -285,6 +296,7 @@ fun SearchBar(
 
 @Composable
 fun PatientCard(
+    enabled: Boolean,
     id: String,
     name: String,
     age: String,
@@ -293,6 +305,7 @@ fun PatientCard(
     onclickPatient: (Long) -> Unit
 ) {
     Card(
+        enabled = enabled,
         modifier = Modifier.fillMaxWidth(),
         onClick = { onclickPatient(id.toLong()) }
     ) {

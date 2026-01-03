@@ -11,5 +11,5 @@ fun getDatabaseBuilder(context: Context): RoomDatabase.Builder<EmrDatabase> {
     return Room.databaseBuilder<EmrDatabase>(
         context = appContext,
         name = dbFile.absolutePath
-    )
+    ).setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
 }
