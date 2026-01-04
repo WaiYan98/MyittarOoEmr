@@ -16,8 +16,7 @@ class PatientUseCase(
         val patientsWithVisits = emrRepository.getPatientWithVisitAndFollowUp().first()
         patientsWithVisits.sortedByDescending { patientWithVisit ->
             val maxVisitDate = patientWithVisit.visits.maxOfOrNull { it.date } ?: 0
-            val maxFollowUpDate = patientWithVisit.followUp.maxOfOrNull { it.date } ?: 0
-            maxOf(maxVisitDate, maxFollowUpDate)
+            maxVisitDate
         }.map { it.patient }
     }
 }
