@@ -8,10 +8,6 @@ class PatientUseCase(
     private val emrRepository: EmrRepository
 ) {
 
-    suspend fun getAllPatients(): Result<List<Patient>> = runCatching {
-        emrRepository.getAllPatient().first()
-    }
-
     suspend fun getPatientsSortedByRecentVisit(): Result<List<Patient>> = runCatching {
         val patientsWithVisits = emrRepository.getPatientWithVisitAndFollowUp().first()
         patientsWithVisits.sortedByDescending { patientWithVisit ->
