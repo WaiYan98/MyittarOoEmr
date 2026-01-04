@@ -47,6 +47,8 @@ kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-t
 
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" } # Added mockk library
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" } # Added mockk-android library
+mockk-agent-jvm = { module = "io.mockk:mockk-agent-jvm", version.ref = "mockk" }
+
 
 # Koin
 koin-core = { module = "io.insert-koin:koin-core" }
