@@ -338,19 +338,6 @@ fun PatientCard(
 
                 Text(address)
             }
-
-            Box(
-                Modifier.fillMaxSize(),
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                IconButton(onClick = {}) {
-                    Icon(
-                        Icons.Filled.HeartBroken,
-                        "arrow_icon"
-                    )
-                }
-
-            }
         }
     }
 }

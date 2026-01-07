@@ -14,12 +14,15 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 
 class PatientHistoryUseCase(private val emrRepository: EmrRepository) {
 
     suspend fun getPatientHistory(patientId: Long): Result<PatientWithDetail> {
         return runCatching {
-            emrRepository.getPatientWithDetail(patientId).first()
+            val patientWithDetail = emrRepository.getPatientWithDetail(patientId).first()
+            val sortedVisits = patientWithDetail.visits.sortedByDescending { it.date }
+            patientWithDetail.copy(visits = sortedVisits)
         }
     }
 
@@ -73,7 +76,7 @@ class PatientHistoryUseCase(private val emrRepository: EmrRepository) {
     }
 
     suspend fun updateMedicalInfo(medicalInfo: MedicalInfo): Result<Unit> = runCatching {
-      emrRepository.upsertMedicalInfo(medicalInfo).getOrThrow()
+        emrRepository.upsertMedicalInfo(medicalInfo).getOrThrow()
     }
 
 }
