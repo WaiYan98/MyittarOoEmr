@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.waiyan.myittar_oo_emr.screen.component.AppBar
+import com.waiyan.myittar_oo_emr.screen.component.GenderFilterChip
 import com.waiyan.myittar_oo_emr.screen.component.InputField
 import com.waiyan.myittar_oo_emr.screen.component.LargeInputField
 import com.waiyan.myittar_oo_emr.screen.component.Title
@@ -501,32 +502,4 @@ fun VisitForm(
     )
 }
 
-
-@Composable
-fun GenderFilterChip(
-    selectedOption: Gender,
-    onSelectItem: (Gender) -> Unit
-) {
-    val genderOptionList = listOf(Gender.MALE, Gender.FEMALE, Gender.OTHER)
-
-    Row(
-        modifier = Modifier.fillMaxSize(),
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        genderOptionList.forEach { option ->
-            FilterChip(
-                selected = option == selectedOption,
-                label = {
-                    Text(
-                        option.name,
-                        modifier = Modifier.align(Alignment.CenterVertically)
-                    )
-                },
-                onClick = { onSelectItem(option) }
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-        }
-    }
-}
 

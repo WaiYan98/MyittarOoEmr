@@ -27,6 +27,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,15 +43,21 @@ import com.waiyan.myittar_oo_emr.data.entity.MedicalInfo
 import com.waiyan.myittar_oo_emr.data.entity.Patient
 import com.waiyan.myittar_oo_emr.screen.component.AppBar
 import com.waiyan.myittar_oo_emr.screen.component.DisplayInfoCard
+import com.waiyan.myittar_oo_emr.screen.component.GenderFilterChip
 import com.waiyan.myittar_oo_emr.screen.component.ShowLoading
 import com.waiyan.myittar_oo_emr.screen.component.TableBody
 import com.waiyan.myittar_oo_emr.screen.component.TableHeader
 import com.waiyan.myittar_oo_emr.screen.component.Title
+import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.Gender
 import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.ShowFollowUpForm
 import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.VisitForm
 import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
 import com.waiyan.myittar_oo_emr.util.LocalTime
 import org.koin.compose.viewmodel.koinViewModel
+
+private fun stringToGender(genderStr: String): Gender {
+    return Gender.entries.find { it.name.equals(genderStr, ignoreCase = true) } ?: Gender.MALE
+}
 
 @Composable
 fun PatientHistoryScreen(
@@ -64,7 +71,7 @@ fun PatientHistoryScreen(
     var diagnosis by remember { mutableStateOf("") }
     var prescription by remember { mutableStateOf("") }
     var fee by remember { mutableStateOf("") }
-    var followUpTimeStamp by remember { mutableStateOf(0L) }
+    var followUpTimeStamp by remember { mutableLongStateOf(0L) }
     var followUpDate by remember { mutableStateOf("") }
     var reasonForFollowUp by remember { mutableStateOf("") }
     var isChecked by remember { mutableStateOf(false) }
@@ -73,7 +80,7 @@ fun PatientHistoryScreen(
     var editContactInfoState by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf("") }
     var age by remember { mutableStateOf("") }
-    var gender by remember { mutableStateOf("") }
+    var gender by remember { mutableStateOf(Gender.MALE) }
     var allergies by remember { mutableStateOf("") }
     var chronicConditions by remember { mutableStateOf("") }
     var currentMedication by remember { mutableStateOf("") }
@@ -106,7 +113,7 @@ fun PatientHistoryScreen(
         uiState.success?.let { patientWithDetail ->
             name = patientWithDetail.patient.name
             age = patientWithDetail.patient.age.toString()
-            gender = patientWithDetail.patient.gender
+            gender = stringToGender(patientWithDetail.patient.gender)
             phone = patientWithDetail.patient.phone
             address = patientWithDetail.patient.address
             allergies = patientWithDetail.medicalInfo.allergies
@@ -178,7 +185,7 @@ fun PatientHistoryScreen(
                                     id = patientWithDetail.patient.id,
                                     name = name,
                                     age = age.toIntOrNull() ?: 0,
-                                    gender = gender,
+                                    gender = gender.name,
                                     phone = phone,
                                     address = address
                                 )
@@ -195,7 +202,7 @@ fun PatientHistoryScreen(
                                     id = patientWithDetail.patient.id,
                                     name = name,
                                     age = age.toIntOrNull() ?: 0,
-                                    gender = gender,
+                                    gender = gender.name,
                                     phone = phone,
                                     address = address
                                 )
@@ -275,7 +282,7 @@ fun PatientHistoryDisplay(
     onClickAddNewVisit: () -> Unit,
     onEditPatientNameChange: (String) -> Unit,
     onEditPatientAgeChange: (String) -> Unit,
-    onEditPatientGenderChange: (String) -> Unit,
+    onEditPatientGenderChange: (Gender) -> Unit,
     onEditPatientPhoneChange: (String) -> Unit,
     onEditPatientAddressChange: (String) -> Unit,
     onEditPatientAllergiesChange: (String) -> Unit,
@@ -286,7 +293,7 @@ fun PatientHistoryDisplay(
     editContactInfoState: Boolean,
     name: String,
     age: String,
-    gender: String,
+    gender: Gender,
     phone: String,
     address: String,
     allergies: String,
@@ -337,12 +344,19 @@ fun PatientHistoryDisplay(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            DisplayInfoCard(
-                "Gender",
-                gender,
-                isEditing = editPatientInfoState,
-                onEditValueChange = onEditPatientGenderChange
-            )
+            if (editPatientInfoState) {
+                GenderFilterChip(
+                    selectedOption = gender,
+                    onSelectItem = onEditPatientGenderChange
+                )
+            } else {
+                DisplayInfoCard(
+                    "Gender",
+                    gender.name,
+                    isEditing = false,
+                    onEditValueChange = {}
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
