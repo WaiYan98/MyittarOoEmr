@@ -3,7 +3,9 @@ package com.waiyan.myittar_oo_emr.util
 import android.content.ContentValues
 import android.os.Build
 import android.provider.MediaStore
+import androidx.annotation.RequiresApi
 import com.waiyan.myittar_oo_emr.di.AndroidAppContext
+import com.waiyan.myittar_oo_emr.local.database.EmrDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
@@ -13,12 +15,12 @@ import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.core.net.toUri
 
 actual suspend fun backupDatabaseFile(): Result<Unit> = withContext(Dispatchers.IO) {
     object : KoinComponent {
         val appContext: AndroidAppContext by inject()
-        val database: com.waiyan.myittar_oo_emr.local.database.EmrDatabase by inject()
-
+        @RequiresApi(Build.VERSION_CODES.Q)
         fun backup(): Result<Unit> {
             val context = appContext.context
             val contentResolver = context.contentResolver
@@ -71,7 +73,7 @@ actual suspend fun backupDatabaseFile(): Result<Unit> = withContext(Dispatchers.
 actual suspend fun restoreDatabaseFile(uriString: String): Result<Unit> = withContext(Dispatchers.IO) {
     object : KoinComponent {
         val appContext: AndroidAppContext by inject()
-        val database: com.waiyan.myittar_oo_emr.local.database.EmrDatabase by inject()
+        val database: EmrDatabase by inject()
 
         fun restore(): Result<Unit> {
             return try {
@@ -80,7 +82,7 @@ actual suspend fun restoreDatabaseFile(uriString: String): Result<Unit> = withCo
                 val dbFile = context.getDatabasePath("emr_database.db")
                 val contentResolver = context.contentResolver
 
-                val uri = android.net.Uri.parse(uriString)
+                val uri = uriString.toUri()
 
                 android.util.Log.d("RestoreDB", "Closing database before restore.")
                 database.close()

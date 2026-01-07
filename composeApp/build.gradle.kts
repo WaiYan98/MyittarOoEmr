@@ -10,7 +10,6 @@ plugins {
     alias(libs.plugins.androidx.room)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.kover)
 }
 
 kotlin {
@@ -151,14 +150,6 @@ tasks.withType<com.google.devtools.ksp.gradle.KspAATask>().configureEach {
         it.name.startsWith("generate") && (it.name.contains("Resource") || it.name.contains("Res"))
     }
     dependsOn(resourceGenTasks)
-}
-
-koverReport {
-    verify {
-        rule {
-            minBound(0)
-        }
-    }
 }
 
 
