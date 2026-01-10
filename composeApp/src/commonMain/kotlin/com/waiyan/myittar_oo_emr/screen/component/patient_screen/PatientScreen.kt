@@ -1,8 +1,7 @@
-package com.waiyan.myittar_oo_emr.screen.component.patient_screen
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,12 +19,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.HeartBroken
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,16 +40,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.layout.ContentScale
@@ -64,9 +70,32 @@ import com.waiyan.myittar_oo_emr.screen.component.PatientHistoryScreen
 import com.waiyan.myittar_oo_emr.screen.component.ReportScreen
 import com.waiyan.myittar_oo_emr.screen.component.ShowEmptyMessage
 import com.waiyan.myittar_oo_emr.screen.component.ShowLoading
+import com.waiyan.myittar_oo_emr.screen.component.patient_screen.PatientViewModel
 import com.waiyan.myittar_oo_emr.util.FilePicker
 import com.waiyan.myittar_oo_emr.util.PermissionRequester
 import org.koin.compose.viewmodel.koinViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ContextualActionBar(
+    selectedItemCount: Int,
+    onCloseClick: () -> Unit,
+    onDeleteClick: () -> Unit
+) {
+    TopAppBar(
+        title = { Text("$selectedItemCount selected") },
+        navigationIcon = {
+            IconButton(onClick = onCloseClick) {
+                Icon(Icons.Default.Close, contentDescription = "Close")
+            }
+        },
+        actions = {
+            IconButton(onClick = onDeleteClick) {
+                Icon(Icons.Default.Delete, contentDescription = "Delete")
+            }
+        }
+    )
+}
 
 @Composable
 fun PatientScreen(
@@ -82,6 +111,8 @@ fun PatientScreen(
     val lifeCycleOwner = LocalLifecycleOwner.current
 
     var showFilePicker by remember { mutableStateOf(false) }
+    var isSelectionMode by remember { mutableStateOf(false) }
+    val selectedPatientIds = remember { mutableStateListOf<Long>() }
 
     FilePicker(
         show = showFilePicker,
@@ -114,99 +145,116 @@ fun PatientScreen(
     MyAppTheme {
         Scaffold(
             topBar = {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    MyittarOoEmrAppBar(
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = !uiState.isBackingUp,
-                        onClickHome = { selectedPageIndex = 0 },
-                        onClickReport = {
-                            navController.navigate(ReportScreen)
-                            selectedPageIndex = 1
+                if (isSelectionMode) {
+                    ContextualActionBar(
+                        selectedItemCount = selectedPatientIds.size,
+                        onCloseClick = {
+                            isSelectionMode = false
+                            selectedPatientIds.clear()
                         },
-                        selectedPageIndex = selectedPageIndex
+                        onDeleteClick = {
+                            // TODO: Add delete logic
+                            isSelectionMode = false
+                            selectedPatientIds.clear()
+                        }
                     )
+                } else {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        MyittarOoEmrAppBar(
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !uiState.isBackingUp,
+                            onClickHome = { selectedPageIndex = 0 },
+                            onClickReport = {
+                                navController.navigate(ReportScreen)
+                                selectedPageIndex = 1
+                            },
+                            selectedPageIndex = selectedPageIndex
+                        )
 
-                    SearchBar(
-                        enabled = !uiState.isBackingUp,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 16.dp, end = 16.dp),
-                        value = searchQuery,
-                        onValueChange = patientViewModel::onSearchQueryChanged
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 16.dp, end = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        TextButton(
+                        SearchBar(
                             enabled = !uiState.isBackingUp,
                             modifier = Modifier
-                                .weight(1f)
-                                .border(
-                                    1.dp,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    shape = RoundedCornerShape(16.dp)
-                                ),
-                            onClick = {
-                                patientViewModel.backupDatabase()
-                            }
-                        ) {
-                            Icon(
-                                Icons.Filled.SettingsBackupRestore,
-                                "backup_data",
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Backup", fontSize = 18.sp)
-                        }
+                                .fillMaxWidth()
+                                .padding(start = 16.dp, end = 16.dp),
+                            value = searchQuery,
+                            onValueChange = patientViewModel::onSearchQueryChanged
+                        )
 
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                        TextButton(
-                            enabled = !uiState.isBackingUp,
+                        Row(
                             modifier = Modifier
-                                .weight(1f)
-                                .border(
-                                    1.dp,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    shape = RoundedCornerShape(16.dp)
-                                ),
-                            onClick = {
-                                showFilePicker = true
-                            }
+                                .fillMaxWidth()
+                                .padding(start = 16.dp, end = 16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Icon(
-                                Icons.Filled.Restore,
-                                "restore_data",
-                                modifier = Modifier.size(24.dp)
-                            )
+                            TextButton(
+                                enabled = !uiState.isBackingUp,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .border(
+                                        1.dp,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        shape = RoundedCornerShape(16.dp)
+                                    ),
+                                onClick = {
+                                    patientViewModel.backupDatabase()
+                                }
+                            ) {
+                                Icon(
+                                    Icons.Filled.SettingsBackupRestore,
+                                    "backup_data",
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Backup", fontSize = 18.sp)
+                            }
+
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Restore", fontSize = 18.sp)
+
+                            TextButton(
+                                enabled = !uiState.isBackingUp,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .border(
+                                        1.dp,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        shape = RoundedCornerShape(16.dp)
+                                    ),
+                                onClick = {
+                                    showFilePicker = true
+                                }
+                            ) {
+                                Icon(
+                                    Icons.Filled.Restore,
+                                    "restore_data",
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Restore", fontSize = 18.sp)
+                            }
                         }
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
                 }
             },
             snackbarHost = {
                 SnackbarHost(snackBarHostState)
             },
             floatingActionButton = {
-                FloatingActionButton(
-                    onClick = {
-                        if (!uiState.isBackingUp) {
-                            onClickAdd()
+                if (!isSelectionMode) {
+                    FloatingActionButton(
+                        onClick = {
+                            if (!uiState.isBackingUp) {
+                                onClickAdd()
+                            }
                         }
+                    ) {
+                        Icon(
+                            Icons.Filled.Add,
+                            "insert_data"
+                        )
                     }
-                ) {
-                    Icon(
-                        Icons.Filled.Add,
-                        "insert_data"
-                    )
                 }
             }) { values ->
 
@@ -238,16 +286,34 @@ fun PatientScreen(
                     uiState.success,
                     key = { patient -> patient.id }
                 ) { patient ->
+                    val isSelected = selectedPatientIds.contains(patient.id)
                     PatientCard(
                         enabled = !uiState.isBackingUp,
                         id = patient.id.toString(),
                         name = patient.name,
                         age = patient.age.toString(),
                         gender = patient.gender,
-                        address = patient.address
-                    ) { patientId ->
-                        navController.navigate(PatientHistoryScreen(patientId))
-                    }
+                        address = patient.address,
+                        isSelected = isSelected,
+                        onLongClick = {
+                            isSelectionMode = true
+                            selectedPatientIds.add(patient.id)
+                        },
+                        onClick = {
+                            if (isSelectionMode) {
+                                if (isSelected) {
+                                    selectedPatientIds.remove(patient.id)
+                                    if (selectedPatientIds.isEmpty()) {
+                                        isSelectionMode = false
+                                    }
+                                } else {
+                                    selectedPatientIds.add(patient.id)
+                                }
+                            } else {
+                                navController.navigate(PatientHistoryScreen(patient.id))
+                            }
+                        }
+                    )
                     Spacer(Modifier.height(16.dp))
                 }
             }
@@ -293,30 +359,45 @@ fun PatientCard(
     age: String,
     gender: String,
     address: String,
-    onclickPatient: (Long) -> Unit
+    isSelected: Boolean,
+    onLongClick: () -> Unit,
+    onClick: () -> Unit
 ) {
     Card(
-        enabled = enabled,
-        modifier = Modifier.fillMaxWidth(),
-        onClick = { onclickPatient(id.toLong()) }
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                enabled = enabled,
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-//                .background(White)
+                .background(
+                    if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                    else MaterialTheme.colorScheme.surfaceVariant
+                )
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-
-            Image(
-                Icons.Filled.Person,
-                "profile_img",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .size(48.dp)
-                    .background(Red)
-            )
+            if (isSelected) {
+                Checkbox(
+                    checked = true,
+                    onCheckedChange = null
+                )
+            } else {
+                Image(
+                    Icons.Filled.Person,
+                    "profile_img",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .size(48.dp)
+                        .background(Red)
+                )
+            }
 
             Spacer(modifier = Modifier.width(16.dp))
 

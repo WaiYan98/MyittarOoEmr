@@ -1,5 +1,6 @@
 package com.waiyan.myittar_oo_emr.screen.component
 
+import PatientScreen
 import ReportScreen
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
@@ -7,7 +8,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.PatientFormScreen
 import com.waiyan.myittar_oo_emr.screen.component.patient_history_screen.PatientHistoryScreen
-import com.waiyan.myittar_oo_emr.screen.component.patient_screen.PatientScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
