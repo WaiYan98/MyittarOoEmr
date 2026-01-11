@@ -21,11 +21,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.HeartBroken
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SettingsBackupRestore
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -75,6 +75,28 @@ import com.waiyan.myittar_oo_emr.util.FilePicker
 import com.waiyan.myittar_oo_emr.util.PermissionRequester
 import org.koin.compose.viewmodel.koinViewModel
 
+@Composable
+fun DeleteConfirmationDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Delete Patients") },
+        text = { Text("Are you sure you want to permanently delete these patients?") },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("Yes")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("No")
+            }
+        }
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContextualActionBar(
@@ -113,6 +135,21 @@ fun PatientScreen(
     var showFilePicker by remember { mutableStateOf(false) }
     var isSelectionMode by remember { mutableStateOf(false) }
     val selectedPatientIds = remember { mutableStateListOf<Long>() }
+    var showDeleteConfirmationDialog by remember { mutableStateOf(false) }
+
+    if (showDeleteConfirmationDialog) {
+        DeleteConfirmationDialog(
+            onConfirm = {
+                // TODO: Add actual delete logic here
+                isSelectionMode = false
+                selectedPatientIds.clear()
+                showDeleteConfirmationDialog = false
+            },
+            onDismiss = {
+                showDeleteConfirmationDialog = false
+            }
+        )
+    }
 
     FilePicker(
         show = showFilePicker,
@@ -153,9 +190,7 @@ fun PatientScreen(
                             selectedPatientIds.clear()
                         },
                         onDeleteClick = {
-                            // TODO: Add delete logic
-                            isSelectionMode = false
-                            selectedPatientIds.clear()
+                            showDeleteConfirmationDialog = true
                         }
                     )
                 } else {
@@ -385,7 +420,7 @@ fun PatientCard(
             if (isSelected) {
                 Checkbox(
                     checked = true,
-                    onCheckedChange = null
+                    onCheckedChange = {}
                 )
             } else {
                 Image(
