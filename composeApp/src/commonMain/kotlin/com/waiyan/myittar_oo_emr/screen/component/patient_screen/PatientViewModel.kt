@@ -127,7 +127,12 @@ class PatientViewModel(
             _uiState.update { it.copy(isLoading = true) }
             patientUseCase.deletePatients(patientIds).fold(
                 onSuccess = {
-                    _uiState.update { it.copy(isLoading = false) }
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            onError = "Deleted ${patientIds.size} patients successfully!"
+                        )
+                    }
                     getAllPatient()
                 },
                 onFailure = { exception ->
