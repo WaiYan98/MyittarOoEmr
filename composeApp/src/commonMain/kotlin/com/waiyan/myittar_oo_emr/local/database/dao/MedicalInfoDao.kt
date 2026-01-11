@@ -2,6 +2,7 @@ package com.waiyan.myittar_oo_emr.local.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.Query
 import androidx.room.Upsert
 import com.waiyan.myittar_oo_emr.data.entity.MedicalInfo
 
@@ -10,5 +11,8 @@ interface MedicalInfoDao {
 
     @Upsert
     suspend fun upsert(medicalInfo: MedicalInfo)
+
+    @Query("DELETE FROM MedicalInfo WHERE patientId IN (:patientIds)")
+    suspend fun deleteMedicalInfosByIds(patientIds: List<Long>)
 
 }

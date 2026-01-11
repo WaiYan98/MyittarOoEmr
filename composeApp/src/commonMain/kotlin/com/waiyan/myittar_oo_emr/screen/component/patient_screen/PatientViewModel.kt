@@ -121,4 +121,21 @@ class PatientViewModel(
     fun onClearError() {
         _uiState.update { it.copy(onError = null) }
     }
+
+    fun deleteSelectedPatients(patientIds: List<Long>) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            patientUseCase.deletePatients(patientIds).fold(
+                onSuccess = {
+                    _uiState.update { it.copy(isLoading = false) }
+                    getAllPatient()
+                },
+                onFailure = { exception ->
+                    _uiState.update {
+                        it.copy(isLoading = false, onError = exception.message)
+                    }
+                }
+            )
+        }
+    }
 }

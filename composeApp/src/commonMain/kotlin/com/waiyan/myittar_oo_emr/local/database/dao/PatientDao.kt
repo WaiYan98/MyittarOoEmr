@@ -29,5 +29,7 @@ interface PatientDao {
     @Query("SELECT * FROM Patient WHERE id=:patientId")
     fun getPatientById(patientId: Long): Flow<Patient>
 
+    @Query("DELETE FROM Patient WHERE id IN (:patientIds)")
+    suspend fun deletePatientsByIds(patientIds: List<Long>)
 
 }

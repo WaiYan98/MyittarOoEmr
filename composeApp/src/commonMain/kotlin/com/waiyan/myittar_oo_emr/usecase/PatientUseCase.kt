@@ -15,4 +15,8 @@ class PatientUseCase(
             maxVisitDate
         }.map { it.patient }
     }
+
+    suspend fun deletePatients(patientIds: List<Long>): Result<Unit> = runCatching {
+        emrRepository.deletePatients(patientIds)
+    }
 }

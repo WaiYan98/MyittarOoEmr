@@ -26,4 +26,7 @@ interface VisitDao {
                 "GROUP BY month ORDER BY month DESC"
     )
     fun getMonthlyIncome(startDate: Long, endDate: Long): Flow<List<MonthlyIncome>>
+
+    @Query("DELETE FROM visit WHERE patientId IN (:patientIds)")
+    suspend fun deleteVisitsByIds(patientIds: List<Long>)
 }

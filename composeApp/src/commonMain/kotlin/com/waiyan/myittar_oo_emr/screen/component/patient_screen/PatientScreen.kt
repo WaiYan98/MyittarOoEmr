@@ -3,7 +3,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -52,7 +51,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.layout.ContentScale
@@ -72,7 +70,6 @@ import com.waiyan.myittar_oo_emr.screen.component.ShowEmptyMessage
 import com.waiyan.myittar_oo_emr.screen.component.ShowLoading
 import com.waiyan.myittar_oo_emr.screen.component.patient_screen.PatientViewModel
 import com.waiyan.myittar_oo_emr.util.FilePicker
-import com.waiyan.myittar_oo_emr.util.PermissionRequester
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -140,7 +137,7 @@ fun PatientScreen(
     if (showDeleteConfirmationDialog) {
         DeleteConfirmationDialog(
             onConfirm = {
-                // TODO: Add actual delete logic here
+                patientViewModel.deleteSelectedPatients(selectedPatientIds.toList())
                 isSelectionMode = false
                 selectedPatientIds.clear()
                 showDeleteConfirmationDialog = false

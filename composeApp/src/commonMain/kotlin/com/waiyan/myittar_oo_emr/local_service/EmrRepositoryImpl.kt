@@ -1,5 +1,6 @@
 package com.waiyan.myittar_oo_emr.local_service
 
+import androidx.room.withTransaction
 import com.waiyan.myittar_oo_emr.data.MonthlyIncome
 
 import com.waiyan.myittar_oo_emr.data.PatientWithDetail
@@ -14,6 +15,7 @@ import com.waiyan.myittar_oo_emr.data.entity.Patient
 
 import com.waiyan.myittar_oo_emr.data.entity.Visit
 
+import com.waiyan.myittar_oo_emr.local.database.EmrDatabase
 import com.waiyan.myittar_oo_emr.local.database.dao.FollowUpDao
 
 import com.waiyan.myittar_oo_emr.local.database.dao.MedicalInfoDao
@@ -41,7 +43,7 @@ import kotlinx.coroutines.withContext
 
 
 class EmrRepositoryImpl(
-
+    private val database: EmrDatabase,
     private val patientDao: PatientDao,
 
     private val visitDao: VisitDao,
@@ -206,4 +208,14 @@ class EmrRepositoryImpl(
 
             .flowOn(Dispatchers.IO)
 
+    override suspend fun deletePatients(patientIds: List<Long>): Result<Unit> = withContext(Dispatchers.IO) {
+        runCatching {
+            database.withTransaction {
+                patientDao.deletePatientsByIds(patientIds)
+                medicalInfoDao.deleteMedicalInfosByIds(patientIds)
+                visitDao.deleteVisitsByIds(patientIds)
+                followUpDao.deleteFollowUpsByIds(patientIds)
+            }
+        }
+    }
 }

@@ -13,4 +13,7 @@ interface FollowUpDao {
 
     @Query("SELECT * FROM FollowUp ")
     fun getAllFollowUp(): Flow<List<FollowUp>>
+
+    @Query("DELETE FROM FollowUp WHERE patientId IN (:patientIds)")
+    suspend fun deleteFollowUpsByIds(patientIds: List<Long>)
 }

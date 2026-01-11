@@ -35,4 +35,6 @@ interface EmrRepository {
 
     fun getMonthlyIncome(startDate: Long, endDate: Long): Flow<List<MonthlyIncome>>
 
+    suspend fun deletePatients(patientIds: List<Long>): Result<Unit>
+
 }
