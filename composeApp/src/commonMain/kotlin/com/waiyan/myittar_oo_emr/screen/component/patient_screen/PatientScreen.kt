@@ -74,13 +74,14 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun DeleteConfirmationDialog(
+    patientCount: Int,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Delete Patients") },
-        text = { Text("Are you sure you want to permanently delete these patients?") },
+        text = { Text("Are you sure you want to permanently delete these $patientCount patients?") },
         confirmButton = {
             TextButton(onClick = onConfirm) {
                 Text("Yes")
@@ -136,6 +137,8 @@ fun PatientScreen(
 
     if (showDeleteConfirmationDialog) {
         DeleteConfirmationDialog(
+            deletePatientCount = selectedPatientIds.size,
+            patientCount = selectedPatientIds.size,
             onConfirm = {
                 patientViewModel.deleteSelectedPatients(selectedPatientIds.toList())
                 isSelectionMode = false
