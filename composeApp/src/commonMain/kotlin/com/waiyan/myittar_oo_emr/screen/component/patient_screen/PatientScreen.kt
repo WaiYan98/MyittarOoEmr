@@ -3,7 +3,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,10 +20,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Search
@@ -27,11 +34,21 @@ import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -62,14 +79,15 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
 import com.waiyan.myittar_oo_emr.screen.component.MyittarOoEmrAppBar
 import com.waiyan.myittar_oo_emr.screen.component.PatientHistoryScreen
 import com.waiyan.myittar_oo_emr.screen.component.ReportScreen
 import com.waiyan.myittar_oo_emr.screen.component.ShowEmptyMessage
 import com.waiyan.myittar_oo_emr.screen.component.ShowLoading
 import com.waiyan.myittar_oo_emr.screen.component.patient_screen.PatientViewModel
+import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
 import com.waiyan.myittar_oo_emr.util.FilePicker
+import com.waiyan.myittar_oo_emr.util.LocalTime
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -137,7 +155,6 @@ fun PatientScreen(
 
     if (showDeleteConfirmationDialog) {
         DeleteConfirmationDialog(
-            deletePatientCount = selectedPatientIds.size,
             patientCount = selectedPatientIds.size,
             onConfirm = {
                 patientViewModel.deleteSelectedPatients(selectedPatientIds.toList())
@@ -214,6 +231,10 @@ fun PatientScreen(
                             value = searchQuery,
                             onValueChange = patientViewModel::onSearchQueryChanged
                         )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        FilterChipBar(modifier = Modifier.fillMaxWidth())
 
                         Spacer(modifier = Modifier.height(8.dp))
 
@@ -354,6 +375,325 @@ fun PatientScreen(
             }
         }
 
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+fun FilterChipBar(
+    modifier: Modifier = Modifier
+) {
+    // State is hoisted here
+    var selectedGender by remember { mutableStateOf<String?>(null) }
+    var minAge by remember { mutableStateOf("") }
+    var maxAge by remember { mutableStateOf("") }
+    var fromDate by remember { mutableStateOf("") }
+    var toDate by remember { mutableStateOf("") }
+
+    fun clearFilters() {
+        selectedGender = null
+        minAge = ""
+        maxAge = ""
+        fromDate = ""
+        toDate = ""
+    }
+
+    FlowRow(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        GenderFilterButton(
+            selectedGender = selectedGender,
+            onGenderSelected = { selectedGender = it }
+        )
+
+        AgeFilterButton(
+            minAge = minAge,
+            maxAge = maxAge,
+            onAgeRangeSelected = { newMin, newMax ->
+                minAge = newMin
+                maxAge = newMax
+            }
+        )
+
+        DateFilterButton(
+            fromDate = fromDate,
+            toDate = toDate,
+            onDateRangeSelected = { newFrom, newTo ->
+                fromDate = newFrom
+                toDate = newTo
+            }
+        )
+
+        // Clear Button
+        IconButton(onClick = { clearFilters() }) {
+            Icon(Icons.Filled.Clear, contentDescription = "Clear Filters")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GenderFilterButton(
+    selectedGender: String?,
+    onGenderSelected: (String?) -> Unit
+) {
+    var genderMenuExpanded by remember { mutableStateOf(false) }
+    val isGenderFilterActive = selectedGender != null
+
+    Box {
+        FilterChip(
+            selected = isGenderFilterActive,
+            onClick = { genderMenuExpanded = true },
+            label = { Text(selectedGender?.let { "Gender: $it" } ?: "Gender") },
+            leadingIcon = if (isGenderFilterActive) {
+                {
+                    Icon(
+                        imageVector = Icons.Filled.Done,
+                        contentDescription = "Done icon",
+                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                    )
+                }
+            } else {
+                null
+            }
+        )
+        DropdownMenu(
+            expanded = genderMenuExpanded,
+            onDismissRequest = { genderMenuExpanded = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text("Male") },
+                onClick = {
+                    onGenderSelected("Male")
+                    genderMenuExpanded = false
+                }
+            )
+            DropdownMenuItem(
+                text = { Text("Female") },
+                onClick = {
+                    onGenderSelected("Female")
+                    genderMenuExpanded = false
+                }
+            )
+            DropdownMenuItem(
+                text = { Text("Other") },
+                onClick = {
+                    onGenderSelected("Other")
+                    genderMenuExpanded = false
+                }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AgeFilterButton(
+    minAge: String,
+    maxAge: String,
+    onAgeRangeSelected: (String, String) -> Unit
+) {
+    var ageMenuExpanded by remember { mutableStateOf(false) }
+    val isAgeFilterActive = minAge.isNotEmpty() || maxAge.isNotEmpty()
+
+    val initialMin = minAge.toFloatOrNull() ?: 0f
+    val initialMax = maxAge.toFloatOrNull() ?: 100f
+    var sliderPosition by remember(minAge, maxAge) { mutableStateOf(initialMin..initialMax) }
+
+    Box {
+        FilterChip(
+            selected = isAgeFilterActive,
+            onClick = { ageMenuExpanded = true },
+            label = { Text(getAgeFilterLabel(minAge, maxAge)) },
+            leadingIcon = if (isAgeFilterActive) {
+                {
+                    Icon(
+                        imageVector = Icons.Filled.Done,
+                        contentDescription = "Done icon",
+                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                    )
+                }
+            } else {
+                null
+            }
+        )
+        DropdownMenu(
+            expanded = ageMenuExpanded,
+            onDismissRequest = { ageMenuExpanded = false }
+        ) {
+            Column(modifier = Modifier.padding(16.dp).width(200.dp)) {
+                Text(
+                    "Age Range: ${sliderPosition.start.toInt()} - ${sliderPosition.endInclusive.toInt()}",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                RangeSlider(
+                    value = sliderPosition,
+                    onValueChange = { sliderPosition = it },
+                    valueRange = 0f..100f,
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+                TextButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        onAgeRangeSelected(
+                            sliderPosition.start.toInt().toString(),
+                            sliderPosition.endInclusive.toInt().toString()
+                        )
+                        ageMenuExpanded = false
+                    }
+                ) {
+                    Text("Apply")
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DateFilterButton(
+    fromDate: String,
+    toDate: String,
+    onDateRangeSelected: (String, String) -> Unit
+) {
+    var dateMenuExpanded by remember { mutableStateOf(false) }
+    var showStartDatePicker by remember { mutableStateOf(false) }
+    var showEndDatePicker by remember { mutableStateOf(false) }
+
+    var currentFromDate by remember(fromDate) { mutableStateOf(fromDate) }
+    var currentToDate by remember(toDate) { mutableStateOf(toDate) }
+
+    val isDateFilterActive = fromDate.isNotEmpty() || toDate.isNotEmpty()
+
+    Box {
+        FilterChip(
+            selected = isDateFilterActive,
+            onClick = { dateMenuExpanded = true },
+            label = { Text(getDateFilterLabel(fromDate, toDate)) },
+            leadingIcon = if (isDateFilterActive) {
+                {
+                    Icon(
+                        imageVector = Icons.Filled.Done,
+                        contentDescription = "Done icon",
+                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                    )
+                }
+            } else {
+                null
+            }
+        )
+        DropdownMenu(
+            expanded = dateMenuExpanded,
+            onDismissRequest = { dateMenuExpanded = false }
+        ) {
+            Column(modifier = Modifier.padding(16.dp).width(220.dp)) {
+                Text("Date Range", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = { showStartDatePicker = true }
+                    ) {
+                        Text(currentFromDate.ifEmpty { "Start Date" })
+                    }
+                    Button(
+                        onClick = { showEndDatePicker = true }
+                    ) {
+                        Text(currentToDate.ifEmpty { "End Date" })
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                TextButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        onDateRangeSelected(currentFromDate, currentToDate)
+                        dateMenuExpanded = false
+                    }
+                ) {
+                    Text("Apply")
+                }
+            }
+        }
+    }
+
+    if (showStartDatePicker) {
+        val datePickerState = rememberDatePickerState()
+        DatePickerDialog(
+            onDismissRequest = { showStartDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let {
+                            currentFromDate = LocalTime.getHumanDate(it)
+                        }
+                        showStartDatePicker = false
+                    }
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showStartDatePicker = false }) {
+                    Text("Cancel")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    if (showEndDatePicker) {
+        val datePickerState = rememberDatePickerState()
+        DatePickerDialog(
+            onDismissRequest = { showEndDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let {
+                            currentToDate = LocalTime.getHumanDate(it)
+                        }
+                        showEndDatePicker = false
+                    }
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEndDatePicker = false }) {
+                    Text("Cancel")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+}
+
+private fun getAgeFilterLabel(minAge: String, maxAge: String): String {
+    return when {
+        minAge.isNotEmpty() && maxAge.isNotEmpty() -> "Age: $minAge-$maxAge"
+        minAge.isNotEmpty() -> "Age: $minAge+"
+        maxAge.isNotEmpty() -> "Age: -$maxAge"
+        else -> "Age"
+    }
+}
+
+private fun getDateFilterLabel(fromDate: String, toDate: String): String {
+    return when {
+        fromDate.isNotEmpty() && toDate.isNotEmpty() -> "Date: $fromDate - $toDate"
+        fromDate.isNotEmpty() -> "Date: From $fromDate"
+        toDate.isNotEmpty() -> "Date: To $toDate"
+        else -> "Date"
     }
 }
 
