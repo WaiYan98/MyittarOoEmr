@@ -30,9 +30,10 @@ class PatientFormViewModel(
         diagnosis: String,
         followUpDate: Long,
         reasonForFollowUp: String,
-        isChecked:Boolean
+        isChecked: Boolean
     ) = viewModelScope.launch {
-        _uiState.value = PatientFormUiState(isLoading = true)
+        _uiState.value =
+            PatientFormUiState(isLoading = true, isInTheProcessOfInsertingPatient = true)
         val patientForm = PatientForm(
             name = name,
             age = age,
@@ -48,14 +49,20 @@ class PatientFormViewModel(
             followUpDate = followUpDate,
             reasonForFollowUp = reasonForFollowUp
         )
-        patientFormUseCase.insertPatientInfo(patientForm,isChecked)
+        patientFormUseCase.insertPatientInfo(patientForm, isChecked)
             .fold(
                 onSuccess = {
-                    _uiState.value = PatientFormUiState(success = "Success")
+                    _uiState.value = PatientFormUiState(
+                        success = "Success",
+                        isInTheProcessOfInsertingPatient = true
+                    )
                 },
                 onFailure = { exception ->
                     _uiState.value =
-                        PatientFormUiState(onError = exception.message ?: "Unexpected Error")
+                        PatientFormUiState(
+                            onError = exception.message ?: "Unexpected Error",
+                            isInTheProcessOfInsertingPatient = false
+                        )
                 }
             )
     }

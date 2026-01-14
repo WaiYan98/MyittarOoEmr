@@ -154,7 +154,8 @@ fun PatientFormScreen(
                     isChecked = isChecked,
                     onCheckedChange = { isChecked = it },
                     followUpTimeStamp = followUpTimeStamp,
-                    followUpTimeStampChange = { followUpTimeStamp = it }
+                    followUpTimeStampChange = { followUpTimeStamp = it },
+                    isInTheProcessOfInsertPatient = uiState.isInTheProcessOfInsertingPatient
                 )
             }
         }
@@ -195,7 +196,8 @@ fun Form(
     followUpTimeStamp: Long,
     followUpTimeStampChange: (Long) -> Unit,
     onClickSave: () -> Unit,
-    onClickCancel: () -> Unit
+    onClickCancel: () -> Unit,
+    isInTheProcessOfInsertPatient: Boolean
 ) {
 
     LazyColumn(Modifier.padding(bottom = 24.dp)) {
@@ -347,7 +349,8 @@ fun Form(
 
                     Button(
                         onClick = onClickSave,
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        enabled = !isInTheProcessOfInsertPatient
                     ) {
                         Text("Save Patient")
                     }
@@ -442,7 +445,8 @@ fun ShowFollowUpForm(
             )
 
             Spacer(
-                modifier = Modifier.matchParentSize()
+                modifier = Modifier
+                    .matchParentSize()
                     .background(Color.Transparent)
                     .clickable { showDatePicker = true })
         }
