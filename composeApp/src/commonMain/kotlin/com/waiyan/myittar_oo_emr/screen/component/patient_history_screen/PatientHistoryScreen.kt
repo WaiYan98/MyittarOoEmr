@@ -412,7 +412,8 @@ fun PatientHistoryDisplay(
                 "Allergies",
                 allergies,
                 isEditing = editMedicalInfoState,
-                onEditValueChange = onEditPatientAllergiesChange
+                onEditValueChange = onEditPatientAllergiesChange,
+                isAllergies = true
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -421,7 +422,8 @@ fun PatientHistoryDisplay(
                 "Chronic Conditions",
                 chronicConditions,
                 isEditing = editMedicalInfoState,
-                onEditValueChange = onEditPatientChronicConditionsChange
+                onEditValueChange = onEditPatientChronicConditionsChange,
+                isChronic = true
             )
 
             Spacer(modifier = Modifier.height(24.dp))

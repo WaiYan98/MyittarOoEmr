@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -45,6 +46,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.Gender
+import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -190,6 +192,8 @@ fun DisplayInfoCard(
     label: String,
     value: String,
     isEditing: Boolean,
+    isChronic: Boolean = false,
+    isAllergies: Boolean = false,
     onEditValueChange: (String) -> Unit
 ) {
     HorizontalDivider(
@@ -224,8 +228,12 @@ fun DisplayInfoCard(
                     focusedIndicatorColor = if (isEditing) MaterialTheme.colorScheme.secondary else Color.Transparent,
                     unfocusedIndicatorColor = if (isEditing) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
                     disabledIndicatorColor = if (isEditing) MaterialTheme.colorScheme.background else Color.Transparent,
-
-                    )
+                    disabledTextColor = when (true) {
+                        isChronic -> Green
+                        isAllergies -> Red
+                        else -> MaterialTheme.colorScheme.onSurface
+                    },
+                )
             )
         }
 
