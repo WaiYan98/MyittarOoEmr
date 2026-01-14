@@ -5,6 +5,7 @@ import com.waiyan.myittar_oo_emr.data.ValidationResult
 import com.waiyan.myittar_oo_emr.data.VisitAndFollowUpForm
 import com.waiyan.myittar_oo_emr.data.entity.MedicalInfo
 import com.waiyan.myittar_oo_emr.data.entity.Patient
+import com.waiyan.myittar_oo_emr.data.entity.Visit
 import com.waiyan.myittar_oo_emr.data.toFollowUp
 import com.waiyan.myittar_oo_emr.data.toVisit
 import com.waiyan.myittar_oo_emr.local_service.EmrRepository
@@ -59,6 +60,22 @@ class PatientHistoryUseCase(private val emrRepository: EmrRepository) {
             }
             taskDeferred.awaitAll()
         }
+    }
+
+    suspend fun updateVisit(visit: Visit): Result<Unit> = runCatching {
+        val isValidVisit = Validator.validateVisitAndFollowUp(
+            diagnosis = visit.diagnosis,
+            prescription = visit.prescription,
+            fee = visit.fee.toString(), // Convert Long fee to String for validation
+            followUpDate = 0L, // Not relevant for visit update without follow-up
+            reasonForFollowUp = "", // Not relevant
+            isCheckedFollowUP = false // Always false for visit update
+        )
+
+        if (isValidVisit is ValidationResult.Failure) throw Exception(
+            isValidVisit.message
+        )
+        emrRepository.upsertVisit(visit).getOrThrow()
     }
 
     suspend fun updatePatientInfo(patient: Patient): Result<Unit> = runCatching {

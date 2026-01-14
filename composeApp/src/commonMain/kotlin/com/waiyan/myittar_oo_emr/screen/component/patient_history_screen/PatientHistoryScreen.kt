@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.waiyan.myittar_oo_emr.data.PatientWithDetail
 import com.waiyan.myittar_oo_emr.data.VisitAndFollowUpForm
+import com.waiyan.myittar_oo_emr.data.entity.Visit
 import com.waiyan.myittar_oo_emr.data.entity.MedicalInfo
 import com.waiyan.myittar_oo_emr.data.entity.Patient
 import com.waiyan.myittar_oo_emr.screen.component.AppBar
@@ -259,7 +260,8 @@ fun PatientHistoryScreen(
                         editablePrescription = editablePrescription,
                         onEditablePrescriptionChange = { editablePrescription = it },
                         editableFee = editableFee,
-                        onEditableFeeChange = { editableFee = it }
+                        onEditableFeeChange = { editableFee = it },
+                        viewModel = viewModel
                     )
                 }
             }
@@ -310,6 +312,7 @@ fun PatientHistoryDisplay(
     allergies: String,
     chronicConditions: String,
     currentMedication: String,
+    viewModel: PatientHistoryViewModel,
     editingVisitId: Long?,
     onEditingVisitIdChange: (Long?) -> Unit,
     editableDiagnosis: String,
@@ -550,9 +553,18 @@ fun PatientHistoryDisplay(
             ) {
                 IconButton(onClick = {
                     if (isEditing) {
-                        // TODO: Create a Visit object from the editable fields and pass to a viewModel function
-                        // viewModel.updateVisit(visit.copy(diagnosis = editableDiagnosis, ...))
-                        onEditingVisitIdChange(null)
+                        val originalVisit = visit
+                        val editedVisit = Visit(
+                            id = originalVisit.id,
+                            patientId = originalVisit.patientId,
+                            date = originalVisit.date, // Date is not editable for now
+                            diagnosis = editableDiagnosis,
+                            prescription = editablePrescription,
+                            fee = editableFee.toLongOrNull()
+                                ?: originalVisit.fee // Convert to Long, use original if invalid
+                        )
+                        viewModel.updateVisit(originalVisit, editedVisit)
+                        onEditingVisitIdChange(null) // Exit edit mode
                     } else {
                         onEditingVisitIdChange(visit.id)
                         onEditableDiagnosisChange(visit.diagnosis)
