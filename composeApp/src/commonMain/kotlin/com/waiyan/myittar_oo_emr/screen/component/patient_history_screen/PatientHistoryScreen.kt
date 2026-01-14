@@ -86,6 +86,10 @@ fun PatientHistoryScreen(
     var currentMedication by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
+    var editingVisitId by remember { mutableStateOf<Long?>(null) }
+    var editableDiagnosis by remember { mutableStateOf("") }
+    var editablePrescription by remember { mutableStateOf("") }
+    var editableFee by remember { mutableStateOf("") }
 
 
     LaunchedEffect(key1 = uiState.error) {
@@ -247,13 +251,20 @@ fun PatientHistoryScreen(
                         address = address,
                         allergies = allergies,
                         chronicConditions = chronicConditions,
-                        currentMedication = currentMedication
+                        currentMedication = currentMedication,
+                        editingVisitId = editingVisitId,
+                        onEditingVisitIdChange = { editingVisitId = it },
+                        editableDiagnosis = editableDiagnosis,
+                        onEditableDiagnosisChange = { editableDiagnosis = it },
+                        editablePrescription = editablePrescription,
+                        onEditablePrescriptionChange = { editablePrescription = it },
+                        editableFee = editableFee,
+                        onEditableFeeChange = { editableFee = it }
                     )
                 }
             }
         }
     }
-
 }
 
 @Composable
@@ -298,7 +309,15 @@ fun PatientHistoryDisplay(
     address: String,
     allergies: String,
     chronicConditions: String,
-    currentMedication: String
+    currentMedication: String,
+    editingVisitId: Long?,
+    onEditingVisitIdChange: (Long?) -> Unit,
+    editableDiagnosis: String,
+    onEditableDiagnosisChange: (String) -> Unit,
+    editablePrescription: String,
+    onEditablePrescriptionChange: (String) -> Unit,
+    editableFee: String,
+    onEditableFeeChange: (String) -> Unit
 ) {
 
     LazyColumn(
@@ -515,18 +534,40 @@ fun PatientHistoryDisplay(
             )
         }
 
-        items(patientWithDetail.visits.size) {
+        items(patientWithDetail.visits.size) { index ->
+            val visit = patientWithDetail.visits[index]
+            val isEditing = editingVisitId == visit.id
+
             TableBody(
-                data1 = LocalTime.getHumanDate(patientWithDetail.visits[it].date),
-                data2 = patientWithDetail.visits[it].diagnosis,
-                data3 = patientWithDetail.visits[it].prescription,
-                data4 = patientWithDetail.visits[it].fee.toString()
-            )
-
+                isEditing = isEditing,
+                data1 = LocalTime.getHumanDate(visit.date),
+                data2 = if (isEditing) editableDiagnosis else visit.diagnosis,
+                onData2Change = onEditableDiagnosisChange,
+                data3 = if (isEditing) editablePrescription else visit.prescription,
+                onData3Change = onEditablePrescriptionChange,
+                data4 = if (isEditing) editableFee else visit.fee.toString(),
+                onData4Change = onEditableFeeChange
+            ) {
+                IconButton(onClick = {
+                    if (isEditing) {
+                        // TODO: Create a Visit object from the editable fields and pass to a viewModel function
+                        // viewModel.updateVisit(visit.copy(diagnosis = editableDiagnosis, ...))
+                        onEditingVisitIdChange(null)
+                    } else {
+                        onEditingVisitIdChange(visit.id)
+                        onEditableDiagnosisChange(visit.diagnosis)
+                        onEditablePrescriptionChange(visit.prescription)
+                        onEditableFeeChange(visit.fee.toString())
+                    }
+                }) {
+                    Icon(
+                        imageVector = if (isEditing) Icons.Filled.Check else Icons.Filled.Edit,
+                        contentDescription = if (isEditing) "save_icon" else "edit_icon"
+                    )
+                }
+            }
         }
-
     }
-
 }
 
 

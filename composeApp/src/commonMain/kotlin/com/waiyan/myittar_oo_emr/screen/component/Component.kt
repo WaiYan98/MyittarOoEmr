@@ -18,6 +18,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Diamond
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -288,11 +289,25 @@ fun TableHeader(
 
 @Composable
 fun TableBody(
+    isEditing: Boolean = false,
     data1: String,
+    onData1Change: (String) -> Unit = {},
     data2: String,
+    onData2Change: (String) -> Unit = {},
     data3: String,
-    data4: String
+    onData3Change: (String) -> Unit = {},
+    data4: String,
+    onData4Change: (String) -> Unit = {},
+    content: @Composable () -> Unit = {}
 ) {
+    val textFieldColors = TextFieldDefaults.colors(
+        focusedContainerColor = Color.Transparent,
+        unfocusedContainerColor = Color.Transparent,
+        disabledContainerColor = Color.Transparent,
+        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+        unfocusedIndicatorColor = Color.Transparent,
+        disabledIndicatorColor = Color.Transparent,
+    )
 
     Row(
         modifier = Modifier
@@ -305,6 +320,7 @@ fun TableBody(
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        // Data 1 (Date) is not editable
         Box(
             modifier = Modifier.weight(1f),
             contentAlignment = Alignment.CenterStart
@@ -312,29 +328,55 @@ fun TableBody(
             Text(data1)
         }
 
-        Box(
-            modifier = Modifier.weight(1f),
-            contentAlignment = Alignment.CenterStart
+        // Editable cells
+        @Composable
+        fun EditableTableCell(
+            text: String,
+            onValueChange: (String) -> Unit,
+            modifier: Modifier
         ) {
-            Text(data2)
+            Box(
+                modifier = modifier,
+                contentAlignment = Alignment.CenterStart
+            ) {
+                if (isEditing) {
+                    TextField(
+                        value = text,
+                        onValueChange = onValueChange,
+                        colors = textFieldColors,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                } else {
+                    Text(text)
+                }
+            }
         }
 
+        EditableTableCell(
+            text = data2,
+            onValueChange = onData2Change,
+            modifier = Modifier.weight(1f)
+        )
+        EditableTableCell(
+            text = data3,
+            onValueChange = onData3Change,
+            modifier = Modifier.weight(1f)
+        )
 
-        Box(
+        // Cell 4 with content
+        Row(
             modifier = Modifier.weight(1f),
-            contentAlignment = Alignment.CenterStart
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = data3)
-        }
-
-        Box(
-            modifier = Modifier.weight(1f),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Text(text = data4)
+            EditableTableCell(
+                text = data4,
+                onValueChange = onData4Change,
+                modifier = Modifier.weight(0.7f)
+            )
+            content()
         }
     }
-
 }
 
 @Composable
@@ -379,7 +421,7 @@ fun ReportCard(
     title1: String,
     value1: String,
     title2: String,
-    value2: String
+    value2: String,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth()
