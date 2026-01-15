@@ -82,8 +82,7 @@ class PatientHistoryUseCase(private val emrRepository: EmrRepository) {
         val isValidPatientInfo = Validator.validatePatientInfo(
             patient.name,
             patient.age.toString(),
-            patient.phone,
-            patient.address
+            patient.address,
         )
 
         if (isValidPatientInfo is ValidationResult.Failure)

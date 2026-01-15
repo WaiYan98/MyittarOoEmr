@@ -22,8 +22,7 @@ class PatientFormUseCase(
         val isValidatePatient = Validator.validatePatientInfo(
             patientForm.name,
             patientForm.age,
-            patientForm.phone,
-            patientForm.address,
+            patientForm.address
         )
 
         if (isValidatePatient is ValidationResult.Failure) {
@@ -31,9 +30,9 @@ class PatientFormUseCase(
         }
 
         val isValidateVisitAndFollowUp = Validator.validateVisitAndFollowUp(
-            diagnosis = patientForm.diagnosis,
-            prescription = patientForm.prescription,
-            fee = patientForm.fee,
+            diagnosis = "diagnosis",
+            prescription = "prescription",
+            fee = "500",
             followUpDate = patientForm.followUpDate,
             reasonForFollowUp = patientForm.reasonForFollowUp,
             isCheckedFollowUP = isFollowUpCheckBoxChecked

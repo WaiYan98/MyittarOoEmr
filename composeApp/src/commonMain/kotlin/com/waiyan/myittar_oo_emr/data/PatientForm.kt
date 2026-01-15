@@ -48,7 +48,7 @@ fun PatientForm.patientFormToVisit(patientId: Long): Visit {
         date = LocalTime.getCurrentTimeMillis(),
         diagnosis = this.diagnosis,
         prescription = this.prescription,
-        fee = this.fee.toLong()
+        fee = this.fee.toLongOrNull() ?: 0L
     )
 }
 
