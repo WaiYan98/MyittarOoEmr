@@ -81,7 +81,7 @@ class PatientHistoryUseCase(private val emrRepository: EmrRepository) {
     suspend fun updatePatientInfo(patient: Patient): Result<Unit> = runCatching {
         val isValidPatientInfo = Validator.validatePatientInfo(
             patient.name,
-            patient.age.toString(),
+            patient.age,
             patient.address,
         )
 

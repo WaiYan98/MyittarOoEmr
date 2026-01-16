@@ -18,7 +18,7 @@ class PatientFormViewModel(
 
     fun insertPatientInfo(
         name: String,
-        age: String,
+        age: Int,
         gender: Gender,
         phone: String,
         address: String,

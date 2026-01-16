@@ -1,5 +1,6 @@
 package com.waiyan.myittar_oo_emr.screen.component.patient_form_screen
 
+import AgeInput
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -58,7 +59,7 @@ fun PatientFormScreen(
 ) {
 
     var name: String by remember { mutableStateOf("") }
-    var age: String by remember { mutableStateOf("") }
+    var totalMonths: Int by remember { mutableStateOf(0) }
     var phone: String by remember { mutableStateOf("") }
     var address: String by remember { mutableStateOf("") }
     var allergies: String by remember { mutableStateOf("") }
@@ -108,8 +109,8 @@ fun PatientFormScreen(
                         .padding(values),
                     name = name,
                     onNameChange = { name = it },
-                    age = age,
-                    onAgeChange = { age = it },
+                    initialTotalMonths = totalMonths,
+                    onTotalMonthsChange = { totalMonths = it },
                     phone = phone,
                     onPhoneChange = { phone = it },
                     address = address,
@@ -135,7 +136,7 @@ fun PatientFormScreen(
                     onClickSave = {
                         viewModel.insertPatientInfo(
                             name = name,
-                            age = age,
+                            age = totalMonths,
                             gender = selectedGender,
                             phone = phone,
                             address = address,
@@ -167,8 +168,8 @@ fun Form(
     modifier: Modifier,
     name: String,
     onNameChange: (String) -> Unit,
-    age: String,
-    onAgeChange: (String) -> Unit,
+    initialTotalMonths: Int,
+    onTotalMonthsChange: (Int) -> Unit,
     selectedOption: Gender,
     onSelectGender: (Gender) -> Unit,
     phone: String,
@@ -232,13 +233,10 @@ fun Form(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                InputField(
+                AgeInput(
                     modifier = Modifier,
-                    label = "Age",
-                    value = age,
-                    onValueChange = onAgeChange,
-                    placeholder = "36 years",
-                    keyboardType = KeyboardType.Number
+                    initialTotalMonths = initialTotalMonths,
+                    onTotalMonthsChange = onTotalMonthsChange
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))

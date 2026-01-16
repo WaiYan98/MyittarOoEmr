@@ -7,12 +7,11 @@ object Validator {
 
     fun validatePatientInfo(
         name: String,
-        age: String,
+        age: Int,
         address: String
     ): ValidationResult {
         if (name.isBlank()) return ValidationResult.Failure("Please Input Name")
-        val patientAge =
-            age.toIntOrNull() ?: return ValidationResult.Failure("please Input Valid Age")
+        val patientAge = age
         if (patientAge <= 0) return ValidationResult.Failure("Age Cannot be zero!")
         if (address.isBlank()) return ValidationResult.Failure("Enter Valid Address!")
 

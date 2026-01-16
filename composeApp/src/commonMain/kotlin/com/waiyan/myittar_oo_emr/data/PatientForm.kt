@@ -9,7 +9,7 @@ import com.waiyan.myittar_oo_emr.util.LocalTime
 
 data class PatientForm(
     val name: String,
-    val age: String,
+    val age: Int,
     val gender: Gender,
     val phone: String,
     val address: String,
@@ -26,7 +26,7 @@ data class PatientForm(
 fun PatientForm.patientFormToPatient(): Patient {
     return Patient(
         name = this.name,
-        age = this.age.toInt(),
+        age = this.age,
         gender = this.gender.name,
         phone = this.phone,
         address = this.address
