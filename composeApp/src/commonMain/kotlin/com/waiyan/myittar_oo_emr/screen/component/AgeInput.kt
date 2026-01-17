@@ -1,6 +1,10 @@
+package com.waiyan.myittar_oo_emr.screen.component
+
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.waiyan.myittar_oo_emr.screen.component.InputField
 
 // Define this enum if you haven't already. You can place this in a common file or with this composable.
 enum class AgeUnit {
@@ -43,7 +46,7 @@ fun AgeInput(
             displayAge = ""
             displayUnit = AgeUnit.YEARS // Default to Years
         } else {
-            if (initialTotalMonths <= 12) {
+            if (initialTotalMonths <= 11) {
                 // If 12 months or less, display in months
                 displayAge = initialTotalMonths.toString()
                 displayUnit = AgeUnit.MONTHS
@@ -69,12 +72,12 @@ fun AgeInput(
     }
 
     Column(modifier = modifier) {
-        Text("Age", style = MaterialTheme.typography.labelLarge)
+        Text(text = "Age", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             InputField(
                 modifier = Modifier.weight(1f),
-                label = "", // Pass an empty label to satisfy the requirement
+                label = "",
                 value = displayAge,
                 onValueChange = { newAgeText ->
                     // Only allow digits
@@ -83,7 +86,7 @@ fun AgeInput(
 
                         if (displayUnit == AgeUnit.MONTHS) {
                             // If unit is Months, restrict input to 1-12
-                            if (newAgeNum in 1..12 || newAgeText.isEmpty()) { // Allow empty string for clearing
+                            if (newAgeNum in 1..11 || newAgeText.isEmpty()) { // Allow empty string for clearing
                                 displayAge = newAgeText
                             }
                             // If user tries to type >12, do nothing, preventing the input
@@ -97,34 +100,37 @@ fun AgeInput(
                     }
                 },
                 keyboardType = KeyboardType.Number,
-                placeholder = "Enter age"
+                placeholder = "Enter age",
+                trailingIcon = {
+                    Text(displayUnit.name)
+                }
             )
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            Row {
-                FilterChip(
-                    selected = displayUnit == AgeUnit.MONTHS,
-                    onClick = {
-                        displayUnit = AgeUnit.MONTHS
-                        // If current displayAge is invalid for months, clear it
-                        val currentAgeNum = displayAge.toIntOrNull() ?: 0
-                        if (currentAgeNum > 12) {
-                            displayAge = "" // Clear invalid age when switching to months
-                        }
-                    },
-                    label = { Text("Months") }
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                FilterChip(
-                    selected = displayUnit == AgeUnit.YEARS,
-                    onClick = {
-                        displayUnit = AgeUnit.YEARS
-                        // No specific clearing needed for years, as any number is valid
-                    },
-                    label = { Text("Years") }
-                )
-            }
+            FilterChip(
+                selected = displayUnit == AgeUnit.MONTHS,
+                onClick = {
+                    displayUnit = AgeUnit.MONTHS
+                    // If current displayAge is invalid for months, clear it
+                    val currentAgeNum = displayAge.toIntOrNull() ?: 0
+                    if (currentAgeNum > 11) {
+                        displayAge = "" // Clear invalid age when switching to months
+                    }
+                },
+                label = { Text("Months") }
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            FilterChip(
+                selected = displayUnit == AgeUnit.YEARS,
+                onClick = {
+                    displayUnit = AgeUnit.YEARS
+                    // No specific clearing needed for years, as any number is valid
+                },
+                label = { Text("Years") }
+            )
         }
     }
 }

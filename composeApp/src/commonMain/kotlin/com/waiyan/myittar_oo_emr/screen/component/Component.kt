@@ -141,8 +141,10 @@ fun InputField(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start
     ) {
-        Text(label)
-        Spacer(modifier = Modifier.height(8.dp))
+        if (label.isNotBlank()) {
+            Text(label)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
         TextField(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),
