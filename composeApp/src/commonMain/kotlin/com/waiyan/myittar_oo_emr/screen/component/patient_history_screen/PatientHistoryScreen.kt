@@ -87,6 +87,7 @@ fun PatientHistoryScreen(
     var allergies by remember { mutableStateOf("") }
     var chronicConditions by remember { mutableStateOf("") }
     var currentMedication by remember { mutableStateOf("") }
+    var occupation by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
     var editingVisitId by remember { mutableStateOf<Long?>(null) }
@@ -128,6 +129,7 @@ fun PatientHistoryScreen(
             currentMedication = patientWithDetail.medicalInfo.currentMedication
             phone = patientWithDetail.patient.phone
             address = patientWithDetail.patient.address
+            occupation = patientWithDetail.patient.occupation
         }
     }
 
@@ -194,7 +196,8 @@ fun PatientHistoryScreen(
                                     age = age,
                                     gender = gender.name,
                                     phone = phone,
-                                    address = address
+                                    address = address,
+                                    occupation = occupation
                                 )
                                 viewModel.updatePatientInfo(
                                     patientWithDetail.patient,
@@ -211,7 +214,8 @@ fun PatientHistoryScreen(
                                     age = age,
                                     gender = gender.name,
                                     phone = phone,
-                                    address = address
+                                    address = address,
+                                    occupation = occupation
                                 )
                                 viewModel.updatePatientInfo(
                                     patientWithDetail.patient,
@@ -240,6 +244,7 @@ fun PatientHistoryScreen(
                         onEditPatientAgeChange = { age = it },
                         onEditPatientGenderChange = { gender = it },
                         onEditPatientPhoneChange = { phone = it },
+                        onEditPatientOccupationChange = { occupation = it },
                         onEditPatientAddressChange = { address = it },
                         onEditPatientAllergiesChange = { allergies = it },
                         onEditPatientChronicConditionsChange = { chronicConditions = it },
@@ -250,6 +255,7 @@ fun PatientHistoryScreen(
                         name = name,
                         age = age,
                         gender = gender,
+                        occupation = occupation,
                         phone = phone,
                         address = address,
                         allergies = allergies,
@@ -263,7 +269,7 @@ fun PatientHistoryScreen(
                         onEditablePrescriptionChange = { editablePrescription = it },
                         editableFee = editableFee,
                         onEditableFeeChange = { editableFee = it },
-                        viewModel = viewModel
+                        viewModel = viewModel,
                     )
                 }
             }
@@ -298,6 +304,7 @@ fun PatientHistoryDisplay(
     onEditPatientNameChange: (String) -> Unit,
     onEditPatientAgeChange: (Int) -> Unit,
     onEditPatientGenderChange: (Gender) -> Unit,
+    onEditPatientOccupationChange: (String) -> Unit,
     onEditPatientPhoneChange: (String) -> Unit,
     onEditPatientAddressChange: (String) -> Unit,
     onEditPatientAllergiesChange: (String) -> Unit,
@@ -309,6 +316,7 @@ fun PatientHistoryDisplay(
     name: String,
     age: Int,
     gender: Gender,
+    occupation: String,
     phone: String,
     address: String,
     allergies: String,
@@ -388,6 +396,15 @@ fun PatientHistoryDisplay(
                     onEditValueChange = {}
                 )
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            DisplayInfoCard(
+                "Occupation",
+                occupation,
+                isEditing = editPatientInfoState,
+                onEditValueChange = onEditPatientOccupationChange
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 

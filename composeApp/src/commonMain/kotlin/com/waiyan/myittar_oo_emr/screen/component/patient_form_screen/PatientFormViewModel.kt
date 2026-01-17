@@ -20,6 +20,7 @@ class PatientFormViewModel(
         name: String,
         age: Int,
         gender: Gender,
+        occupation: String,
         phone: String,
         address: String,
         allergies: String,
@@ -47,7 +48,8 @@ class PatientFormViewModel(
             fee = fee,
             diagnosis = diagnosis,
             followUpDate = followUpDate,
-            reasonForFollowUp = reasonForFollowUp
+            reasonForFollowUp = reasonForFollowUp,
+            occupation = occupation
         )
         patientFormUseCase.insertPatientInfo(patientForm, isChecked)
             .fold(

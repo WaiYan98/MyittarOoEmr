@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "766aef61eaa102dd845fe6fe4b465691",
+    "identityHash": "36b45bbd2980b3c3cbdd945633397bdf",
     "entities": [
       {
         "tableName": "Patient",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `age` INTEGER NOT NULL, `gender` TEXT NOT NULL, `phone` TEXT NOT NULL, `address` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `age` INTEGER NOT NULL, `gender` TEXT NOT NULL, `occupation` TEXT NOT NULL, `phone` TEXT NOT NULL, `address` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -29,6 +29,12 @@
           {
             "fieldPath": "gender",
             "columnName": "gender",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "occupation",
+            "columnName": "occupation",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -96,7 +102,7 @@
       },
       {
         "tableName": "FollowUp",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `patientId` INTEGER NOT NULL, `date` TEXT NOT NULL, `reasonForVisit` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `patientId` INTEGER NOT NULL, `date` INTEGER NOT NULL, `reasonForFollowUp` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -113,12 +119,12 @@
           {
             "fieldPath": "date",
             "columnName": "date",
-            "affinity": "TEXT",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "reasonForVisit",
-            "columnName": "reasonForVisit",
+            "fieldPath": "reasonForFollowUp",
+            "columnName": "reasonForFollowUp",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -181,7 +187,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '766aef61eaa102dd845fe6fe4b465691')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '36b45bbd2980b3c3cbdd945633397bdf')"
     ]
   }
 }

@@ -10,6 +10,7 @@ data class Patient(
     val name: String,
     val age: Int,
     val gender: String,
+    val occupation: String,
     val phone: String,
     val address: String
 )

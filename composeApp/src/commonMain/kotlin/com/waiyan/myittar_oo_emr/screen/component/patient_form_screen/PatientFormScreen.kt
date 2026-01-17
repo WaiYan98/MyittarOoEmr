@@ -60,6 +60,7 @@ fun PatientFormScreen(
     var name: String by remember { mutableStateOf("") }
     var totalMonths: Int by remember { mutableStateOf(0) }
     var phone: String by remember { mutableStateOf("") }
+    var occupation: String by remember { mutableStateOf("") }
     var address: String by remember { mutableStateOf("") }
     var allergies: String by remember { mutableStateOf("") }
     var chronicConditions: String by remember { mutableStateOf("") }
@@ -110,6 +111,8 @@ fun PatientFormScreen(
                     onNameChange = { name = it },
                     initialTotalMonths = totalMonths,
                     onTotalMonthsChange = { totalMonths = it },
+                    occupation = occupation,
+                    onOccupationChange = { occupation = it },
                     phone = phone,
                     onPhoneChange = { phone = it },
                     address = address,
@@ -147,7 +150,8 @@ fun PatientFormScreen(
                             diagnosis = diagnosis,
                             followUpDate = followUpTimeStamp,
                             reasonForFollowUp = reasonForFollowUp,
-                            isChecked = isChecked
+                            isChecked = isChecked,
+                            occupation = occupation
                         )
                     },
                     onClickCancel = { navController.navigateUp() },
@@ -171,6 +175,8 @@ fun Form(
     onTotalMonthsChange: (Int) -> Unit,
     selectedOption: Gender,
     onSelectGender: (Gender) -> Unit,
+    occupation: String,
+    onOccupationChange: (String) -> Unit,
     phone: String,
     onPhoneChange: (String) -> Unit,
     address: String,
@@ -243,6 +249,17 @@ fun Form(
                 GenderFilterChip(
                     selectedOption = selectedOption,
                     onSelectItem = onSelectGender
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                InputField(
+                    modifier = Modifier,
+                    label = "Occupation",
+                    value = occupation,
+                    onValueChange = onOccupationChange,
+                    placeholder = "Enter Occupation",
+                    keyboardType = KeyboardType.Text
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))

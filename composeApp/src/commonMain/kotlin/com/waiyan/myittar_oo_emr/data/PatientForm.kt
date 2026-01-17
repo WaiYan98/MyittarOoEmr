@@ -11,6 +11,7 @@ data class PatientForm(
     val name: String,
     val age: Int,
     val gender: Gender,
+    val occupation: String,
     val phone: String,
     val address: String,
     val allergies: String,
@@ -29,7 +30,8 @@ fun PatientForm.patientFormToPatient(): Patient {
         age = this.age,
         gender = this.gender.name,
         phone = this.phone,
-        address = this.address
+        address = this.address,
+        occupation = this.occupation
     )
 }
 
