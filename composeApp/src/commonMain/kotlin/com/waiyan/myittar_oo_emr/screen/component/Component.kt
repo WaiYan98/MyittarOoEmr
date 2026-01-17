@@ -553,6 +553,15 @@ fun GenderFilterChip(
 }
 
 
+fun Int.readableAge(): String {
+    return if (this in 1..11) {
+        "$this Months"
+    } else {
+        "${this / 12} Years"
+    }
+}
+
+
 
 
 

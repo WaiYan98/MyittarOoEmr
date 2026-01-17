@@ -5,7 +5,6 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
@@ -20,7 +19,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
@@ -85,6 +83,7 @@ import com.waiyan.myittar_oo_emr.screen.component.ReportScreen
 import com.waiyan.myittar_oo_emr.screen.component.ShowEmptyMessage
 import com.waiyan.myittar_oo_emr.screen.component.ShowLoading
 import com.waiyan.myittar_oo_emr.screen.component.patient_screen.PatientViewModel
+import com.waiyan.myittar_oo_emr.screen.component.readableAge
 import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
 import com.waiyan.myittar_oo_emr.util.FilePicker
 import com.waiyan.myittar_oo_emr.util.LocalTime
@@ -347,7 +346,7 @@ fun PatientScreen(
                         enabled = !uiState.isBackingUp,
                         id = patient.id.toString(),
                         name = patient.name,
-                        age = patient.age.toString(),
+                        age = patient.age.readableAge(),
                         gender = patient.gender,
                         address = patient.address,
                         isSelected = isSelected,
@@ -524,7 +523,9 @@ private fun AgeFilterButton(
             expanded = ageMenuExpanded,
             onDismissRequest = { ageMenuExpanded = false }
         ) {
-            Column(modifier = Modifier.padding(16.dp).width(200.dp)) {
+            Column(modifier = Modifier
+                .padding(16.dp)
+                .width(200.dp)) {
                 Text(
                     "Age Range: ${sliderPosition.start.toInt()} - ${sliderPosition.endInclusive.toInt()}",
                     style = MaterialTheme.typography.titleMedium
@@ -592,7 +593,9 @@ private fun DateFilterButton(
             expanded = dateMenuExpanded,
             onDismissRequest = { dateMenuExpanded = false }
         ) {
-            Column(modifier = Modifier.padding(16.dp).width(220.dp)) {
+            Column(modifier = Modifier
+                .padding(16.dp)
+                .width(220.dp)) {
                 Text("Date Range", style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(8.dp))
 

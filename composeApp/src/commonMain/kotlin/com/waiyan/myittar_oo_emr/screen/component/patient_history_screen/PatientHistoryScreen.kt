@@ -42,6 +42,7 @@ import com.waiyan.myittar_oo_emr.data.VisitAndFollowUpForm
 import com.waiyan.myittar_oo_emr.data.entity.Visit
 import com.waiyan.myittar_oo_emr.data.entity.MedicalInfo
 import com.waiyan.myittar_oo_emr.data.entity.Patient
+import com.waiyan.myittar_oo_emr.screen.component.AgeInput
 import com.waiyan.myittar_oo_emr.screen.component.AppBar
 import com.waiyan.myittar_oo_emr.screen.component.DisplayInfoCard
 import com.waiyan.myittar_oo_emr.screen.component.GenderFilterChip
@@ -52,6 +53,7 @@ import com.waiyan.myittar_oo_emr.screen.component.Title
 import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.Gender
 import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.ShowFollowUpForm
 import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.VisitForm
+import com.waiyan.myittar_oo_emr.screen.component.readableAge
 import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
 import com.waiyan.myittar_oo_emr.util.LocalTime
 import org.koin.compose.viewmodel.koinViewModel
@@ -80,7 +82,7 @@ fun PatientHistoryScreen(
     var editMedicalInfoState by remember { mutableStateOf(false) }
     var editContactInfoState by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf("") }
-    var age by remember { mutableStateOf("") }
+    var age by remember { mutableStateOf(0) }
     var gender by remember { mutableStateOf(Gender.MALE) }
     var allergies by remember { mutableStateOf("") }
     var chronicConditions by remember { mutableStateOf("") }
@@ -117,7 +119,7 @@ fun PatientHistoryScreen(
     LaunchedEffect(key1 = uiState.success) {
         uiState.success?.let { patientWithDetail ->
             name = patientWithDetail.patient.name
-            age = patientWithDetail.patient.age.toString()
+            age = patientWithDetail.patient.age
             gender = stringToGender(patientWithDetail.patient.gender)
             phone = patientWithDetail.patient.phone
             address = patientWithDetail.patient.address
@@ -189,7 +191,7 @@ fun PatientHistoryScreen(
                                 val editPatient = Patient(
                                     id = patientWithDetail.patient.id,
                                     name = name,
-                                    age = age.toIntOrNull() ?: 0,
+                                    age = age,
                                     gender = gender.name,
                                     phone = phone,
                                     address = address
@@ -206,7 +208,7 @@ fun PatientHistoryScreen(
                                 val editPatient = Patient(
                                     id = patientWithDetail.patient.id,
                                     name = name,
-                                    age = age.toIntOrNull() ?: 0,
+                                    age = age,
                                     gender = gender.name,
                                     phone = phone,
                                     address = address
@@ -294,7 +296,7 @@ fun PatientHistoryDisplay(
     onclickEditContactInfo: () -> Unit,
     onClickAddNewVisit: () -> Unit,
     onEditPatientNameChange: (String) -> Unit,
-    onEditPatientAgeChange: (String) -> Unit,
+    onEditPatientAgeChange: (Int) -> Unit,
     onEditPatientGenderChange: (Gender) -> Unit,
     onEditPatientPhoneChange: (String) -> Unit,
     onEditPatientAddressChange: (String) -> Unit,
@@ -305,7 +307,7 @@ fun PatientHistoryDisplay(
     editMedicalInfoState: Boolean,
     editContactInfoState: Boolean,
     name: String,
-    age: String,
+    age: Int,
     gender: Gender,
     phone: String,
     address: String,
@@ -357,12 +359,19 @@ fun PatientHistoryDisplay(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            DisplayInfoCard(
-                "Age",
-                age,
-                isEditing = editPatientInfoState,
-                onEditValueChange = onEditPatientAgeChange
-            )
+            if (editPatientInfoState) {
+                AgeInput(
+                    initialTotalMonths = age,
+                    onTotalMonthsChange = { onEditPatientAgeChange(it) }
+                )
+            } else {
+                DisplayInfoCard(
+                    "Age",
+                    age.readableAge(),
+                    isEditing = false,
+                    onEditValueChange = { }
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
