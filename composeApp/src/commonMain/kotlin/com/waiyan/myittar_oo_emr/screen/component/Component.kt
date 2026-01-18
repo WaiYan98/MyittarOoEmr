@@ -198,10 +198,11 @@ fun DisplayInfoCard(
     isAllergies: Boolean = false,
     onEditValueChange: (String) -> Unit
 ) {
-    HorizontalDivider(
-        thickness = 1.dp,
-        color = MaterialTheme.colorScheme.primary
-    )
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.primary
+        )
+
     Box(
         contentAlignment = Alignment.TopStart
     ) {
@@ -212,11 +213,11 @@ fun DisplayInfoCard(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                modifier = Modifier.fillMaxWidth(0.25f),
-                text = label,
-                color = MaterialTheme.colorScheme.primary
-            )
+                Text(
+                    modifier = Modifier.fillMaxWidth(0.25f),
+                    text = label,
+                    color = MaterialTheme.colorScheme.primary
+                )
 
             TextField(
                 value = value,
@@ -224,12 +225,12 @@ fun DisplayInfoCard(
                 onValueChange = onEditValueChange,
                 enabled = isEditing,
                 colors = TextFieldDefaults.colors(
-                    disabledContainerColor = if (isEditing) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
-                    focusedContainerColor = if (isEditing) MaterialTheme.colorScheme.onPrimary else Color.Transparent,
-                    unfocusedContainerColor = if (isEditing) MaterialTheme.colorScheme.onPrimary else Color.Transparent,
-                    focusedIndicatorColor = if (isEditing) MaterialTheme.colorScheme.secondary else Color.Transparent,
-                    unfocusedIndicatorColor = if (isEditing) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
-                    disabledIndicatorColor = if (isEditing) MaterialTheme.colorScheme.background else Color.Transparent,
+                    disabledContainerColor = if (isEditing) TextFieldDefaults.colors().disabledContainerColor else Color.Transparent,
+                    focusedContainerColor = if (isEditing) TextFieldDefaults.colors().focusedContainerColor else Color.Transparent,
+                    unfocusedContainerColor = if (isEditing) TextFieldDefaults.colors().unfocusedContainerColor else Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent,
                     disabledTextColor = when (true) {
                         isChronic -> Green
                         isAllergies -> Red

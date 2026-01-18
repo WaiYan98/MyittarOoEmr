@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -346,12 +347,13 @@ fun PatientHistoryDisplay(
                     readOnly = !editPatientInfoState,
                     enabled = editPatientInfoState,
                     colors = TextFieldDefaults.colors(
-                        disabledContainerColor = if (editPatientInfoState) MaterialTheme.colorScheme.primary else Color.Transparent,
-                        focusedContainerColor = if (editPatientInfoState) MaterialTheme.colorScheme.primary else Color.Transparent,
-                        unfocusedContainerColor = if (editPatientInfoState) MaterialTheme.colorScheme.primary else Color.Transparent,
-                        focusedIndicatorColor = if (editPatientInfoState) MaterialTheme.colorScheme.primary else Color.Transparent,
-                        unfocusedIndicatorColor = if (editPatientInfoState) MaterialTheme.colorScheme.primary else Color.Transparent,
-                        disabledIndicatorColor = if (editPatientInfoState) MaterialTheme.colorScheme.primary else Color.Transparent
+                        disabledContainerColor = if (editPatientInfoState) TextFieldDefaults.colors().disabledContainerColor else Color.Transparent,
+                        focusedContainerColor = if (editPatientInfoState) TextFieldDefaults.colors().focusedContainerColor else Color.Transparent,
+                        unfocusedContainerColor = if (editPatientInfoState) TextFieldDefaults.colors().unfocusedContainerColor else Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface
                     )
                 )
 
@@ -368,6 +370,14 @@ fun PatientHistoryDisplay(
             Spacer(modifier = Modifier.height(24.dp))
 
             if (editPatientInfoState) {
+
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
                 AgeInput(
                     initialTotalMonths = age,
                     onTotalMonthsChange = { onEditPatientAgeChange(it) }
@@ -384,6 +394,14 @@ fun PatientHistoryDisplay(
             Spacer(modifier = Modifier.height(24.dp))
 
             if (editPatientInfoState) {
+
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
                 GenderFilterChip(
                     selectedOption = gender,
                     onSelectItem = onEditPatientGenderChange
