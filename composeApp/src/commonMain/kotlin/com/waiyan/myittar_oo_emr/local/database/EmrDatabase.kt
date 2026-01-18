@@ -12,7 +12,7 @@ import com.waiyan.myittar_oo_emr.local.database.dao.PatientDao
 import com.waiyan.myittar_oo_emr.local.database.dao.VisitDao
 
 @Database(
-    entities = [Patient::class, MedicalInfo::class, FollowUp::class, Visit::class], version = 2
+    entities = [Patient::class, MedicalInfo::class, FollowUp::class, Visit::class], version = 3
 )
 abstract class EmrDatabase : RoomDatabase() {
 

@@ -17,6 +17,12 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
     }
 }
 
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("UPDATE Patient SET age = age * 12")
+    }
+}
+
 fun getDatabaseBuilder(context: Context): RoomDatabase.Builder<EmrDatabase> {
     val appContext = context.applicationContext
     val dbFile = appContext.getDatabasePath("emr_database.db")
@@ -24,6 +30,6 @@ fun getDatabaseBuilder(context: Context): RoomDatabase.Builder<EmrDatabase> {
         context = appContext,
         name = dbFile.absolutePath
     )
-    .addMigrations(MIGRATION_1_2) // <-- ADD THIS LINE
+    .addMigrations(MIGRATION_1_2, MIGRATION_2_3) // <-- ADD THIS LINE
     .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
 }
