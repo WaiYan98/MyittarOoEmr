@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SettingsBackupRestore
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
@@ -76,6 +77,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.waiyan.myittar_oo_emr.screen.component.AgeUnit
 import com.waiyan.myittar_oo_emr.screen.component.MyittarOoEmrAppBar
 import com.waiyan.myittar_oo_emr.screen.component.PatientHistoryScreen
 import com.waiyan.myittar_oo_emr.screen.component.ReportScreen
@@ -221,14 +223,30 @@ fun PatientScreen(
                             selectedPageIndex = selectedPageIndex
                         )
 
-                        SearchBar(
-                            enabled = !uiState.isBackingUp,
+
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(start = 16.dp, end = 16.dp),
-                            value = searchQuery,
-                            onValueChange = patientViewModel::onSearchQueryChanged
-                        )
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            SearchBar(
+                                enabled = !uiState.isBackingUp,
+                                modifier = Modifier.weight(1f), // Make SearchBar take up most space
+                                value = searchQuery,
+                                onValueChange = patientViewModel::onSearchQueryChanged
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            IconButton(
+                                onClick = { /* TODO: Implement filter logic here */ },
+                                enabled = !uiState.isBackingUp
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.FilterList,
+                                    contentDescription = "Filter"
+                                )
+                            }
+                        }
 
                         Spacer(modifier = Modifier.height(8.dp))
 
@@ -490,22 +508,33 @@ private fun GenderFilterButton(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AgeFilterButton(
-    minAge: String,
-    maxAge: String,
+    minAge: String, // in months
+    maxAge: String, // in months
     onAgeRangeSelected: (String, String) -> Unit
 ) {
     var ageMenuExpanded by remember { mutableStateOf(false) }
     val isAgeFilterActive = minAge.isNotEmpty() || maxAge.isNotEmpty()
 
-    val initialMin = minAge.toFloatOrNull() ?: 0f
-    val initialMax = maxAge.toFloatOrNull() ?: 100f
-    var sliderPosition by remember(minAge, maxAge) { mutableStateOf(initialMin..initialMax) }
+    var selectedUnit by remember { mutableStateOf(AgeUnit.YEARS) }
+
+    // This state will now hold the range for the *current* unit.
+    var sliderPosition by remember(selectedUnit) {
+        mutableStateOf(if (selectedUnit == AgeUnit.MONTHS) 1f..11f else 1f..100f)
+    }
+
+    // This is for displaying the current slider range in a readable format.
+    fun formatSliderLabel(value: Float, unit: AgeUnit): String {
+        return when (unit) {
+            AgeUnit.MONTHS -> "${value.toInt()} m"
+            AgeUnit.YEARS -> "${value.toInt()} y"
+        }
+    }
 
     Box {
         FilterChip(
             selected = isAgeFilterActive,
             onClick = { ageMenuExpanded = true },
-            label = { Text(getAgeFilterLabel(minAge, maxAge)) },
+            label = { Text(getAgeFilterLabel(minAge, maxAge, selectedUnit)) },
             leadingIcon = if (isAgeFilterActive) {
                 {
                     Icon(
@@ -522,29 +551,64 @@ private fun AgeFilterButton(
             expanded = ageMenuExpanded,
             onDismissRequest = { ageMenuExpanded = false }
         ) {
-            Column(modifier = Modifier
-                .padding(16.dp)
-                .width(200.dp)) {
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .width(300.dp)
+            ) {
                 Text(
-                    "Age Range: ${sliderPosition.start.toInt()} - ${sliderPosition.endInclusive.toInt()}",
+                    "Age Range: ${formatSliderLabel(sliderPosition.start, selectedUnit)} - ${
+                        formatSliderLabel(
+                            sliderPosition.endInclusive,
+                            selectedUnit
+                        )
+                    }",
                     style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Chips to select the unit
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    FilterChip(
+                        selected = selectedUnit == AgeUnit.MONTHS,
+                        onClick = { selectedUnit = AgeUnit.MONTHS },
+                        label = { Text("Months") }
+                    )
+                    FilterChip(
+                        selected = selectedUnit == AgeUnit.YEARS,
+                        onClick = { selectedUnit = AgeUnit.YEARS },
+                        label = { Text("Years") }
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // The slider's range and steps depend on the selected unit.
+                val valueRange = if (selectedUnit == AgeUnit.MONTHS) 1f..11f else 1f..100f
+                val steps = if (selectedUnit == AgeUnit.MONTHS) 9 else 98
+
                 RangeSlider(
                     value = sliderPosition,
                     onValueChange = { sliderPosition = it },
-                    valueRange = 0f..100f,
+                    valueRange = valueRange,
+                    steps = 0
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
                 TextButton(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                        onAgeRangeSelected(
-                            sliderPosition.start.toInt().toString(),
-                            sliderPosition.endInclusive.toInt().toString()
-                        )
+                        val min = sliderPosition.start.toInt()
+                        val max = sliderPosition.endInclusive.toInt()
+
+                        // Convert to months before calling the callback
+                        if (selectedUnit == AgeUnit.YEARS) {
+                            onAgeRangeSelected((min * 12).toString(), (max * 12).toString())
+                        } else {
+                            onAgeRangeSelected(min.toString(), max.toString())
+                        }
                         ageMenuExpanded = false
                     }
                 ) {
@@ -592,9 +656,11 @@ private fun DateFilterButton(
             expanded = dateMenuExpanded,
             onDismissRequest = { dateMenuExpanded = false }
         ) {
-            Column(modifier = Modifier
-                .padding(16.dp)
-                .width(220.dp)) {
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .width(240.dp)
+            ) {
                 Text("Date Range", style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -681,11 +747,11 @@ private fun DateFilterButton(
     }
 }
 
-private fun getAgeFilterLabel(minAge: String, maxAge: String): String {
+private fun getAgeFilterLabel(minAge: String, maxAge: String, selectedUnit: AgeUnit): String {
     return when {
-        minAge.isNotEmpty() && maxAge.isNotEmpty() -> "Age: $minAge-$maxAge"
-        minAge.isNotEmpty() -> "Age: $minAge+"
-        maxAge.isNotEmpty() -> "Age: -$maxAge"
+        minAge.isNotEmpty() && maxAge.isNotEmpty() -> if (selectedUnit == AgeUnit.MONTHS) "Age: $minAge M-$maxAge M" else "Age: ${minAge.toInt()/12} Y-${maxAge.toInt()/12} Y"
+        minAge.isNotEmpty() -> if (selectedUnit == AgeUnit.MONTHS) "Age: $minAge M+" else "Age: ${minAge.toInt()/12} Y+"
+        maxAge.isNotEmpty() -> if (selectedUnit == AgeUnit.MONTHS) "Age: -$maxAge M" else "Age: -${maxAge.toInt()/12} Y"
         else -> "Age"
     }
 }
