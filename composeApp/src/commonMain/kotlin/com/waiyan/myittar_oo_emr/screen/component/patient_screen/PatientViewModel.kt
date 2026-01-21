@@ -2,9 +2,11 @@ package com.waiyan.myittar_oo_emr.screen.component.patient_screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.waiyan.myittar_oo_emr.data.PatientWithVisitAndFollowUp
 import com.waiyan.myittar_oo_emr.usecase.BackupUseCase
 import com.waiyan.myittar_oo_emr.usecase.PatientUseCase
 import com.waiyan.myittar_oo_emr.usecase.RestoreUseCase
+import com.waiyan.myittar_oo_emr.util.LocalTime
 import com.waiyan.myittar_oo_emr.util.triggerAppRestart
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -26,20 +28,68 @@ class PatientViewModel(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
 
+    private val _genderQuery = MutableStateFlow<String?>(null)
+    val genderQuery: StateFlow<String?> = _genderQuery
+
+    private val _ageRangeQuery = MutableStateFlow<Pair<String, String>>(Pair("", ""))
+    val ageRangeQuery: StateFlow<Pair<String, String>> = _ageRangeQuery
+
+    private val _dateRangeQuery = MutableStateFlow<Pair<Long?, Long?>>(Pair(null, null))
+    val dateRangeQuery: StateFlow<Pair<Long?, Long?>> = _dateRangeQuery
+
     val uiState: StateFlow<PatientScreenUiState> =
-        combine(_searchQuery, _uiState) { _searchQuery, _uiState ->
-            PatientScreenUiState(
-                isLoading = _uiState.isLoading,
-                isBackingUp = _uiState.isBackingUp,
-                onError = _uiState.onError,
-                success = if (_searchQuery.isBlank()) {
-                    _uiState.success
-                } else {
-                    _uiState.success.filter {
-                        it.name.contains(_searchQuery, ignoreCase = true) ||
-                                it.id == (_searchQuery.toLongOrNull() ?: 0)
+        combine(
+            _searchQuery,
+            _genderQuery,
+            _ageRangeQuery,
+            _dateRangeQuery,
+            _uiState
+        ) { searchQuery, genderQuery, ageRangeQuery, dateRangeQuery, uiState ->
+            val filteredPatients = uiState.success
+                .filter { patientWithVisit ->
+                    patientWithVisit.patient.name.contains(searchQuery, ignoreCase = true) ||
+                            patientWithVisit.patient.id == (searchQuery.toLongOrNull() ?: -1)
+                }
+                .filter { patientWithVisit ->
+                    genderQuery?.let { patientWithVisit.patient.gender == it } ?: true
+                }
+                .filter { patientWithVisit ->
+                    val minAge = ageRangeQuery.first.toIntOrNull()
+                    val maxAge = ageRangeQuery.second.toIntOrNull()
+                    if (minAge != null && maxAge != null) {
+                        patientWithVisit.patient.age in minAge..maxAge
+                    } else if (minAge != null) {
+                        patientWithVisit.patient.age >= minAge
+                    } else if (maxAge != null) {
+                        patientWithVisit.patient.age <= maxAge
+                    } else {
+                        true
                     }
                 }
+                .filter { patientWithVisit ->
+                    val fromDate = dateRangeQuery.first
+                    val toDate = dateRangeQuery.second
+
+                    if (fromDate == null && toDate == null) {
+                        true
+                    } else {
+                        patientWithVisit.visits.any { visit ->
+                            val visitDate = LocalTime.timeStampToLocalDateTime(visit.date).date
+                            val startOfDayFrom = fromDate?.let { LocalTime.timeStampToLocalDateTime(it).date }
+                            val startOfDayTo = toDate?.let { LocalTime.timeStampToLocalDateTime(it).date }
+
+                            (startOfDayFrom == null || visitDate >= startOfDayFrom) &&
+                                    (startOfDayTo == null || visitDate <= startOfDayTo)
+                        }
+                    }
+                }
+
+
+            PatientScreenUiState(
+                isLoading = uiState.isLoading,
+                isBackingUp = uiState.isBackingUp,
+                onError = uiState.onError,
+                success = filteredPatients
             )
         }
             .stateIn(
@@ -66,6 +116,18 @@ class PatientViewModel(
 
     fun onSearchQueryChanged(query: String) {
         _searchQuery.value = query
+    }
+
+    fun onGenderQueryChanged(gender: String?) {
+        _genderQuery.value = gender
+    }
+
+    fun onAgeRangeQueryChanged(min: String, max: String) {
+        _ageRangeQuery.value = Pair(min, max)
+    }
+
+    fun onDateRangeQueryChanged(from: Long?, to: Long?) {
+        _dateRangeQuery.value = Pair(from, to)
     }
 
     fun backupDatabase() {

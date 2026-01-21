@@ -83,6 +83,7 @@ import com.waiyan.myittar_oo_emr.screen.component.PatientHistoryScreen
 import com.waiyan.myittar_oo_emr.screen.component.ReportScreen
 import com.waiyan.myittar_oo_emr.screen.component.ShowEmptyMessage
 import com.waiyan.myittar_oo_emr.screen.component.ShowLoading
+import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.Gender
 import com.waiyan.myittar_oo_emr.screen.component.patient_screen.PatientViewModel
 import com.waiyan.myittar_oo_emr.screen.component.readableAge
 import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
@@ -144,6 +145,10 @@ fun PatientScreen(
 
     val uiState by patientViewModel.uiState.collectAsStateWithLifecycle()
     val searchQuery by patientViewModel.searchQuery.collectAsStateWithLifecycle()
+    val genderQuery by patientViewModel.genderQuery.collectAsStateWithLifecycle()
+    val ageRangeQuery by patientViewModel.ageRangeQuery.collectAsStateWithLifecycle()
+    val dateRangeQuery by patientViewModel.dateRangeQuery.collectAsStateWithLifecycle()
+
     var selectedPageIndex by remember { mutableStateOf(0) }
     val snackBarHostState = remember { SnackbarHostState() }
     val lifeCycleOwner = LocalLifecycleOwner.current
@@ -152,6 +157,7 @@ fun PatientScreen(
     var isSelectionMode by remember { mutableStateOf(false) }
     val selectedPatientIds = remember { mutableStateListOf<Long>() }
     var showDeleteConfirmationDialog by remember { mutableStateOf(false) }
+    var showFilterChipBar by remember { mutableStateOf(false) }
 
     if (showDeleteConfirmationDialog) {
         DeleteConfirmationDialog(
@@ -238,7 +244,7 @@ fun PatientScreen(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             IconButton(
-                                onClick = { /* TODO: Implement filter logic here */ },
+                                onClick = { showFilterChipBar = !showFilterChipBar },
                                 enabled = !uiState.isBackingUp
                             ) {
                                 Icon(
@@ -248,9 +254,28 @@ fun PatientScreen(
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                        if (showFilterChipBar) {
+                            Spacer(modifier = Modifier.height(8.dp))
 
-                        FilterChipBar(modifier = Modifier.fillMaxWidth())
+                            FilterChipBar(
+                                modifier = Modifier.fillMaxWidth(),
+                                selectedGender = genderQuery,
+                                onGenderSelected = patientViewModel::onGenderQueryChanged,
+                                minAge = ageRangeQuery.first,
+                                maxAge = ageRangeQuery.second,
+                                onAgeRangeSelected = patientViewModel::onAgeRangeQueryChanged,
+                                fromDate = dateRangeQuery.first,
+                                toDate = dateRangeQuery.second,
+                                onDateRangeSelected = patientViewModel::onDateRangeQueryChanged,
+                                onClearFilters = {
+                                    patientViewModel.onGenderQueryChanged(null)
+                                    patientViewModel.onAgeRangeQueryChanged("", "")
+                                    patientViewModel.onDateRangeQueryChanged(null, null)
+                                }
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
 
                         Spacer(modifier = Modifier.height(8.dp))
 
@@ -356,33 +381,33 @@ fun PatientScreen(
 
                 items(
                     uiState.success,
-                    key = { patient -> patient.id }
-                ) { patient ->
-                    val isSelected = selectedPatientIds.contains(patient.id)
+                    key = { patientWithVisit -> patientWithVisit.patient.id }
+                ) { patientWithVisit ->
+                    val isSelected = selectedPatientIds.contains(patientWithVisit.patient.id)
                     PatientCard(
                         enabled = !uiState.isBackingUp,
-                        id = patient.id.toString(),
-                        name = patient.name,
-                        age = patient.age.readableAge(),
-                        gender = patient.gender,
-                        address = patient.address,
+                        id = patientWithVisit.patient.id.toString(),
+                        name = patientWithVisit.patient.name,
+                        age = patientWithVisit.patient.age.readableAge(),
+                        gender = patientWithVisit.patient.gender,
+                        address = patientWithVisit.patient.address,
                         isSelected = isSelected,
                         onLongClick = {
                             isSelectionMode = true
-                            selectedPatientIds.add(patient.id)
+                            selectedPatientIds.add(patientWithVisit.patient.id)
                         },
                         onClick = {
                             if (isSelectionMode) {
                                 if (isSelected) {
-                                    selectedPatientIds.remove(patient.id)
+                                    selectedPatientIds.remove(patientWithVisit.patient.id)
                                     if (selectedPatientIds.isEmpty()) {
                                         isSelectionMode = false
                                     }
                                 } else {
-                                    selectedPatientIds.add(patient.id)
+                                    selectedPatientIds.add(patientWithVisit.patient.id)
                                 }
                             } else {
-                                navController.navigate(PatientHistoryScreen(patient.id))
+                                navController.navigate(PatientHistoryScreen(patientWithVisit.patient.id))
                             }
                         }
                     )
@@ -397,23 +422,17 @@ fun PatientScreen(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun FilterChipBar(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selectedGender: String?,
+    onGenderSelected: (String?) -> Unit,
+    minAge: String,
+    maxAge: String,
+    onAgeRangeSelected: (String, String) -> Unit,
+    fromDate: Long?,
+    toDate: Long?,
+    onDateRangeSelected: (Long?, Long?) -> Unit,
+    onClearFilters: () -> Unit
 ) {
-    // State is hoisted here
-    var selectedGender by remember { mutableStateOf<String?>(null) }
-    var minAge by remember { mutableStateOf("") }
-    var maxAge by remember { mutableStateOf("") }
-    var fromDate by remember { mutableStateOf("") }
-    var toDate by remember { mutableStateOf("") }
-
-    fun clearFilters() {
-        selectedGender = null
-        minAge = ""
-        maxAge = ""
-        fromDate = ""
-        toDate = ""
-    }
-
     FlowRow(
         modifier = modifier
             .fillMaxWidth()
@@ -422,29 +441,23 @@ fun FilterChipBar(
     ) {
         GenderFilterButton(
             selectedGender = selectedGender,
-            onGenderSelected = { selectedGender = it }
+            onGenderSelected = onGenderSelected
         )
 
         AgeFilterButton(
             minAge = minAge,
             maxAge = maxAge,
-            onAgeRangeSelected = { newMin, newMax ->
-                minAge = newMin
-                maxAge = newMax
-            }
+            onAgeRangeSelected = onAgeRangeSelected
         )
 
         DateFilterButton(
             fromDate = fromDate,
             toDate = toDate,
-            onDateRangeSelected = { newFrom, newTo ->
-                fromDate = newFrom
-                toDate = newTo
-            }
+            onDateRangeSelected = onDateRangeSelected
         )
 
         // Clear Button
-        IconButton(onClick = { clearFilters() }) {
+        IconButton(onClick = onClearFilters) {
             Icon(Icons.Filled.Clear, contentDescription = "Clear Filters")
         }
     }
@@ -483,21 +496,21 @@ private fun GenderFilterButton(
             DropdownMenuItem(
                 text = { Text("Male") },
                 onClick = {
-                    onGenderSelected("Male")
+                    onGenderSelected(Gender.MALE.name)
                     genderMenuExpanded = false
                 }
             )
             DropdownMenuItem(
                 text = { Text("Female") },
                 onClick = {
-                    onGenderSelected("Female")
+                    onGenderSelected(Gender.FEMALE.name)
                     genderMenuExpanded = false
                 }
             )
             DropdownMenuItem(
                 text = { Text("Other") },
                 onClick = {
-                    onGenderSelected("Other")
+                    onGenderSelected(Gender.OTHER.name)
                     genderMenuExpanded = false
                 }
             )
@@ -587,7 +600,6 @@ private fun AgeFilterButton(
 
                 // The slider's range and steps depend on the selected unit.
                 val valueRange = if (selectedUnit == AgeUnit.MONTHS) 1f..11f else 1f..100f
-                val steps = if (selectedUnit == AgeUnit.MONTHS) 9 else 98
 
                 RangeSlider(
                     value = sliderPosition,
@@ -622,9 +634,9 @@ private fun AgeFilterButton(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DateFilterButton(
-    fromDate: String,
-    toDate: String,
-    onDateRangeSelected: (String, String) -> Unit
+    fromDate: Long?,
+    toDate: Long?,
+    onDateRangeSelected: (Long?, Long?) -> Unit
 ) {
     var dateMenuExpanded by remember { mutableStateOf(false) }
     var showStartDatePicker by remember { mutableStateOf(false) }
@@ -633,7 +645,7 @@ private fun DateFilterButton(
     var currentFromDate by remember(fromDate) { mutableStateOf(fromDate) }
     var currentToDate by remember(toDate) { mutableStateOf(toDate) }
 
-    val isDateFilterActive = fromDate.isNotEmpty() || toDate.isNotEmpty()
+    val isDateFilterActive = fromDate != null || toDate != null
 
     Box {
         FilterChip(
@@ -659,7 +671,7 @@ private fun DateFilterButton(
             Column(
                 modifier = Modifier
                     .padding(16.dp)
-                    .width(240.dp)
+                    .width(260.dp)
             ) {
                 Text("Date Range", style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(8.dp))
@@ -671,12 +683,12 @@ private fun DateFilterButton(
                     Button(
                         onClick = { showStartDatePicker = true }
                     ) {
-                        Text(currentFromDate.ifEmpty { "Start Date" })
+                        Text(currentFromDate?.let { LocalTime.getHumanDate(it) } ?: "Start Date")
                     }
                     Button(
                         onClick = { showEndDatePicker = true }
                     ) {
-                        Text(currentToDate.ifEmpty { "End Date" })
+                        Text(currentToDate?.let { LocalTime.getHumanDate(it) } ?: "End Date")
                     }
                 }
 
@@ -701,9 +713,7 @@ private fun DateFilterButton(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        datePickerState.selectedDateMillis?.let {
-                            currentFromDate = LocalTime.getHumanDate(it)
-                        }
+                        currentFromDate = datePickerState.selectedDateMillis
                         showStartDatePicker = false
                     }
                 ) {
@@ -727,9 +737,7 @@ private fun DateFilterButton(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        datePickerState.selectedDateMillis?.let {
-                            currentToDate = LocalTime.getHumanDate(it)
-                        }
+                        currentToDate = datePickerState.selectedDateMillis
                         showEndDatePicker = false
                     }
                 ) {
@@ -749,18 +757,18 @@ private fun DateFilterButton(
 
 private fun getAgeFilterLabel(minAge: String, maxAge: String, selectedUnit: AgeUnit): String {
     return when {
-        minAge.isNotEmpty() && maxAge.isNotEmpty() -> if (selectedUnit == AgeUnit.MONTHS) "Age: $minAge M-$maxAge M" else "Age: ${minAge.toInt()/12} Y-${maxAge.toInt()/12} Y"
-        minAge.isNotEmpty() -> if (selectedUnit == AgeUnit.MONTHS) "Age: $minAge M+" else "Age: ${minAge.toInt()/12} Y+"
-        maxAge.isNotEmpty() -> if (selectedUnit == AgeUnit.MONTHS) "Age: -$maxAge M" else "Age: -${maxAge.toInt()/12} Y"
+        minAge.isNotEmpty() && maxAge.isNotEmpty() -> if (selectedUnit == AgeUnit.MONTHS) "Age: $minAge M-$maxAge M" else "Age: ${minAge.toInt() / 12} Y-${maxAge.toInt() / 12} Y"
+        minAge.isNotEmpty() -> if (selectedUnit == AgeUnit.MONTHS) "Age: $minAge M+" else "Age: ${minAge.toInt() / 12} Y+"
+        maxAge.isNotEmpty() -> if (selectedUnit == AgeUnit.MONTHS) "Age: -$maxAge M" else "Age: -${maxAge.toInt() / 12} Y"
         else -> "Age"
     }
 }
 
-private fun getDateFilterLabel(fromDate: String, toDate: String): String {
+private fun getDateFilterLabel(fromDate: Long?, toDate: Long?): String {
     return when {
-        fromDate.isNotEmpty() && toDate.isNotEmpty() -> "Date: $fromDate - $toDate"
-        fromDate.isNotEmpty() -> "Date: From $fromDate"
-        toDate.isNotEmpty() -> "Date: To $toDate"
+        fromDate != null && toDate != null -> "Date: ${LocalTime.getHumanDate(fromDate)} - ${LocalTime.getHumanDate(toDate)}"
+        fromDate != null -> "Date: From ${LocalTime.getHumanDate(fromDate)}"
+        toDate != null -> "Date: To ${LocalTime.getHumanDate(toDate)}"
         else -> "Date"
     }
 }

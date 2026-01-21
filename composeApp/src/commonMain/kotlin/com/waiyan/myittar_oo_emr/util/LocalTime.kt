@@ -11,7 +11,7 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
-object LocalTime {
+object  LocalTime {
 
     private val timeZone by lazy { TimeZone.currentSystemDefault() }
 
