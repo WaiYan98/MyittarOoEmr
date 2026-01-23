@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.PatientFormScreen
 import com.waiyan.myittar_oo_emr.screen.component.patient_history_screen.PatientHistoryScreen
+import com.waiyan.myittar_oo_emr.screen.component.report_screen.MonthlyIncomeDetailsScreen
 import com.waiyan.myittar_oo_emr.screen.component.report_screen.TodayIncomeDetailsScreen
 import kotlinx.serialization.Serializable
 
@@ -25,6 +26,10 @@ object ReportScreen
 
 @Serializable
 object TodayIncomeDetailsScreen
+
+@Serializable
+object MonthlyIncomeDetailsScreen
+
 
 @Composable
 fun MyittarOoEmrApp() {
@@ -54,6 +59,11 @@ fun MyittarOoEmrApp() {
         composable<TodayIncomeDetailsScreen> {
             TodayIncomeDetailsScreen(navController)
         }
+
+        composable<MonthlyIncomeDetailsScreen> {
+            MonthlyIncomeDetailsScreen(navController)
+        }
+
     }
 
 

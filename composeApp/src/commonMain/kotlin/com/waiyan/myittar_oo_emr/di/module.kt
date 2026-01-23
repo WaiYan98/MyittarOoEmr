@@ -10,6 +10,7 @@ import com.waiyan.myittar_oo_emr.local_service.EmrRepositoryImpl
 import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.PatientFormViewModel
 import com.waiyan.myittar_oo_emr.screen.component.patient_history_screen.PatientHistoryViewModel
 import com.waiyan.myittar_oo_emr.screen.component.patient_screen.PatientViewModel
+import com.waiyan.myittar_oo_emr.screen.component.report_screen.MonthlyIncomeDetailsViewModel
 import com.waiyan.myittar_oo_emr.screen.component.report_screen.ReportScreenViewModel
 import com.waiyan.myittar_oo_emr.screen.component.report_screen.TodayIncomeDetailsViewModel
 import com.waiyan.myittar_oo_emr.usecase.BackupUseCase
@@ -34,6 +35,7 @@ val shareModule = module {
     viewModelOf(::PatientHistoryViewModel)
     viewModelOf(::ReportScreenViewModel)
     viewModelOf(::TodayIncomeDetailsViewModel)
+    viewModelOf(::MonthlyIncomeDetailsViewModel)
     single<PatientDao> { get<EmrDatabase>().getPatientDao() }
     single<MedicalInfoDao> { get<EmrDatabase>().getMedicalInfoDao() }
     single<VisitDao> { get<EmrDatabase>().getVisitDao() }

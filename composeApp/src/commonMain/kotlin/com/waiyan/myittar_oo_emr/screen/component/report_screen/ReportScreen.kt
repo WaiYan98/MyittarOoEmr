@@ -39,6 +39,7 @@ import androidx.navigation.NavController
 import com.waiyan.myittar_oo_emr.data.MonthlyIncome
 import com.waiyan.myittar_oo_emr.data.UpcomingFollowUp
 import com.waiyan.myittar_oo_emr.screen.component.InputField
+import com.waiyan.myittar_oo_emr.screen.component.MonthlyIncomeDetailsScreen
 import com.waiyan.myittar_oo_emr.screen.component.MyittarOoEmrAppBar
 import com.waiyan.myittar_oo_emr.screen.component.ReportCard
 import com.waiyan.myittar_oo_emr.screen.component.TableBody
@@ -231,6 +232,7 @@ fun ReportDisplay(
                 value1 = patientSeen,
                 title2 = "Today's Income",
                 value2 = "$todayIncome MMK",
+                onclick1 = {},
                 onClick2 = { navController.navigate(TodayIncomeDetailsScreen) }
             )
 
@@ -241,6 +243,7 @@ fun ReportDisplay(
                 value1 = "$thisMonthIncome MMK",
                 title2 = "",
                 value2 = "",
+                onclick1 = {navController.navigate(MonthlyIncomeDetailsScreen)},
                 onClick2 = {}
             )
 

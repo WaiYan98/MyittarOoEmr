@@ -430,6 +430,7 @@ fun ReportCard(
     value1: String,
     title2: String,
     value2: String,
+    onclick1: () -> Unit,
     onClick2: () -> Unit
 ) {
     Row(
@@ -437,7 +438,8 @@ fun ReportCard(
     ) {
         Card(
             modifier = Modifier.weight(1f),
-            shape = RoundedCornerShape(8.dp)
+            shape = RoundedCornerShape(8.dp),
+            onClick = onclick1
         ) {
             Column(
                 modifier = Modifier
