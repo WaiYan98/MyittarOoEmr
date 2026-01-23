@@ -1,8 +1,8 @@
 package com.waiyan.myittar_oo_emr.di
 
 import com.waiyan.myittar_oo_emr.local.database.dao.FollowUpDao
-import com.waiyan.myittar_oo_emr.local.database.dao.MedicalInfoDao
 import com.waiyan.myittar_oo_emr.local.database.EmrDatabase
+import com.waiyan.myittar_oo_emr.local.database.dao.MedicalInfoDao
 import com.waiyan.myittar_oo_emr.local.database.dao.PatientDao
 import com.waiyan.myittar_oo_emr.local.database.dao.VisitDao
 import com.waiyan.myittar_oo_emr.local_service.EmrRepository
@@ -11,7 +11,9 @@ import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.PatientFor
 import com.waiyan.myittar_oo_emr.screen.component.patient_history_screen.PatientHistoryViewModel
 import com.waiyan.myittar_oo_emr.screen.component.patient_screen.PatientViewModel
 import com.waiyan.myittar_oo_emr.screen.component.report_screen.ReportScreenViewModel
+import com.waiyan.myittar_oo_emr.screen.component.report_screen.TodayIncomeDetailsViewModel
 import com.waiyan.myittar_oo_emr.usecase.BackupUseCase
+import com.waiyan.myittar_oo_emr.usecase.IncomeDetailsUseCase
 import com.waiyan.myittar_oo_emr.usecase.PatientFormUseCase
 import com.waiyan.myittar_oo_emr.usecase.PatientHistoryUseCase
 import com.waiyan.myittar_oo_emr.usecase.PatientUseCase
@@ -31,6 +33,7 @@ val shareModule = module {
     viewModelOf(::PatientFormViewModel)
     viewModelOf(::PatientHistoryViewModel)
     viewModelOf(::ReportScreenViewModel)
+    viewModelOf(::TodayIncomeDetailsViewModel)
     single<PatientDao> { get<EmrDatabase>().getPatientDao() }
     single<MedicalInfoDao> { get<EmrDatabase>().getMedicalInfoDao() }
     single<VisitDao> { get<EmrDatabase>().getVisitDao() }
@@ -41,4 +44,5 @@ val shareModule = module {
     singleOf(::PatientUseCase)
     singleOf(::BackupUseCase)
     singleOf(::RestoreUseCase)
+    singleOf(::IncomeDetailsUseCase)
 }

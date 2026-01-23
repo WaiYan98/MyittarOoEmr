@@ -45,7 +45,9 @@ import com.waiyan.myittar_oo_emr.screen.component.TableBody
 import com.waiyan.myittar_oo_emr.screen.component.TableHeader
 import com.waiyan.myittar_oo_emr.screen.component.Title
 import com.waiyan.myittar_oo_emr.screen.component.TitleCard
+import com.waiyan.myittar_oo_emr.screen.component.TodayIncomeDetailsScreen
 import com.waiyan.myittar_oo_emr.screen.component.report_screen.ReportScreenViewModel
+import com.waiyan.myittar_oo_emr.screen.component.report_screen.TodayIncomeDetailsScreen
 import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
 import com.waiyan.myittar_oo_emr.util.LocalTime
 import org.koin.compose.viewmodel.koinViewModel
@@ -174,6 +176,7 @@ fun ReportScreen(
 
                 uiState.success?.let { report ->
                     ReportDisplay(
+                        navController = navController,
                         patientSeen = report.todayPatientsSeen.toString(),
                         todayIncome = report.todayIncome.toString(),
                         thisMonthIncome = report.thisMonthIncome.toString(),
@@ -193,6 +196,7 @@ fun ReportScreen(
 
 @Composable
 fun ReportDisplay(
+    navController: NavController,
     patientSeen: String,
     todayIncome: String,
     thisMonthIncome: String,
@@ -226,7 +230,8 @@ fun ReportDisplay(
                 title1 = "Patients Seen",
                 value1 = patientSeen,
                 title2 = "Today's Income",
-                value2 = "$todayIncome MMK"
+                value2 = "$todayIncome MMK",
+                onClick2 = { navController.navigate(TodayIncomeDetailsScreen) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -234,8 +239,9 @@ fun ReportDisplay(
             ReportCard(
                 title1 = "This Month",
                 value1 = "$thisMonthIncome MMK",
-                title2 = "This Year",
-                value2 = "$thisYearIncome MMK"
+                title2 = "",
+                value2 = "",
+                onClick2 = {}
             )
 
             Spacer(Modifier.height(32.dp))

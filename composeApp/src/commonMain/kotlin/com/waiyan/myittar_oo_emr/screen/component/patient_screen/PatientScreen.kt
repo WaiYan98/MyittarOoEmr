@@ -616,6 +616,7 @@ private fun AgeFilterButton(
                         val max = sliderPosition.endInclusive.toInt()
 
                         // Convert to months before calling the callback
+
                         if (selectedUnit == AgeUnit.YEARS) {
                             onAgeRangeSelected((min * 12).toString(), (max * 12).toString())
                         } else {

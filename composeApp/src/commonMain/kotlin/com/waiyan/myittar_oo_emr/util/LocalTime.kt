@@ -11,7 +11,7 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
-object  LocalTime {
+object LocalTime {
 
     private val timeZone by lazy { TimeZone.currentSystemDefault() }
 
@@ -24,7 +24,7 @@ object  LocalTime {
         return Clock.System.now().toEpochMilliseconds()
     }
 
-    private const val MILLIS_IN_DAY = 24 * 60 * 60 * 1000L
+    const val DAY_IN_MILLIS = 24 * 60 * 60 * 1000L
 
     @OptIn(ExperimentalTime::class)
     fun getHumanDate(timeStamp: Long): String {
@@ -35,9 +35,17 @@ object  LocalTime {
         return "$day/$month/$year"
     }
 
+    @OptIn(ExperimentalTime::class)
+    fun getHumanTime(timeStamp: Long): String {
+        val localDateTime = timeStampToLocalDateTime(timeStamp)
+        val hour = localDateTime.hour.toString().padStart(2, '0')
+        val minute = localDateTime.minute.toString().padStart(2, '0')
+        return "$hour:$minute"
+    }
+
     fun calculateDayUntil(followUpTimeStamp: Long): Long {
         val difference = followUpTimeStamp - getCurrentTimeMillis()
-        return if (difference <= 0) 0 else difference / MILLIS_IN_DAY
+        return if (difference <= 0) 0 else difference / DAY_IN_MILLIS
     }
 
     @OptIn(ExperimentalTime::class)

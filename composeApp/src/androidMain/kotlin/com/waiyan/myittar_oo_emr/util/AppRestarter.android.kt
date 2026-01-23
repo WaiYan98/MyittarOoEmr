@@ -1,7 +1,7 @@
 package com.waiyan.myittar_oo_emr.util
 
 import android.content.Intent
-import com.waiyan.myittar_oo_emr.di.AndroidAppContext
+import com.waiyan.myittar_oo_emr.AndroidAppContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 

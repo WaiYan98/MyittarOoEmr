@@ -4,7 +4,7 @@ import android.content.ContentValues
 import android.os.Build
 import android.provider.MediaStore
 import androidx.annotation.RequiresApi
-import com.waiyan.myittar_oo_emr.di.AndroidAppContext
+import com.waiyan.myittar_oo_emr.AndroidAppContext
 import com.waiyan.myittar_oo_emr.local.database.EmrDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

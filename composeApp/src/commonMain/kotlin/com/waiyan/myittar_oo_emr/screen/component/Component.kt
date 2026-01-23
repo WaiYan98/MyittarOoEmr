@@ -18,7 +18,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Diamond
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,7 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -46,7 +44,6 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.Gender
-import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -198,10 +195,10 @@ fun DisplayInfoCard(
     isAllergies: Boolean = false,
     onEditValueChange: (String) -> Unit
 ) {
-        HorizontalDivider(
-            thickness = 1.dp,
-            color = MaterialTheme.colorScheme.primary
-        )
+    HorizontalDivider(
+        thickness = 1.dp,
+        color = MaterialTheme.colorScheme.primary
+    )
 
     Box(
         contentAlignment = Alignment.TopStart
@@ -213,11 +210,11 @@ fun DisplayInfoCard(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(0.25f),
-                    text = label,
-                    color = MaterialTheme.colorScheme.primary
-                )
+            Text(
+                modifier = Modifier.fillMaxWidth(0.25f),
+                text = label,
+                color = MaterialTheme.colorScheme.primary
+            )
 
             TextField(
                 value = value,
@@ -433,6 +430,7 @@ fun ReportCard(
     value1: String,
     title2: String,
     value2: String,
+    onClick2: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth()
@@ -456,23 +454,28 @@ fun ReportCard(
 
         Spacer(Modifier.width(16.dp))
 
+
         Card(
             modifier = Modifier.weight(1f),
             shape = RoundedCornerShape(8.dp),
+            onClick = onClick2
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(32.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.Start
-            ) {
-                Title(title2, fontSize = 16.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                Title(value2, fontSize = 24.sp)
+            if (title2.isNotBlank() && value2.isNotBlank()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(32.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Title(title2, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Title(value2, fontSize = 24.sp)
+                }
             }
         }
     }
+
 }
 
 @Composable
