@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.*
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.number
 import kotlin.time.ExperimentalTime
 
 data class MonthlyIncomeDetailsUiState(
@@ -45,7 +47,7 @@ class MonthlyIncomeDetailsViewModel(
 
             val detailsForMonth = allDetails.filter {
                 val detailDate = LocalTime.timeStampToLocalDateTime(it.visitTime).date
-                detailDate >= startOfMonth && detailDate <= endOfMonth
+                detailDate in startOfMonth..endOfMonth
             }
 
             val groupedByDay = detailsForMonth.groupBy {
@@ -54,8 +56,8 @@ class MonthlyIncomeDetailsViewModel(
 
             val monthlyDetails = groupedByDay.map { (date, details) ->
                 MonthlyIncomeDetail(
-                    date = "${date.dayOfMonth.toString().padStart(2,'0')}/${date.monthNumber.toString().padStart(2,'0')}/${date.year}",
-                    patientSeenNumber = details.distinctBy { it.patientName }.size,
+                    date = "${date.day.toString().padStart(2,'0')}/${date.month.number.toString().padStart(2,'0')}/${date.year}",
+                    patientSeenNumber = details.size,
                     income = details.sumOf { it.fee }
                 )
             }.sortedBy { it.date }

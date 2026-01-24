@@ -5,6 +5,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.*
@@ -51,7 +53,7 @@ fun MonthlyIncomeDetailsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             IconButton(onClick = { viewModel.onPreviousMonth() }) {
-                                Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "Previous month")
+                                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Previous month")
                             }
                             Text(
                                 text = selectedDate.toMonthYearString(),
@@ -61,7 +63,7 @@ fun MonthlyIncomeDetailsScreen(
                                 onClick = { viewModel.onNextMonth() },
                                 enabled = !viewModel.isCurrentMonth(selectedDate)
                             ) {
-                                Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Next month")
+                                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Next month")
                             }
                         }
                     },
