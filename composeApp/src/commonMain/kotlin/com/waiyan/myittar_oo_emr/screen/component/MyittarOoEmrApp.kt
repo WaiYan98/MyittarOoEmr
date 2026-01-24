@@ -3,6 +3,7 @@ package com.waiyan.myittar_oo_emr.screen.component
 import PatientScreen
 import ReportScreen
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -11,6 +12,10 @@ import com.waiyan.myittar_oo_emr.screen.component.patient_history_screen.Patient
 import com.waiyan.myittar_oo_emr.screen.component.report_screen.MonthlyIncomeDetailsScreen
 import com.waiyan.myittar_oo_emr.screen.component.report_screen.TodayIncomeDetailsScreen
 import kotlinx.serialization.Serializable
+import org.koin.compose.viewmodel.koinViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.waiyan.myittar_oo_emr.viewmodel.PinSettingsViewModel
+import android.util.Log // Added Log import
 
 @Serializable
 object PatientScreen
@@ -22,7 +27,7 @@ data class PatientHistoryScreen(val patientId: Long)
 object PatientFormScreen
 
 @Serializable
-object ReportScreen
+object ReportScreen // Renamed from ReportScreen
 
 @Serializable
 object TodayIncomeDetailsScreen
@@ -53,7 +58,17 @@ fun MyittarOoEmrApp() {
         }
 
         composable<ReportScreen> {
-            ReportScreen(navController)
+            val entryPinViewModel: PinSettingsViewModel = koinViewModel() // Get ViewModel for this entry
+            Log.d("ViewModelInstance", "MyittarOoEmrApp (entry) ViewModel: ${entryPinViewModel.hashCode()}")
+            val entryIsUnlocked by entryPinViewModel.isUnlocked.collectAsStateWithLifecycle()
+            if (!entryIsUnlocked) {
+                PinLockScreen(
+                    onPinCorrect = { /* This callback is not strictly necessary anymore as we observe entryIsUnlocked */ },
+                    viewModel = entryPinViewModel // Pass the ViewModel down
+                )
+            } else {
+                ReportScreen(navController)
+            }
         }
 
         composable<TodayIncomeDetailsScreen> {
