@@ -1,4 +1,4 @@
-package com.waiyan.myittar_oo_emr.viewmodel
+package com.waiyan.myittar_oo_emr.screen.component.lock_screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

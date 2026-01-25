@@ -20,7 +20,7 @@ import com.waiyan.myittar_oo_emr.usecase.PatientHistoryUseCase
 import com.waiyan.myittar_oo_emr.usecase.PatientUseCase
 import com.waiyan.myittar_oo_emr.usecase.ReportUseCase
 import com.waiyan.myittar_oo_emr.usecase.RestoreUseCase
-import com.waiyan.myittar_oo_emr.viewmodel.PinSettingsViewModel
+import com.waiyan.myittar_oo_emr.screen.component.lock_screen.PinSettingsViewModel
 import com.waiyan.myittar_oo_emr.data.SettingsStorage // Import SettingsStorage
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind

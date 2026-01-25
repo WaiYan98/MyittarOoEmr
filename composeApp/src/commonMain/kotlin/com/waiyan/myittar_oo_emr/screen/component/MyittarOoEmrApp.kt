@@ -14,8 +14,8 @@ import com.waiyan.myittar_oo_emr.screen.component.report_screen.TodayIncomeDetai
 import kotlinx.serialization.Serializable
 import org.koin.compose.viewmodel.koinViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.waiyan.myittar_oo_emr.viewmodel.PinSettingsViewModel
-import android.util.Log // Added Log import
+import com.waiyan.myittar_oo_emr.screen.component.lock_screen.PinSettingsViewModel
+import com.waiyan.myittar_oo_emr.screen.component.lock_screen.PinLockScreen
 
 @Serializable
 object PatientScreen
@@ -59,10 +59,11 @@ fun MyittarOoEmrApp() {
 
         composable<ReportScreen> {
             val entryPinViewModel: PinSettingsViewModel = koinViewModel() // Get ViewModel for this entry
-            Log.d("ViewModelInstance", "MyittarOoEmrApp (entry) ViewModel: ${entryPinViewModel.hashCode()}")
+//            Log.d("ViewModelInstance", "MyittarOoEmrApp (entry) ViewModel: ${entryPinViewModel.hashCode()}")
             val entryIsUnlocked by entryPinViewModel.isUnlocked.collectAsStateWithLifecycle()
             if (!entryIsUnlocked) {
                 PinLockScreen(
+                    navController = navController, // Pass navController here
                     onPinCorrect = { /* This callback is not strictly necessary anymore as we observe entryIsUnlocked */ },
                     viewModel = entryPinViewModel // Pass the ViewModel down
                 )
