@@ -22,6 +22,7 @@ import kotlin.time.ExperimentalTime
 data class MonthlyIncomeDetailsUiState(
     val isLoading: Boolean = false,
     val monthlyIncomeDetails: List<MonthlyIncomeDetail> = emptyList(),
+    val totalMonthlyIncome: Long = 0L, // Added totalMonthlyIncome
     val error: String? = null
 )
 
@@ -62,9 +63,12 @@ class MonthlyIncomeDetailsViewModel(
                 )
             }.sortedBy { it.date }
 
+            val totalIncome = monthlyDetails.sumOf { it.income } // Calculate total income
+
             MonthlyIncomeDetailsUiState(
                 isLoading = uiState.isLoading,
                 monthlyIncomeDetails = monthlyDetails,
+                totalMonthlyIncome = totalIncome, // Pass total income
                 error = uiState.error
             )
         }.stateIn(

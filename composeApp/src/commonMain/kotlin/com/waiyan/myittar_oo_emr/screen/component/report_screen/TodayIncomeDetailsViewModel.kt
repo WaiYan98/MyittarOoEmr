@@ -1,5 +1,6 @@
 package com.waiyan.myittar_oo_emr.screen.component.report_screen
 
+import TodayIncomeDetailsUiState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.waiyan.myittar_oo_emr.usecase.IncomeDetailsUseCase
@@ -43,9 +44,13 @@ class TodayIncomeDetailsViewModel(
             val filteredDetails = uiState.incomeDetails.filter { incomeDetail ->
                 incomeDetail.visitTime in startOfDay until endOfDay
             }
+
+            val totalIncome = filteredDetails.sumOf { it.fee } // Calculate total income
+
             TodayIncomeDetailsUiState(
                 isLoading = uiState.isLoading,
                 incomeDetails = filteredDetails,
+                totalDailyIncome = totalIncome, // Pass total income
                 error = uiState.error
             )
         }.stateIn(

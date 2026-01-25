@@ -48,7 +48,6 @@ import com.waiyan.myittar_oo_emr.screen.component.Title
 import com.waiyan.myittar_oo_emr.screen.component.TitleCard
 import com.waiyan.myittar_oo_emr.screen.component.TodayIncomeDetailsScreen
 import com.waiyan.myittar_oo_emr.screen.component.report_screen.ReportScreenViewModel
-import com.waiyan.myittar_oo_emr.screen.component.report_screen.TodayIncomeDetailsScreen
 import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
 import com.waiyan.myittar_oo_emr.util.LocalTime
 import org.koin.compose.viewmodel.koinViewModel

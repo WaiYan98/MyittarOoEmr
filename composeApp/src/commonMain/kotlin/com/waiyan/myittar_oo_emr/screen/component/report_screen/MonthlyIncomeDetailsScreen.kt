@@ -13,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -53,7 +54,10 @@ fun MonthlyIncomeDetailsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             IconButton(onClick = { viewModel.onPreviousMonth() }) {
-                                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Previous month")
+                                Icon(
+                                    Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                    contentDescription = "Previous month"
+                                )
                             }
                             Text(
                                 text = selectedDate.toMonthYearString(),
@@ -63,7 +67,10 @@ fun MonthlyIncomeDetailsScreen(
                                 onClick = { viewModel.onNextMonth() },
                                 enabled = !viewModel.isCurrentMonth(selectedDate)
                             ) {
-                                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Next month")
+                                Icon(
+                                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                    contentDescription = "Next month"
+                                )
                             }
                         }
                     },
@@ -85,21 +92,44 @@ fun MonthlyIncomeDetailsScreen(
                     ShowLoading()
                 } else {
                     TableHeader(
-                        title1 = "Date",
-                        title2 = "Patients",
-                        title3 = "Income",
-                        title4 = ""
+                        title1 = "",
+                        title2 = "Date",
+                        title3 = "Patients",
+                        title4 = "Income"
                     )
 
                     LazyColumn(modifier = Modifier.fillMaxWidth()) {
                         items(uiState.monthlyIncomeDetails) { detail ->
                             TableBody(
-                                data1 = detail.date,
-                                data2 = detail.patientSeenNumber.toString(),
-                                data3 = detail.income.toString(),
-                                data4 = ""
+                                data1 ="",
+                                data2 = detail.date,
+                                data3 = detail.patientSeenNumber.toString(),
+                                data4 = detail.income.toString()
                             )
                         }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    HorizontalDivider(thickness = 2.dp)
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Total Income:",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "${uiState.totalMonthlyIncome} MMK",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }

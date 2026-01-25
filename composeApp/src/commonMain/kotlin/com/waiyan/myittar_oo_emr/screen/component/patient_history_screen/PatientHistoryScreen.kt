@@ -579,7 +579,8 @@ fun PatientHistoryDisplay(
                 title1 = "Date",
                 title2 = "Diagnosis",
                 title3 = "Prescription",
-                title4 = "Fee"
+                title4 = "Fee",
+                title4Alignment = Alignment.Center
             )
         }
 

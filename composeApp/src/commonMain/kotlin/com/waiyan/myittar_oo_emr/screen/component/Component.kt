@@ -25,6 +25,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -40,6 +41,7 @@ import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -245,7 +247,8 @@ fun TableHeader(
     title1: String,
     title2: String,
     title3: String,
-    title4: String
+    title4: String,
+    title4Alignment: Alignment = Alignment.CenterEnd
 ) {
 
 
@@ -288,7 +291,7 @@ fun TableHeader(
 
         Box(
             modifier = Modifier.weight(1f),
-            contentAlignment = Alignment.CenterStart
+            contentAlignment = title4Alignment
         ) {
             Title(text = title4, fontSize = 16.sp)
         }
@@ -341,7 +344,8 @@ fun TableBody(
         fun EditableTableCell(
             text: String,
             onValueChange: (String) -> Unit,
-            modifier: Modifier
+            modifier: Modifier,
+            alignment: Alignment = Alignment.CenterStart
         ) {
             Box(
                 modifier = modifier,
@@ -352,10 +356,17 @@ fun TableBody(
                         value = text,
                         onValueChange = onValueChange,
                         colors = textFieldColors,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 } else {
-                    Text(text)
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = alignment
+                    ) {
+                        Text(
+                            text
+                        )
+                    }
                 }
             }
         }
@@ -380,8 +391,10 @@ fun TableBody(
             EditableTableCell(
                 text = data4,
                 onValueChange = onData4Change,
-                modifier = Modifier.weight(0.7f)
+                modifier = Modifier.weight(0.7f),
+                alignment = Alignment.CenterEnd
             )
+
             content()
         }
     }
