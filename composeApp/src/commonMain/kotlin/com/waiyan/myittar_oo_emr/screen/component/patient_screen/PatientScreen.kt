@@ -784,6 +784,7 @@ fun SearchBar(
     TextField(
         enabled = enabled,
         modifier = modifier,
+        singleLine = true,
         value = value,
         onValueChange = onValueChange,
         leadingIcon = {

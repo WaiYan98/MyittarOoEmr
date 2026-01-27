@@ -1,6 +1,7 @@
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft // Modified import
@@ -31,6 +32,8 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.remember
 import androidx.compose.material3.HorizontalDivider // Added import
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.font.FontWeight // Added import
 import com.waiyan.myittar_oo_emr.screen.component.TotalIncome
 import com.waiyan.myittar_oo_emr.screen.component.report_screen.TodayIncomeDetailsViewModel
@@ -51,6 +54,7 @@ fun TodayIncomeDetailsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val selectedDate by viewModel.selectedDate.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+
 
     LaunchedEffect(uiState.error) {
         uiState.error?.let {
@@ -111,7 +115,7 @@ fun TodayIncomeDetailsScreen(
                 } else {
                     // Table Header
                     TableHeader(
-                        title1 = "",
+                        title1 = "No.",
                         title2 = "Patient Name",
                         title3 = "Time",
                         title4 = "Fee" // Empty for spacing
@@ -119,9 +123,9 @@ fun TodayIncomeDetailsScreen(
 
                     // List of income details
                     LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                        items(uiState.incomeDetails) { detail ->
+                        itemsIndexed(uiState.incomeDetails) { index, detail -> // Changed to itemsIndexed
                             TableBody(
-                                data1 = "",
+                                data1 = "${index + 1}", // Use index for numbering
                                 data2 = detail.patientName,
                                 data3 = LocalTime.getHumanTime(detail.visitTime),
                                 data4 = detail.fee.toString()
@@ -132,7 +136,6 @@ fun TodayIncomeDetailsScreen(
                             Spacer(modifier = Modifier.height(16.dp))
                             TotalIncome(uiState.totalDailyIncome)
                             Spacer(modifier = Modifier.height(16.dp))
-
                         }
                     }
                 }

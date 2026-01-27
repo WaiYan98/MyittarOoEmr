@@ -26,6 +26,7 @@ class TodayIncomeDetailsViewModel(
     private val _uiState = MutableStateFlow(TodayIncomeDetailsUiState())
 
     private val _selectedDate = MutableStateFlow(LocalTime.getCurrentTimeMillis())
+
     val selectedDate: StateFlow<Long> = _selectedDate.asStateFlow()
 
     @OptIn(ExperimentalTime::class)

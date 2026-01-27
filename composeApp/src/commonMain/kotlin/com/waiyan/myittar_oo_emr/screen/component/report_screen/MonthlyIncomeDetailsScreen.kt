@@ -3,6 +3,7 @@ package com.waiyan.myittar_oo_emr.screen.component.report_screen
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -93,16 +94,16 @@ fun MonthlyIncomeDetailsScreen(
                     ShowLoading()
                 } else {
                     TableHeader(
-                        title1 = "",
+                        title1 = "No.",
                         title2 = "Date",
                         title3 = "Patients",
                         title4 = "Income"
                     )
 
                     LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                        items(uiState.monthlyIncomeDetails) { detail ->
+                        itemsIndexed(uiState.monthlyIncomeDetails) { index, detail ->
                             TableBody(
-                                data1 = "",
+                                data1 = "${index + 1}",
                                 data2 = detail.date,
                                 data3 = detail.patientSeenNumber.toString(),
                                 data4 = detail.income.toString()
