@@ -32,6 +32,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.remember
 import androidx.compose.material3.HorizontalDivider // Added import
 import androidx.compose.ui.text.font.FontWeight // Added import
+import com.waiyan.myittar_oo_emr.screen.component.TotalIncome
 import com.waiyan.myittar_oo_emr.screen.component.report_screen.TodayIncomeDetailsViewModel
 
 data class TodayIncomeDetailsUiState(
@@ -72,7 +73,10 @@ fun TodayIncomeDetailsScreen(
                             IconButton(onClick = {
                                 viewModel.onPreviousDay()
                             }) {
-                                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Previous day") // Modified usage
+                                Icon(
+                                    Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                    contentDescription = "Previous day"
+                                ) // Modified usage
                             }
                             Text(LocalTime.getHumanDate(selectedDate), fontSize = 20.sp)
                             IconButton(
@@ -81,7 +85,10 @@ fun TodayIncomeDetailsScreen(
                                 },
                                 enabled = !viewModel.isToday(selectedDate)
                             ) {
-                                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Next day") // Modified usage
+                                Icon(
+                                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                    contentDescription = "Next day"
+                                ) // Modified usage
                             }
                         }
                     },
@@ -114,35 +121,19 @@ fun TodayIncomeDetailsScreen(
                     LazyColumn(modifier = Modifier.fillMaxWidth()) {
                         items(uiState.incomeDetails) { detail ->
                             TableBody(
-                                data1 ="" ,
+                                data1 = "",
                                 data2 = detail.patientName,
                                 data3 = LocalTime.getHumanTime(detail.visitTime),
                                 data4 = detail.fee.toString()
                             )
                         }
-                    }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                        item {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            TotalIncome(uiState.totalDailyIncome)
+                            Spacer(modifier = Modifier.height(16.dp))
 
-                    HorizontalDivider(thickness = 2.dp)
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Total Income:",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "${uiState.totalDailyIncome} MMK",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        }
                     }
                 }
             }

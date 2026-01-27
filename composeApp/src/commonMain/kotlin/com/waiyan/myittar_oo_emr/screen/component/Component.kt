@@ -581,6 +581,32 @@ fun Int.readableAge(): String {
 }
 
 
+@Composable
+fun TotalIncome(totalIncome: Long) {
+
+    HorizontalDivider(thickness = 2.dp)
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Total Income:",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = "$totalIncome MMK",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+
 
 
 

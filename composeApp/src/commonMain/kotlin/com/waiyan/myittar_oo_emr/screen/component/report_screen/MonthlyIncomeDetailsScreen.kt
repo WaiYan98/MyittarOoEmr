@@ -21,6 +21,7 @@ import androidx.navigation.NavController
 import com.waiyan.myittar_oo_emr.screen.component.ShowLoading
 import com.waiyan.myittar_oo_emr.screen.component.TableBody
 import com.waiyan.myittar_oo_emr.screen.component.TableHeader
+import com.waiyan.myittar_oo_emr.screen.component.TotalIncome
 import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
 import com.waiyan.myittar_oo_emr.util.LocalTime
 import org.koin.compose.viewmodel.koinViewModel
@@ -101,36 +102,21 @@ fun MonthlyIncomeDetailsScreen(
                     LazyColumn(modifier = Modifier.fillMaxWidth()) {
                         items(uiState.monthlyIncomeDetails) { detail ->
                             TableBody(
-                                data1 ="",
+                                data1 = "",
                                 data2 = detail.date,
                                 data3 = detail.patientSeenNumber.toString(),
                                 data4 = detail.income.toString()
                             )
                         }
+
+                        item {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            TotalIncome(uiState.totalMonthlyIncome)
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                        }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    HorizontalDivider(thickness = 2.dp)
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Total Income:",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "${uiState.totalMonthlyIncome} MMK",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
                 }
             }
         }
