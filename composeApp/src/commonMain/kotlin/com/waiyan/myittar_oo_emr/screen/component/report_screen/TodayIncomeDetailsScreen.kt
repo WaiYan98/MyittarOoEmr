@@ -31,10 +31,6 @@ import org.koin.compose.viewmodel.koinViewModel
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.remember
-import androidx.compose.material3.HorizontalDivider // Added import
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.font.FontWeight // Added import
 import com.waiyan.myittar_oo_emr.screen.component.TotalIncome
 import com.waiyan.myittar_oo_emr.screen.component.report_screen.TodayIncomeDetailsViewModel
 
