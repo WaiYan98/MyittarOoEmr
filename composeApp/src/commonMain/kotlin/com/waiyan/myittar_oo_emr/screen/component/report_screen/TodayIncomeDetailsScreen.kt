@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.waiyan.myittar_oo_emr.data.IncomeDetail
+import com.waiyan.myittar_oo_emr.screen.component.PatientHistoryScreen
 import com.waiyan.myittar_oo_emr.screen.component.ShowLoading
 import com.waiyan.myittar_oo_emr.screen.component.TableBody
 import com.waiyan.myittar_oo_emr.screen.component.TableHeader
@@ -123,6 +124,9 @@ fun TodayIncomeDetailsScreen(
                             TableBody(
                                 data1 = "${index + 1}", // Use index for numbering
                                 data2 = detail.patientName,
+                                onData2Click = {
+                                    navController.navigate(PatientHistoryScreen(detail.patientId))
+                                },
                                 data3 = LocalTime.getHumanTime(detail.visitTime),
                                 data4 = detail.fee.toString()
                             )

@@ -2,6 +2,7 @@ package com.waiyan.myittar_oo_emr.screen.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +43,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -305,6 +307,7 @@ fun TableBody(
     onData1Change: (String) -> Unit = {},
     data2: String,
     onData2Change: (String) -> Unit = {},
+    onData2Click: (() -> Unit)? = null,
     data3: String,
     onData3Change: (String) -> Unit = {},
     data4: String,
@@ -345,7 +348,8 @@ fun TableBody(
             text: String,
             onValueChange: (String) -> Unit,
             modifier: Modifier,
-            alignment: Alignment = Alignment.CenterStart
+            alignment: Alignment = Alignment.CenterStart,
+            onClick: (() -> Unit)? = null
         ) {
             Box(
                 modifier = modifier,
@@ -360,11 +364,24 @@ fun TableBody(
                     )
                 } else {
                     Box(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .then(
+                                if (onClick != null) {
+                                    Modifier.clickable(onClick = onClick)
+                                } else {
+                                    Modifier
+                                }
+                            ),
                         contentAlignment = alignment
                     ) {
                         Text(
-                            text
+                            text,
+                            color = if (onClick != null) MaterialTheme.colorScheme.primary else Color.Unspecified,
+                            style = if (onClick != null) MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                textDecoration = TextDecoration.Underline
+                            ) else LocalTextStyle.current
                         )
                     }
                 }
@@ -374,7 +391,8 @@ fun TableBody(
         EditableTableCell(
             text = data2,
             onValueChange = onData2Change,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            onClick = onData2Click
         )
         EditableTableCell(
             text = data3,

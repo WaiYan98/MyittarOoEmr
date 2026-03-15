@@ -13,6 +13,7 @@ class IncomeDetailsUseCase(
         patientsWithVisits.flatMap { patientWithVisit ->
             patientWithVisit.visits.map { visit ->
                 IncomeDetail(
+                    patientId = patientWithVisit.patient.id,
                     patientName = patientWithVisit.patient.name,
                     visitTime = visit.date,
                     fee = visit.fee
