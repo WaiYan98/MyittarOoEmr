@@ -127,6 +127,10 @@ class MonthlyIncomeDetailsViewModel(
         }
     }
     
+    fun onDateSelected(date: Long) {
+        _selectedDate.update { date }
+    }
+
     fun onClearError() {
         _uiState.update { it.copy(error = null) }
     }
