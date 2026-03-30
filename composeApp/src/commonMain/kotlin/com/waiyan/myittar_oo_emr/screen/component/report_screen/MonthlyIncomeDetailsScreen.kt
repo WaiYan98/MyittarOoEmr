@@ -13,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -21,6 +22,7 @@ import com.waiyan.myittar_oo_emr.screen.component.ShowLoading
 import com.waiyan.myittar_oo_emr.screen.component.TableBody
 import com.waiyan.myittar_oo_emr.screen.component.TableHeader
 import com.waiyan.myittar_oo_emr.screen.component.TotalIncome
+import com.waiyan.myittar_oo_emr.screen.component.formatWithCommas
 import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
 import com.waiyan.myittar_oo_emr.util.LocalTime
 import org.koin.compose.viewmodel.koinViewModel
@@ -93,7 +95,8 @@ fun MonthlyIncomeDetailsScreen(
                             }
                             Text(
                                 text = selectedDate.toMonthYearString(),
-                                fontSize = 20.sp,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
                                 modifier = Modifier.clickable {
                                     showDatePicker = true
                                 }
@@ -140,13 +143,13 @@ fun MonthlyIncomeDetailsScreen(
                                 data1 = "${index + 1}",
                                 data2 = detail.date,
                                 data3 = detail.patientSeenNumber.toString(),
-                                data4 = detail.income.toString()
+                                data4 = detail.income.toString().formatWithCommas()
                             )
                         }
 
                         item {
                             Spacer(modifier = Modifier.height(16.dp))
-                            TotalIncome(uiState.totalMonthlyIncome)
+                            TotalIncome(uiState.totalMonthlyIncome.toString())
                             Spacer(modifier = Modifier.height(16.dp))
 
                         }

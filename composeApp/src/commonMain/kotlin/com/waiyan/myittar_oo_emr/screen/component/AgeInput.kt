@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -21,11 +22,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 // Define this enum if you haven't already. You can place this in a common file or with this composable.
 enum class AgeUnit {
     MONTHS,
     YEARS
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,7 +75,7 @@ fun AgeInput(
     }
 
     Column(modifier = modifier) {
-        Text(text = "Age", style = MaterialTheme.typography.titleMedium)
+        Text(text = "Age", style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(8.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             InputField(
@@ -109,6 +112,7 @@ fun AgeInput(
             Spacer(modifier = Modifier.width(16.dp))
 
             FilterChip(
+                modifier = Modifier.height(48.dp),
                 selected = displayUnit == AgeUnit.MONTHS,
                 onClick = {
                     displayUnit = AgeUnit.MONTHS
@@ -118,18 +122,19 @@ fun AgeInput(
                         displayAge = "" // Clear invalid age when switching to months
                     }
                 },
-                label = { Text("Months") }
+                label = { Text("Months", fontSize = 18.sp) }
             )
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(12.dp))
 
             FilterChip(
+                modifier = Modifier.height(48.dp),
                 selected = displayUnit == AgeUnit.YEARS,
                 onClick = {
                     displayUnit = AgeUnit.YEARS
                     // No specific clearing needed for years, as any number is valid
                 },
-                label = { Text("Years") }
+                label = { Text("Years", fontSize = 18.sp) }
             )
         }
     }

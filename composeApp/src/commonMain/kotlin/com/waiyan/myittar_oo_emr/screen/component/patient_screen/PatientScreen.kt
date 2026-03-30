@@ -1,3 +1,4 @@
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -41,6 +42,7 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -48,10 +50,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
@@ -66,8 +70,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -99,16 +105,16 @@ fun DeleteConfirmationDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Delete Patients") },
-        text = { Text("Are you sure you want to permanently delete these $patientCount patients?") },
+        title = { Text("Delete Patients", fontSize = 28.sp, fontWeight = FontWeight.Bold) },
+        text = { Text("Are you sure you want to permanently delete these $patientCount patients?", fontSize = 24.sp) },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text("Yes")
+                Text("Yes", fontSize = 20.sp, fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("No")
+                Text("No", fontSize = 20.sp, fontWeight = FontWeight.Bold)
             }
         }
     )
@@ -122,15 +128,15 @@ fun ContextualActionBar(
     onDeleteClick: () -> Unit
 ) {
     TopAppBar(
-        title = { Text("$selectedItemCount selected") },
+        title = { Text("$selectedItemCount selected", fontSize = 24.sp) },
         navigationIcon = {
-            IconButton(onClick = onCloseClick) {
-                Icon(Icons.Default.Close, contentDescription = "Close")
+            IconButton(onClick = onCloseClick, modifier = Modifier.size(56.dp)) {
+                Icon(Icons.Default.Close, contentDescription = "Close", modifier = Modifier.size(32.dp))
             }
         },
         actions = {
-            IconButton(onClick = onDeleteClick) {
-                Icon(Icons.Default.Delete, contentDescription = "Delete")
+            IconButton(onClick = onDeleteClick, modifier = Modifier.size(56.dp)) {
+                Icon(Icons.Default.Delete, contentDescription = "Delete", modifier = Modifier.size(32.dp))
             }
         }
     )
@@ -217,7 +223,8 @@ fun PatientScreen(
                         }
                     )
                 } else {
-                    Column(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp)) {
                         MyittarOoEmrAppBar(
                             modifier = Modifier.fillMaxWidth(),
                             enabled = !uiState.isBackingUp,
@@ -232,22 +239,25 @@ fun PatientScreen(
 
                         Row(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 16.dp, end = 16.dp),
+                                .fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             SearchBar(
                                 enabled = !uiState.isBackingUp,
-                                modifier = Modifier.weight(1f), // Make SearchBar take up most space
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(64.dp), // Increased height for tablet
                                 value = searchQuery,
                                 onValueChange = patientViewModel::onSearchQueryChanged
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
                             IconButton(
+                                modifier = Modifier.size(56.dp), // Larger button for tablet
                                 onClick = { showFilterChipBar = !showFilterChipBar },
                                 enabled = !uiState.isBackingUp
                             ) {
                                 Icon(
+                                    modifier = Modifier.size(32.dp), // Larger icon
                                     imageVector = Icons.Default.FilterList,
                                     contentDescription = "Filter"
                                 )
@@ -282,18 +292,17 @@ fun PatientScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(start = 16.dp, end = 16.dp),
+                                .padding(vertical = 8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            TextButton(
+                            OutlinedButton(
                                 enabled = !uiState.isBackingUp,
                                 modifier = Modifier
                                     .weight(1f)
-                                    .border(
-                                        1.dp,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        shape = RoundedCornerShape(16.dp)
-                                    ),
+                                    .height(64.dp)
+                                    .padding(2.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                border = BorderStroke(1.5.dp, color = MaterialTheme.colorScheme.primary),
                                 onClick = {
                                     patientViewModel.backupDatabase()
                                 }
@@ -301,23 +310,26 @@ fun PatientScreen(
                                 Icon(
                                     Icons.Filled.SettingsBackupRestore,
                                     "backup_data",
-                                    modifier = Modifier.size(24.dp)
+                                    modifier = Modifier.size(28.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Backup", fontSize = 18.sp)
+                                Text(
+                                    "Backup",
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
                             }
 
                             Spacer(modifier = Modifier.width(8.dp))
 
-                            TextButton(
+                            OutlinedButton(
                                 enabled = !uiState.isBackingUp,
                                 modifier = Modifier
                                     .weight(1f)
-                                    .border(
-                                        1.dp,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        shape = RoundedCornerShape(16.dp)
-                                    ),
+                                    .height(64.dp)
+                                    .padding(2.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                border = BorderStroke(1.5.dp, color = MaterialTheme.colorScheme.primary),
                                 onClick = {
                                     showFilePicker = true
                                 }
@@ -325,10 +337,14 @@ fun PatientScreen(
                                 Icon(
                                     Icons.Filled.Restore,
                                     "restore_data",
-                                    modifier = Modifier.size(24.dp)
+                                    modifier = Modifier.size(28.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Restore", fontSize = 18.sp)
+                                Text(
+                                    "Restore",
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
                             }
                         }
                         Spacer(modifier = Modifier.height(8.dp))
@@ -340,7 +356,7 @@ fun PatientScreen(
             },
             floatingActionButton = {
                 if (!isSelectionMode) {
-                    FloatingActionButton(
+                    LargeFloatingActionButton(
                         onClick = {
                             if (!uiState.isBackingUp) {
                                 onClickAdd()
@@ -349,7 +365,8 @@ fun PatientScreen(
                     ) {
                         Icon(
                             Icons.Filled.Add,
-                            "insert_data"
+                            "insert_data",
+                            modifier = Modifier.size(36.dp)
                         )
                     }
                 }
@@ -437,7 +454,7 @@ fun FilterChipBar(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         GenderFilterButton(
             selectedGender = selectedGender,
@@ -457,8 +474,15 @@ fun FilterChipBar(
         )
 
         // Clear Button
-        IconButton(onClick = onClearFilters) {
-            Icon(Icons.Filled.Clear, contentDescription = "Clear Filters")
+        IconButton(
+            modifier = Modifier.size(48.dp),
+            onClick = onClearFilters
+        ) {
+            Icon(
+                Icons.Filled.Clear,
+                contentDescription = "Clear Filters",
+                modifier = Modifier.size(32.dp)
+            )
         }
     }
 }
@@ -474,15 +498,16 @@ private fun GenderFilterButton(
 
     Box {
         FilterChip(
+            modifier = Modifier.height(48.dp),
             selected = isGenderFilterActive,
             onClick = { genderMenuExpanded = true },
-            label = { Text(selectedGender?.let { "Gender: $it" } ?: "Gender") },
+            label = { Text(selectedGender?.let { "Gender: $it" } ?: "Gender", fontSize = 18.sp) },
             leadingIcon = if (isGenderFilterActive) {
                 {
                     Icon(
                         imageVector = Icons.Filled.Done,
                         contentDescription = "Done icon",
-                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                        modifier = Modifier.size(24.dp)
                     )
                 }
             } else {
@@ -494,21 +519,21 @@ private fun GenderFilterButton(
             onDismissRequest = { genderMenuExpanded = false }
         ) {
             DropdownMenuItem(
-                text = { Text("Male") },
+                text = { Text("Male", fontSize = 18.sp) },
                 onClick = {
                     onGenderSelected(Gender.MALE.name)
                     genderMenuExpanded = false
                 }
             )
             DropdownMenuItem(
-                text = { Text("Female") },
+                text = { Text("Female", fontSize = 18.sp) },
                 onClick = {
                     onGenderSelected(Gender.FEMALE.name)
                     genderMenuExpanded = false
                 }
             )
             DropdownMenuItem(
-                text = { Text("Other") },
+                text = { Text("Other", fontSize = 18.sp) },
                 onClick = {
                     onGenderSelected(Gender.OTHER.name)
                     genderMenuExpanded = false
@@ -545,15 +570,16 @@ private fun AgeFilterButton(
 
     Box {
         FilterChip(
+            modifier = Modifier.height(48.dp),
             selected = isAgeFilterActive,
             onClick = { ageMenuExpanded = true },
-            label = { Text(getAgeFilterLabel(minAge, maxAge, selectedUnit)) },
+            label = { Text(getAgeFilterLabel(minAge, maxAge, selectedUnit), fontSize = 18.sp) },
             leadingIcon = if (isAgeFilterActive) {
                 {
                     Icon(
                         imageVector = Icons.Filled.Done,
                         contentDescription = "Done icon",
-                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                        modifier = Modifier.size(24.dp)
                     )
                 }
             } else {
@@ -566,8 +592,8 @@ private fun AgeFilterButton(
         ) {
             Column(
                 modifier = Modifier
-                    .padding(16.dp)
-                    .width(300.dp)
+                    .padding(24.dp)
+                    .width(360.dp)
             ) {
                 Text(
                     "Age Range: ${formatSliderLabel(sliderPosition.start, selectedUnit)} - ${
@@ -576,27 +602,29 @@ private fun AgeFilterButton(
                             selectedUnit
                         )
                     }",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleLarge
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Chips to select the unit
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     FilterChip(
+                        modifier = Modifier.height(48.dp),
                         selected = selectedUnit == AgeUnit.MONTHS,
                         onClick = { selectedUnit = AgeUnit.MONTHS },
-                        label = { Text("Months") }
+                        label = { Text("Months", fontSize = 16.sp) }
                     )
                     FilterChip(
+                        modifier = Modifier.height(48.dp),
                         selected = selectedUnit == AgeUnit.YEARS,
                         onClick = { selectedUnit = AgeUnit.YEARS },
-                        label = { Text("Years") }
+                        label = { Text("Years", fontSize = 16.sp) }
                     )
                 }
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // The slider's range and steps depend on the selected unit.
                 val valueRange = if (selectedUnit == AgeUnit.MONTHS) 1f..11f else 1f..100f
@@ -608,9 +636,9 @@ private fun AgeFilterButton(
                     steps = 0
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
-                TextButton(
-                    modifier = Modifier.fillMaxWidth(),
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
                     onClick = {
                         val min = sliderPosition.start.toInt()
                         val max = sliderPosition.endInclusive.toInt()
@@ -625,7 +653,7 @@ private fun AgeFilterButton(
                         ageMenuExpanded = false
                     }
                 ) {
-                    Text("Apply")
+                    Text("Apply", fontSize = 18.sp)
                 }
             }
         }
@@ -650,15 +678,16 @@ private fun DateFilterButton(
 
     Box {
         FilterChip(
+            modifier = Modifier.height(48.dp),
             selected = isDateFilterActive,
             onClick = { dateMenuExpanded = true },
-            label = { Text(getDateFilterLabel(fromDate, toDate)) },
+            label = { Text(getDateFilterLabel(fromDate, toDate), fontSize = 18.sp) },
             leadingIcon = if (isDateFilterActive) {
                 {
                     Icon(
                         imageVector = Icons.Filled.Done,
                         contentDescription = "Done icon",
-                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                        modifier = Modifier.size(24.dp)
                     )
                 }
             } else {
@@ -671,37 +700,45 @@ private fun DateFilterButton(
         ) {
             Column(
                 modifier = Modifier
-                    .padding(16.dp)
-                    .width(260.dp)
+                    .padding(24.dp)
+                    .width(320.dp)
             ) {
-                Text("Date Range", style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(8.dp))
+                Text("Date Range", style = MaterialTheme.typography.titleLarge)
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Button(
+                        modifier = Modifier.weight(1f).height(56.dp),
                         onClick = { showStartDatePicker = true }
                     ) {
-                        Text(currentFromDate?.let { LocalTime.getHumanDate(it) } ?: "Start Date")
+                        Text(
+                            currentFromDate?.let { LocalTime.getHumanDate(it) } ?: "Start",
+                            fontSize = 16.sp
+                        )
                     }
                     Button(
+                        modifier = Modifier.weight(1f).height(56.dp),
                         onClick = { showEndDatePicker = true }
                     ) {
-                        Text(currentToDate?.let { LocalTime.getHumanDate(it) } ?: "End Date")
+                        Text(
+                            currentToDate?.let { LocalTime.getHumanDate(it) } ?: "End",
+                            fontSize = 16.sp
+                        )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
-                TextButton(
-                    modifier = Modifier.fillMaxWidth(),
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
                     onClick = {
                         onDateRangeSelected(currentFromDate, currentToDate)
                         dateMenuExpanded = false
                     }
                 ) {
-                    Text("Apply")
+                    Text("Apply", fontSize = 18.sp)
                 }
             }
         }
@@ -785,16 +822,18 @@ fun SearchBar(
         enabled = enabled,
         modifier = modifier,
         singleLine = true,
+        textStyle = androidx.compose.ui.text.TextStyle(fontSize = 20.sp),
         value = value,
         onValueChange = onValueChange,
         leadingIcon = {
             Icon(
                 Icons.Filled.Search,
-                "search_icon"
+                "search_icon",
+                modifier = Modifier.size(28.dp)
             )
         },
         placeholder = {
-            Text("Search Patients...")
+            Text("Search Patients...", fontSize = 20.sp)
         },
         shape = RoundedCornerShape(16.dp),
         colors = TextFieldDefaults.colors(
@@ -847,7 +886,7 @@ fun PatientCard(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .clip(CircleShape)
-                        .size(48.dp)
+                        .size(64.dp)
                         .background(Red)
                 )
             }
@@ -861,16 +900,22 @@ fun PatientCard(
                     fontWeight = FontWeight.Black
                 )
 
+                Spacer(Modifier.height(8.dp))
+
                 Row {
                     ShowLabel("Age", age)
+                    Text("/", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
                     Spacer(modifier = Modifier.width(4.dp))
                     ShowLabel("Gender", gender)
+                    Text("/", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
                     Spacer(modifier = Modifier.width(4.dp))
                     ShowLabel("ID", id)
 
                 }
 
-                Text(address)
+                Spacer(Modifier.height(8.dp))
+
+                Text(address, fontSize = 24.sp)
             }
         }
     }
@@ -884,15 +929,15 @@ fun ShowLabel(
     Row {
         Text(
             text = "$labelName: ",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Light,
-            color = Gray
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
         )
         Text(
             text = value,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Light,
-            color = Gray
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Black,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

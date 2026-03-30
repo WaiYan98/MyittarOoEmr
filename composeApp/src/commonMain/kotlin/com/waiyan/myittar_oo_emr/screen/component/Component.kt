@@ -1,5 +1,6 @@
 package com.waiyan.myittar_oo_emr.screen.component
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -52,16 +54,17 @@ import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.Gender
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyittarOoEmrAppBar(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     enabled: Boolean,
     onClickHome: () -> Unit,
     onClickReport: () -> Unit,
     selectedPageIndex: Int
 ) {
     TopAppBar(
+        modifier = modifier,
         title = {
             Row(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.wrapContentWidth(),
                 verticalAlignment = Alignment.CenterVertically
 
             ) {
@@ -80,33 +83,36 @@ fun MyittarOoEmrAppBar(
             }
         },
         actions = {
-            TextButton(
+            OutlinedButton(
                 enabled = enabled,
-                modifier = Modifier.border(
-                    1.dp,
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                border = BorderStroke(
+                    1.5.dp,
                     color = if (selectedPageIndex == 0) MaterialTheme.colorScheme.primary
-                    else Color(0x00000000),
-                    shape = RoundedCornerShape(16.dp)
+                    else Color.Transparent
                 ),
+                shape = RoundedCornerShape(16.dp),
                 onClick = onClickHome,
             ) {
-                Title("Home", fontSize = 24.sp)
+                Title("Home", fontSize = 20.sp)
             }
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            TextButton(
+            OutlinedButton(
                 enabled = enabled,
-                modifier = Modifier.border(
-                    1.dp,
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                border = BorderStroke(
+                    1.5.dp,
                     color = if (selectedPageIndex == 1) MaterialTheme.colorScheme.primary
-                    else Color(0x00000000),
-                    shape = RoundedCornerShape(16.dp)
+                    else Color.Transparent
                 ),
+                shape = RoundedCornerShape(16.dp),
                 onClick = onClickReport,
             ) {
-                Title("Report", fontSize = 24.sp)
+                Title("Report", fontSize = 20.sp)
             }
+            Spacer(modifier = Modifier.width(4.dp))
         }
     )
 }
@@ -143,7 +149,7 @@ fun InputField(
         horizontalAlignment = Alignment.Start
     ) {
         if (label.isNotBlank()) {
-            Text(label)
+            Text(label, fontSize = 24.sp)
             Spacer(modifier = Modifier.height(8.dp))
         }
         TextField(
@@ -152,8 +158,9 @@ fun InputField(
             value = value,
             onValueChange = onValueChange,
             placeholder = {
-                Text(placeholder)
+                Text(placeholder, fontSize = 20.sp)
             },
+            textStyle = TextStyle(fontSize = 24.sp),
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = MaterialTheme.colorScheme.background,
                 unfocusedIndicatorColor = MaterialTheme.colorScheme.background
@@ -176,7 +183,7 @@ fun LargeInputField(
         modifier = Modifier.fillMaxWidth(0.5f),
         horizontalAlignment = Alignment.Start
     ) {
-        Text(label)
+        Text(label, fontSize = 24.sp)
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
             modifier = Modifier
@@ -184,6 +191,7 @@ fun LargeInputField(
                 .height(144.dp),
             shape = RoundedCornerShape(8.dp),
             value = value,
+            textStyle = TextStyle(fontSize = 24.sp),
             onValueChange = onValueChange
         )
     }
@@ -217,7 +225,8 @@ fun DisplayInfoCard(
             Text(
                 modifier = Modifier.fillMaxWidth(0.25f),
                 text = label,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = 24.sp
             )
 
             TextField(
@@ -225,6 +234,7 @@ fun DisplayInfoCard(
                 readOnly = !isEditing,
                 onValueChange = onEditValueChange,
                 enabled = isEditing,
+                textStyle = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Black),
                 colors = TextFieldDefaults.colors(
                     disabledContainerColor = if (isEditing) TextFieldDefaults.colors().disabledContainerColor else Color.Transparent,
                     focusedContainerColor = if (isEditing) TextFieldDefaults.colors().focusedContainerColor else Color.Transparent,
@@ -250,10 +260,7 @@ fun TableHeader(
     title2: String,
     title3: String,
     title4: String,
-    title4Alignment: Alignment = Alignment.CenterEnd
 ) {
-
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -273,29 +280,29 @@ fun TableHeader(
             modifier = Modifier.weight(1f),
             contentAlignment = Alignment.CenterStart
         ) {
-            Title(text = title1, fontSize = 16.sp)
+            Title(text = title1, fontSize = 24.sp)
         }
 
         Box(
             modifier = Modifier.weight(1f),
-            contentAlignment = Alignment.CenterStart
+            contentAlignment = Alignment.Center
         ) {
-            Title(text = title2, fontSize = 16.sp)
+            Title(text = title2, fontSize = 24.sp)
         }
 
 
         Box(
             modifier = Modifier.weight(1f),
-            contentAlignment = Alignment.CenterStart
+            contentAlignment = Alignment.Center
         ) {
-            Title(text = title3, fontSize = 16.sp)
+            Title(text = title3, fontSize = 24.sp)
         }
 
         Box(
             modifier = Modifier.weight(1f),
-            contentAlignment = title4Alignment
+            contentAlignment = Alignment.CenterEnd
         ) {
-            Title(text = title4, fontSize = 16.sp)
+            Title(text = title4, fontSize = 24.sp)
         }
     }
 }
@@ -339,7 +346,7 @@ fun TableBody(
             modifier = Modifier.weight(1f),
             contentAlignment = Alignment.CenterStart
         ) {
-            Text(data1)
+            Text(data1, fontSize = 24.sp)
         }
 
         // Editable cells
@@ -348,24 +355,24 @@ fun TableBody(
             text: String,
             onValueChange: (String) -> Unit,
             modifier: Modifier,
-            alignment: Alignment = Alignment.CenterStart,
+            alignment: Alignment = Alignment.Center,
             onClick: (() -> Unit)? = null
         ) {
             Box(
-                modifier = modifier,
-                contentAlignment = Alignment.CenterStart
+                modifier = modifier.fillMaxWidth(),
+                contentAlignment =alignment
             ) {
                 if (isEditing) {
                     TextField(
                         value = text,
+                        textStyle = TextStyle(fontSize = 24.sp),
                         onValueChange = onValueChange,
                         colors = textFieldColors,
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier,
                     )
                 } else {
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                             .then(
                                 if (onClick != null) {
                                     Modifier.clickable(onClick = onClick)
@@ -377,6 +384,7 @@ fun TableBody(
                     ) {
                         Text(
                             text,
+                            fontSize = 24.sp,
                             color = if (onClick != null) MaterialTheme.colorScheme.primary else Color.Unspecified,
                             style = if (onClick != null) MaterialTheme.typography.bodyLarge.copy(
                                 fontWeight = FontWeight.Bold,
@@ -392,27 +400,26 @@ fun TableBody(
             text = data2,
             onValueChange = onData2Change,
             modifier = Modifier.weight(1f),
-            onClick = onData2Click
+            onClick = onData2Click,
         )
         EditableTableCell(
             text = data3,
             onValueChange = onData3Change,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
 
         // Cell 4 with content
         Row(
             modifier = Modifier.weight(1f),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.Center
         ) {
             EditableTableCell(
                 text = data4,
                 onValueChange = onData4Change,
-                modifier = Modifier.weight(0.7f),
+                modifier = Modifier.weight(1f),
                 alignment = Alignment.CenterEnd
             )
-
             content()
         }
     }
@@ -479,7 +486,7 @@ fun ReportCard(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.Start
             ) {
-                Title(title1, fontSize = 16.sp)
+                Title(title1, fontSize = 24.sp)
                 Spacer(modifier = Modifier.height(8.dp))
                 Title(value1, fontSize = 24.sp)
             }
@@ -501,7 +508,7 @@ fun ReportCard(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.Start
                 ) {
-                    Title(title2, fontSize = 16.sp)
+                    Title(title2, fontSize = 24.sp)
                     Spacer(modifier = Modifier.height(8.dp))
                     Title(value2, fontSize = 24.sp)
                 }
@@ -575,10 +582,12 @@ fun GenderFilterChip(
     ) {
         genderOptionList.forEach { option ->
             FilterChip(
+                modifier = Modifier.height(48.dp),
                 selected = option == selectedOption,
                 label = {
                     Text(
                         option.name,
+                        fontSize = 18.sp,
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
                 },
@@ -599,8 +608,16 @@ fun Int.readableAge(): String {
 }
 
 
+fun String.formatWithCommas(): String {
+    return this
+        .reversed()
+        .chunked(3)
+        .joinToString(",")
+        .reversed()
+}
+
 @Composable
-fun TotalIncome(totalIncome: Long) {
+fun TotalIncome(totalIncome: String) {
 
     HorizontalDivider(thickness = 2.dp)
 
@@ -613,12 +630,12 @@ fun TotalIncome(totalIncome: Long) {
     ) {
         Text(
             text = "Total Income:",
-            fontSize = 20.sp,
+            fontSize = 24.sp,
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = "$totalIncome MMK",
-            fontSize = 20.sp,
+            text = "${totalIncome.formatWithCommas()} MMK",
+            fontSize = 24.sp,
             fontWeight = FontWeight.Bold
         )
     }

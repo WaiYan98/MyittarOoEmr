@@ -40,7 +40,9 @@ import org.koin.compose.viewmodel.koinViewModel
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.remember
+import androidx.compose.ui.text.font.FontWeight
 import com.waiyan.myittar_oo_emr.screen.component.TotalIncome
+import com.waiyan.myittar_oo_emr.screen.component.formatWithCommas
 import com.waiyan.myittar_oo_emr.screen.component.report_screen.TodayIncomeDetailsViewModel
 
 data class TodayIncomeDetailsUiState(
@@ -120,7 +122,8 @@ fun TodayIncomeDetailsScreen(
                             }
                             Text(
                                 LocalTime.getHumanDate(selectedDate),
-                                fontSize = 20.sp,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
                                 modifier = Modifier.clickable {
                                     showDatePicker = true
                                 }
@@ -174,13 +177,13 @@ fun TodayIncomeDetailsScreen(
                                     navController.navigate(PatientHistoryScreen(detail.patientId))
                                 },
                                 data3 = LocalTime.getHumanTime(detail.visitTime),
-                                data4 = detail.fee.toString()
+                                data4 = detail.fee.toString().formatWithCommas()
                             )
                         }
 
                         item {
                             Spacer(modifier = Modifier.height(16.dp))
-                            TotalIncome(uiState.totalDailyIncome)
+                            TotalIncome(uiState.totalDailyIncome.toString())
                             Spacer(modifier = Modifier.height(16.dp))
                         }
                     }

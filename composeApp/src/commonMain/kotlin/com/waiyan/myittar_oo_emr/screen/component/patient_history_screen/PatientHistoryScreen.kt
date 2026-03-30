@@ -1,5 +1,6 @@
 package com.waiyan.myittar_oo_emr.screen.component.patient_history_screen
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -35,6 +37,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -51,6 +55,7 @@ import com.waiyan.myittar_oo_emr.screen.component.ShowLoading
 import com.waiyan.myittar_oo_emr.screen.component.TableBody
 import com.waiyan.myittar_oo_emr.screen.component.TableHeader
 import com.waiyan.myittar_oo_emr.screen.component.Title
+import com.waiyan.myittar_oo_emr.screen.component.formatWithCommas
 import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.Gender
 import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.ShowFollowUpForm
 import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.VisitForm
@@ -335,7 +340,7 @@ fun PatientHistoryDisplay(
 ) {
 
     LazyColumn(
-        modifier = Modifier.fillMaxWidth(0.75f),
+        modifier = Modifier.fillMaxWidth(0.9f),
         horizontalAlignment = Alignment.Start
     ) {
         items(1) {
@@ -343,6 +348,7 @@ fun PatientHistoryDisplay(
             Row {
                 TextField(
                     value = name,
+                    textStyle = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Black),
                     onValueChange = onEditPatientNameChange,
                     readOnly = !editPatientInfoState,
                     enabled = editPatientInfoState,
@@ -518,9 +524,15 @@ fun PatientHistoryDisplay(
 
             Button(
                 onClick = onClickAddNewVisit,
-                shape = RoundedCornerShape(8.dp)
+                modifier = Modifier.height(64.dp),
+                shape = RoundedCornerShape(12.dp),
+                contentPadding = PaddingValues(horizontal = 48.dp)
             ) {
-                Text("+ ADD NEW VISIT")
+                Text(
+                    "+ ADD NEW VISIT",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -579,8 +591,7 @@ fun PatientHistoryDisplay(
                 title1 = "Date",
                 title2 = "Diagnosis",
                 title3 = "Prescription",
-                title4 = "Fee",
-                title4Alignment = Alignment.Center
+                title4 = "Fee"
             )
         }
 
@@ -595,7 +606,7 @@ fun PatientHistoryDisplay(
                 onData2Change = onEditableDiagnosisChange,
                 data3 = if (isEditing) editablePrescription else visit.prescription,
                 onData3Change = onEditablePrescriptionChange,
-                data4 = if (isEditing) editableFee else visit.fee.toString(),
+                data4 = if (isEditing) editableFee else visit.fee.toString().formatWithCommas(),
                 onData4Change = onEditableFeeChange
             ) {
                 IconButton(onClick = {

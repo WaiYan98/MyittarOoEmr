@@ -1,6 +1,7 @@
 package com.waiyan.myittar_oo_emr.screen.component.lock_screen
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -11,7 +12,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.waiyan.myittar_oo_emr.screen.component.lock_screen.PinSettingsViewModel
 import androidx.navigation.NavController // New import
@@ -52,13 +55,17 @@ fun PinLockScreen(
             Icon(
                 imageVector = Icons.Default.Lock,
                 contentDescription = "Lock Icon",
-                modifier = Modifier.size(96.dp)
+                modifier = Modifier.size(160.dp)
             )
-            Spacer(Modifier.height(32.dp))
+            Spacer(Modifier.height(48.dp))
 
             if (!isPinSet) {
-                Text(text = "Set a new PIN", style = MaterialTheme.typography.headlineSmall)
-                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = "Set a new PIN",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(32.dp))
                 OutlinedTextField(
                     value = pinInput,
                     onValueChange = {
@@ -68,14 +75,15 @@ fun PinLockScreen(
                             showMismatchError = false
                         }
                     },
-                    label = { Text("New PIN") },
+                    label = { Text("New PIN", fontSize = 20.sp) },
+                    textStyle = androidx.compose.ui.text.TextStyle(fontSize = 24.sp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                     visualTransformation = PasswordVisualTransformation(),
                     isError = showError || showMismatchError,
                     singleLine = true,
-                    modifier = Modifier.width(200.dp)
+                    modifier = Modifier.width(360.dp)
                 )
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(16.dp))
                 OutlinedTextField(
                     value = confirmPinInput,
                     onValueChange = {
@@ -85,22 +93,27 @@ fun PinLockScreen(
                             showMismatchError = false
                         }
                     },
-                    label = { Text("Confirm PIN") },
+                    label = { Text("Confirm PIN", fontSize = 20.sp) },
+                    textStyle = androidx.compose.ui.text.TextStyle(fontSize = 24.sp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                     visualTransformation = PasswordVisualTransformation(),
                     isError = showError || showMismatchError,
                     singleLine = true,
-                    modifier = Modifier.width(200.dp)
+                    modifier = Modifier.width(360.dp)
                 )
                 if (showMismatchError) {
                     Text(
                         text = "PINs do not match",
                         color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(top = 4.dp)
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(top = 8.dp)
                     )
                 }
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(32.dp))
                 Button(
+                    modifier = Modifier
+                        .height(64.dp)
+                        .width(360.dp),
                     onClick = {
                         if (pinInput.length == 4 && pinInput == confirmPinInput) {
                             viewModel.setPin(pinInput)
@@ -111,13 +124,18 @@ fun PinLockScreen(
                             showError = true // For length < 4
                         }
                     },
-                    enabled = pinInput.length == 4 && confirmPinInput.length == 4
+                    enabled = pinInput.length == 4 && confirmPinInput.length == 4,
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Set PIN")
+                    Text("Set PIN", fontSize = 22.sp, fontWeight = FontWeight.Bold)
                 }
             } else {
-                Text(text = "Enter PIN to access Report", style = MaterialTheme.typography.headlineSmall)
-                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = "Enter PIN to access Report",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(32.dp))
                 OutlinedTextField(
                     value = pinInput,
                     onValueChange = {
@@ -126,30 +144,36 @@ fun PinLockScreen(
                             showError = false
                         }
                     },
-                    label = { Text("PIN") },
+                    label = { Text("PIN", fontSize = 20.sp) },
+                    textStyle = androidx.compose.ui.text.TextStyle(fontSize = 24.sp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                     visualTransformation = PasswordVisualTransformation(),
                     isError = showError,
                     singleLine = true,
-                    modifier = Modifier.width(200.dp)
+                    modifier = Modifier.width(360.dp)
                 )
                 if (showError) {
                     Text(
                         text = "Incorrect PIN",
                         color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(top = 4.dp)
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(top = 8.dp)
                     )
                 }
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(32.dp))
                 Button(
+                    modifier = Modifier
+                        .height(64.dp)
+                        .width(360.dp),
                     onClick = {
                         if (!viewModel.verifyPin(pinInput)) {
                             showError = true
                         }
                     },
-                    enabled = pinInput.length == 4
+                    enabled = pinInput.length == 4,
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Unlock")
+                    Text("Unlock", fontSize = 22.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -157,9 +181,14 @@ fun PinLockScreen(
             onClick = { navController.navigateUp() },
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .padding(16.dp)
+                .padding(24.dp)
+                .size(64.dp)
         ) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+            Icon(
+                Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Back",
+                modifier = Modifier.size(32.dp)
+            )
         }
     }
 }

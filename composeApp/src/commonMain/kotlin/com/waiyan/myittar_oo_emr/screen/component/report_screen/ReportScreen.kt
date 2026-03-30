@@ -47,6 +47,7 @@ import com.waiyan.myittar_oo_emr.screen.component.TableHeader
 import com.waiyan.myittar_oo_emr.screen.component.Title
 import com.waiyan.myittar_oo_emr.screen.component.TitleCard
 import com.waiyan.myittar_oo_emr.screen.component.TodayIncomeDetailsScreen
+import com.waiyan.myittar_oo_emr.screen.component.formatWithCommas
 import com.waiyan.myittar_oo_emr.screen.component.report_screen.ReportScreenViewModel
 import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
 import com.waiyan.myittar_oo_emr.util.LocalTime
@@ -228,9 +229,9 @@ fun ReportDisplay(
 
             ReportCard(
                 title1 = "Patients Seen",
-                value1 = patientSeen,
+                value1 = patientSeen.formatWithCommas(),
                 title2 = "Today's Income",
-                value2 = "$todayIncome MMK",
+                value2 = "${todayIncome.formatWithCommas()} MMK",
                 onclick1 = {},
                 onClick2 = { navController.navigate(TodayIncomeDetailsScreen) }
             )
@@ -239,7 +240,7 @@ fun ReportDisplay(
 
             ReportCard(
                 title1 = "This Month",
-                value1 = "$thisMonthIncome MMK",
+                value1 = "${thisMonthIncome.formatWithCommas()} MMK",
                 title2 = "",
                 value2 = "",
                 onclick1 = {navController.navigate(MonthlyIncomeDetailsScreen)},
@@ -318,7 +319,7 @@ fun ReportDisplay(
                 data1 = monthlyIncome.month,
                 data2 = "",
                 data3 = "",
-                data4 = monthlyIncome.income.toString()
+                data4 = monthlyIncome.income.toString().formatWithCommas()
             )
         }
 
@@ -347,7 +348,7 @@ fun ReportDisplay(
                 data1 = it.followUpDate,
                 data2 = it.patientName,
                 data3 = it.reasonForFollowUp,
-                data4 = it.timeUntil
+                data4 = it.timeUntil.formatWithCommas()
             )
         }
     }
