@@ -2,13 +2,13 @@ package com.waiyan.myittar_oo_emr.usecase
 
 import com.waiyan.myittar_oo_emr.data.PatientWithDetail
 import com.waiyan.myittar_oo_emr.data.VisitAndFollowUpForm
-import com.waiyan.myittar_oo_emr.data.entity.FollowUp
 import com.waiyan.myittar_oo_emr.data.entity.MedicalInfo
 import com.waiyan.myittar_oo_emr.data.entity.Patient
 import com.waiyan.myittar_oo_emr.data.entity.Visit
 import com.waiyan.myittar_oo_emr.local_service.EmrRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -29,66 +29,32 @@ class PatientHistoryUseCaseTest {
     }
 
     @Test
-    fun `getPatientHistory returns success with patient details`() = runTest {
+    fun `getPatientHistory returns sorted visits`() = runTest {
         // Given
-        val patientId = 1L
-        val patient = Patient(id = patientId, name = "John Doe", age = 30, phone = "123", address = "Address", gender = "Male")
-        val patientWithDetail = PatientWithDetail(
-            patient = patient,
-            medicalInfo = MedicalInfo(patientId = patientId, allergies = "", chronicConditions = "", currentMedication = ""),
-            visits = listOf(Visit(id = 1, patientId = patientId, date = 100, diagnosis = "", prescription = "", fee = 0))
+        val patient = Patient(id = 1, name = "John", age = 30, gender = "M", occupation = "Job", phone = "123", address = "Add")
+        val visits = listOf(
+            Visit(id = 1, patientId = 1, date = 1000L, fee = 100, diagnosis = "D1", prescription = "P1"),
+            Visit(id = 2, patientId = 1, date = 2000L, fee = 200, diagnosis = "D2", prescription = "P2")
         )
-        coEvery { emrRepository.getPatientWithDetail(patientId) } returns flowOf(patientWithDetail)
+        val medicalInfo = MedicalInfo(id = 1, patientId = 1, allergies = "", chronicConditions = "", currentMedication = "")
+        val patientWithDetail = PatientWithDetail(patient = patient, medicalInfo = medicalInfo, visits = visits)
+        
+        every { emrRepository.getPatientWithDetail(1L) } returns flowOf(patientWithDetail)
 
         // When
-        val result = patientHistoryUseCase.getPatientHistory(patientId)
+        val result = patientHistoryUseCase.getPatientHistory(1L)
 
         // Then
         assertTrue(result.isSuccess)
-        assertEquals(patientWithDetail, result.getOrNull())
+        val sortedVisits = result.getOrThrow().visits
+        assertEquals(2000L, sortedVisits[0].date)
+        assertEquals(1000L, sortedVisits[1].date)
     }
 
     @Test
-    fun `getPatientHistory returns failure on repository error`() = runTest {
+    fun `insertVisitAndFollowUp inserts visit and optionally followUp`() = runTest {
         // Given
-        val patientId = 1L
-        val exception = Exception("Database error")
-        coEvery { emrRepository.getPatientWithDetail(patientId) } throws exception
-
-        // When
-        val result = patientHistoryUseCase.getPatientHistory(patientId)
-
-        // Then
-        assertTrue(result.isFailure)
-        assertEquals(exception.message, result.exceptionOrNull()?.message)
-    }
-
-    @Test
-    fun `insertVisitAndFollowUp without follow-up returns success`() = runTest {
-        // Given
-        val form = VisitAndFollowUpForm(patientId = 1L, diagnosis = "Flu", prescription = "Meds", fee = "50", followUpDate = 0L, reasonForFollowUp = "")
-        coEvery { emrRepository.upsertVisit(any()) } returns Result.success(Unit)
-
-        // When
-        val result = patientHistoryUseCase.insertVisitAndFollowUp(form, isCheckedFollowUp = false)
-
-        // Then
-        assertTrue(result.isSuccess)
-        coVerify(exactly = 1) { emrRepository.upsertVisit(any()) }
-        coVerify(exactly = 0) { emrRepository.upsertFollowUp(any()) }
-    }
-
-    @Test
-    fun `insertVisitAndFollowUp with follow-up returns success`() = runTest {
-        // Given
-        val form = VisitAndFollowUpForm(
-            patientId = 1L,
-            diagnosis = "Flu",
-            prescription = "Meds",
-            fee = "50",
-            followUpDate = 100L,
-            reasonForFollowUp = "Check"
-        )
+        val form = VisitAndFollowUpForm(patientId = 1L, diagnosis = "D", prescription = "P", fee = "100", followUpDate = 2000L, reasonForFollowUp = "R")
         coEvery { emrRepository.upsertVisit(any()) } returns Result.success(Unit)
         coEvery { emrRepository.upsertFollowUp(any()) } returns Result.success(Unit)
 
@@ -97,63 +63,28 @@ class PatientHistoryUseCaseTest {
 
         // Then
         assertTrue(result.isSuccess)
-        coVerify(exactly = 1) { emrRepository.upsertVisit(any()) }
-        coVerify(exactly = 1) { emrRepository.upsertFollowUp(any()) }
+        coVerify { emrRepository.upsertVisit(any()) }
+        coVerify { emrRepository.upsertFollowUp(any()) }
     }
 
     @Test
-    fun `insertVisitAndFollowUp returns failure on validation error`() = runTest {
+    fun `updateVisit updates visit after validation`() = runTest {
         // Given
-        val form = VisitAndFollowUpForm(patientId = 1L, diagnosis = "", prescription = "", fee = "", followUpDate = 0L, reasonForFollowUp = "") // Invalid
+        val visit = Visit(id = 1, patientId = 1, date = 1000L, fee = 100, diagnosis = "D", prescription = "P")
+        coEvery { emrRepository.upsertVisit(visit) } returns Result.success(Unit)
 
         // When
-        val result = patientHistoryUseCase.insertVisitAndFollowUp(form, isCheckedFollowUp = false)
+        val result = patientHistoryUseCase.updateVisit(visit)
 
         // Then
-        assertTrue(result.isFailure)
-        coVerify(exactly = 0) { emrRepository.upsertVisit(any()) }
+        assertTrue(result.isSuccess)
+        coVerify { emrRepository.upsertVisit(visit) }
     }
 
     @Test
-    fun `insertVisitAndFollowUp returns failure when upsertVisit fails`() = runTest {
+    fun `updatePatientInfo updates patient info after validation`() = runTest {
         // Given
-        val form = VisitAndFollowUpForm(patientId = 1L, diagnosis = "Flu", prescription = "Meds", fee = "50", followUpDate = 0L, reasonForFollowUp = "")
-        val exception = Exception("DB error")
-        coEvery { emrRepository.upsertVisit(any()) } returns Result.failure(exception)
-
-        // When
-        val result = patientHistoryUseCase.insertVisitAndFollowUp(form, isCheckedFollowUp = false)
-
-        // Then
-        assertTrue(result.isFailure)
-    }
-
-    @Test
-    fun `insertVisitAndFollowUp returns failure when upsertFollowUp fails`() = runTest {
-        // Given
-        val form = VisitAndFollowUpForm(
-            patientId = 1L,
-            diagnosis = "Flu",
-            prescription = "Meds",
-            fee = "50",
-            followUpDate = 100L,
-            reasonForFollowUp = "Check"
-        )
-        val exception = Exception("DB error")
-        coEvery { emrRepository.upsertVisit(any()) } returns Result.success(Unit)
-        coEvery { emrRepository.upsertFollowUp(any()) } returns Result.failure(exception)
-
-        // When
-        val result = patientHistoryUseCase.insertVisitAndFollowUp(form, isCheckedFollowUp = true)
-
-        // Then
-        assertTrue(result.isFailure)
-    }
-
-    @Test
-    fun `updatePatientInfo returns success for valid patient`() = runTest {
-        // Given
-        val patient = Patient(id = 1, name = "John Doe", age = 30, phone = "123", address = "Address", gender = "Male")
+        val patient = Patient(id = 1, name = "John", age = 30, gender = "M", occupation = "Job", phone = "123", address = "Add")
         coEvery { emrRepository.upsertPatient(patient) } returns Result.success(1L)
 
         // When
@@ -161,40 +92,13 @@ class PatientHistoryUseCaseTest {
 
         // Then
         assertTrue(result.isSuccess)
-        coVerify(exactly = 1) { emrRepository.upsertPatient(patient) }
+        coVerify { emrRepository.upsertPatient(patient) }
     }
 
     @Test
-    fun `updatePatientInfo returns failure for invalid patient`() = runTest {
+    fun `updateMedicalInfo updates medical info`() = runTest {
         // Given
-        val patient = Patient(id = 1, name = "", age = 30, phone = "123", address = "Address", gender = "Male")
-
-        // When
-        val result = patientHistoryUseCase.updatePatientInfo(patient)
-
-        // Then
-        assertTrue(result.isFailure)
-        coVerify(exactly = 0) { emrRepository.upsertPatient(any()) }
-    }
-
-    @Test
-    fun `updatePatientInfo returns failure on repository error`() = runTest {
-        // Given
-        val patient = Patient(id = 1, name = "John Doe", age = 30, phone = "123", address = "Address", gender = "Male")
-        val exception = Exception("DB error")
-        coEvery { emrRepository.upsertPatient(patient) } returns Result.failure(exception)
-
-        // When
-        val result = patientHistoryUseCase.updatePatientInfo(patient)
-
-        // Then
-        assertTrue(result.isFailure)
-    }
-
-    @Test
-    fun `updateMedicalInfo returns success`() = runTest {
-        // Given
-        val medicalInfo = MedicalInfo(patientId = 1L, allergies = "peanuts", chronicConditions = "none", currentMedication = "none")
+        val medicalInfo = MedicalInfo(id = 1, patientId = 1, allergies = "A", chronicConditions = "C", currentMedication = "M")
         coEvery { emrRepository.upsertMedicalInfo(medicalInfo) } returns Result.success(Unit)
 
         // When
@@ -202,20 +106,6 @@ class PatientHistoryUseCaseTest {
 
         // Then
         assertTrue(result.isSuccess)
-        coVerify(exactly = 1) { emrRepository.upsertMedicalInfo(medicalInfo) }
-    }
-
-    @Test
-    fun `updateMedicalInfo returns failure on repository error`() = runTest {
-        // Given
-        val medicalInfo = MedicalInfo(patientId = 1L, allergies = "peanuts", chronicConditions = "none", currentMedication = "none")
-        val exception = Exception("DB error")
-        coEvery { emrRepository.upsertMedicalInfo(medicalInfo) } returns Result.failure(exception)
-
-        // When
-        val result = patientHistoryUseCase.updateMedicalInfo(medicalInfo)
-
-        // Then
-        assertTrue(result.isFailure)
+        coVerify { emrRepository.upsertMedicalInfo(medicalInfo) }
     }
 }

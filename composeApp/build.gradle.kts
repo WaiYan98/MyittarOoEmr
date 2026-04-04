@@ -41,12 +41,6 @@ kotlin {
             implementation(libs.koin.android)
         }
 
-        androidUnitTest {
-            dependsOn(commonTest.get())
-            dependencies {
-                implementation(libs.mockk.android)
-            }
-        }
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -82,10 +76,9 @@ kotlin {
             implementation(libs.mockk)
             implementation(libs.mockk.agent.jvm)
         }
-        androidUnitTest {
-            dependencies {
-                implementation(libs.mockk.android)
-            }
+
+        androidUnitTest.dependencies {
+            implementation(libs.mockk.android)
         }
 
         jvmMain.dependencies {

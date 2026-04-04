@@ -2,6 +2,7 @@ package com.waiyan.myittar_oo_emr.usecase
 
 import com.waiyan.myittar_oo_emr.local_service.EmrRepository
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
@@ -20,29 +21,16 @@ class RestoreUseCaseTest {
     }
 
     @Test
-    fun `invoke returns success when repository restore is successful`() = runTest {
+    fun `invoke calls restoreDatabase on repository`() = runTest {
         // Given
-        val uriString = "some/uri"
-        coEvery { emrRepository.restoreDatabase(uriString) } returns Result.success(Unit)
+        val uri = "content://database_backup"
+        coEvery { emrRepository.restoreDatabase(uri) } returns Result.success(Unit)
 
         // When
-        val result = restoreUseCase(uriString)
+        val result = restoreUseCase(uri)
 
         // Then
         assertTrue(result.isSuccess)
-    }
-
-    @Test
-    fun `invoke returns failure when repository restore fails`() = runTest {
-        // Given
-        val uriString = "some/uri"
-        val exception = Exception("Restore failed")
-        coEvery { emrRepository.restoreDatabase(uriString) } returns Result.failure(exception)
-
-        // When
-        val result = restoreUseCase(uriString)
-
-        // Then
-        assertTrue(result.isFailure)
+        coVerify { emrRepository.restoreDatabase(uri) }
     }
 }

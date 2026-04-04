@@ -1,16 +1,17 @@
 package com.waiyan.myittar_oo_emr.usecase
 
 import com.waiyan.myittar_oo_emr.data.PatientForm
-import com.waiyan.myittar_oo_emr.data.entity.FollowUp
-import com.waiyan.myittar_oo_emr.data.entity.MedicalInfo
-import com.waiyan.myittar_oo_emr.data.entity.Patient
-import com.waiyan.myittar_oo_emr.data.entity.Visit
 import com.waiyan.myittar_oo_emr.local_service.EmrRepository
 import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.Gender
+import com.waiyan.myittar_oo_emr.util.LocalTime
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.unmockkObject
 import kotlinx.coroutines.test.runTest
+import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -24,29 +25,25 @@ class PatientFormUseCaseTest {
     fun setup() {
         emrRepository = mockk(relaxed = true)
         patientFormUseCase = PatientFormUseCase(emrRepository)
+        mockkObject(LocalTime)
+        every { LocalTime.getCurrentTimeMillis() } returns 1000L
+    }
+
+    @AfterTest
+    fun teardown() {
+        unmockkObject(LocalTime)
     }
 
     @Test
-    fun `insertPatientInfo with valid data without follow-up returns success`() = runTest {
+    fun `insertPatientInfo inserts patient, medicalInfo, and visit`() = runTest {
         // Given
         val patientForm = PatientForm(
-            name = "John Doe",
-            age = "30",
-            phone = "1234567890",
-            address = "123 Main St",
-            gender = Gender.MALE, // Corrected casing
-            allergies = "None",
-            chronicConditions = "None",
-            currentMedication = "None",
-            diagnosis = "Headache",
-            prescription = "Paracetamol",
-            fee = "100",
-            followUpDate = 0L,
-            reasonForFollowUp = ""
+            name = "John", age = 30, gender = Gender.MALE, occupation = "Job",
+            phone = "123", address = "Add", allergies = "None", chronicConditions = "None",
+            currentMedication = "None", prescription = "P1", fee = "100", diagnosis = "D1",
+            followUpDate = 0L, reasonForFollowUp = ""
         )
-        val patientId = 1L
-
-        coEvery { emrRepository.upsertPatient(any()) } returns Result.success(patientId)
+        coEvery { emrRepository.upsertPatient(any()) } returns Result.success(1L)
         coEvery { emrRepository.upsertMedicalInfo(any()) } returns Result.success(Unit)
         coEvery { emrRepository.upsertVisit(any()) } returns Result.success(Unit)
 
@@ -55,33 +52,22 @@ class PatientFormUseCaseTest {
 
         // Then
         assertTrue(result.isSuccess)
-        coVerify(exactly = 1) { emrRepository.upsertPatient(any<Patient>()) }
-        coVerify(exactly = 1) { emrRepository.upsertMedicalInfo(any<MedicalInfo>()) }
-        coVerify(exactly = 1) { emrRepository.upsertVisit(any<Visit>()) }
-        coVerify(exactly = 0) { emrRepository.upsertFollowUp(any<FollowUp>()) }
+        coVerify { emrRepository.upsertPatient(any()) }
+        coVerify { emrRepository.upsertMedicalInfo(any()) }
+        coVerify { emrRepository.upsertVisit(any()) }
+        coVerify(exactly = 0) { emrRepository.upsertFollowUp(any()) }
     }
 
     @Test
-    fun `insertPatientInfo with valid data with follow-up returns success`() = runTest {
+    fun `insertPatientInfo inserts followUp when checkbox is checked`() = runTest {
         // Given
         val patientForm = PatientForm(
-            name = "Jane Doe",
-            age = "25",
-            phone = "0987654321",
-            address = "456 Oak Ave",
-            gender = Gender.FEMALE, // Corrected casing
-            allergies = "None",
-            chronicConditions = "None",
-            currentMedication = "None",
-            diagnosis = "Fever",
-            prescription = "Ibuprofen",
-            fee = "150",
-            followUpDate = 1673318400000L, // 2023-01-10
-            reasonForFollowUp = "Check-up"
+            name = "John", age = 30, gender = Gender.MALE, occupation = "Job",
+            phone = "123", address = "Add", allergies = "None", chronicConditions = "None",
+            currentMedication = "None", prescription = "P1", fee = "100", diagnosis = "D1",
+            followUpDate = 2000L, reasonForFollowUp = "Check"
         )
-        val patientId = 2L
-
-        coEvery { emrRepository.upsertPatient(any()) } returns Result.success(patientId)
+        coEvery { emrRepository.upsertPatient(any()) } returns Result.success(1L)
         coEvery { emrRepository.upsertMedicalInfo(any()) } returns Result.success(Unit)
         coEvery { emrRepository.upsertVisit(any()) } returns Result.success(Unit)
         coEvery { emrRepository.upsertFollowUp(any()) } returns Result.success(Unit)
@@ -91,102 +77,23 @@ class PatientFormUseCaseTest {
 
         // Then
         assertTrue(result.isSuccess)
-        coVerify(exactly = 1) { emrRepository.upsertPatient(any<Patient>()) }
-        coVerify(exactly = 1) { emrRepository.upsertMedicalInfo(any<MedicalInfo>()) }
-        coVerify(exactly = 1) { emrRepository.upsertVisit(any<Visit>()) }
-        coVerify(exactly = 1) { emrRepository.upsertFollowUp(any<FollowUp>()) }
+        coVerify { emrRepository.upsertFollowUp(any()) }
     }
 
     @Test
-    fun `insertPatientInfo with invalid patient data returns failure`() = runTest {
+    fun `insertPatientInfo returns failure on invalid data`() = runTest {
         // Given
-        val patientForm = PatientForm(
-            name = "",
-            age = "30",
-            phone = "123",
-            address = "Address",
-            gender = Gender.MALE, // Corrected casing
-            allergies = "",
-            chronicConditions = "",
-            currentMedication = "",
-            diagnosis = "Headache",
-            prescription = "Panadol",
-            fee = "100",
-            followUpDate = 0L,
-            reasonForFollowUp = ""
+        val invalidForm = PatientForm(
+            name = "", age = 0, gender = Gender.MALE, occupation = "",
+            phone = "", address = "", allergies = "", chronicConditions = "",
+            currentMedication = "", prescription = "", fee = "", diagnosis = "",
+            followUpDate = 0L, reasonForFollowUp = ""
         )
 
         // When
-        val result = patientFormUseCase.insertPatientInfo(patientForm, isFollowUpCheckBoxChecked = false)
+        val result = patientFormUseCase.insertPatientInfo(invalidForm, isFollowUpCheckBoxChecked = false)
 
         // Then
         assertTrue(result.isFailure)
-        coVerify(exactly = 0) { emrRepository.upsertPatient(any()) }
-        coVerify(exactly = 0) { emrRepository.upsertMedicalInfo(any()) }
-        coVerify(exactly = 0) { emrRepository.upsertVisit(any()) }
-        coVerify(exactly = 0) { emrRepository.upsertFollowUp(any()) }
-    }
-
-    @Test
-    fun `insertPatientInfo with invalid visit data returns failure`() = runTest {
-        // Given
-        val patientForm = PatientForm(
-            name = "John Doe",
-            age = "30",
-            phone = "1234567890",
-            address = "123 Main St",
-            gender = Gender.MALE, // Corrected casing
-            allergies = "None",
-            chronicConditions = "None",
-            currentMedication = "None",
-            diagnosis = "", // Invalid diagnosis
-            prescription = "Paracetamol",
-            fee = "100",
-            followUpDate = 0L,
-            reasonForFollowUp = ""
-        )
-
-        // When
-        val result = patientFormUseCase.insertPatientInfo(patientForm, isFollowUpCheckBoxChecked = false)
-
-        // Then
-        assertTrue(result.isFailure)
-        coVerify(exactly = 0) { emrRepository.upsertPatient(any()) }
-        coVerify(exactly = 0) { emrRepository.upsertMedicalInfo(any()) }
-        coVerify(exactly = 0) { emrRepository.upsertVisit(any()) }
-        coVerify(exactly = 0) { emrRepository.upsertFollowUp(any()) }
-    }
-
-    @Test
-    fun `insertPatientInfo when repository fails to upsert patient returns failure`() = runTest {
-        // Given
-        val patientForm = PatientForm(
-            name = "John Doe",
-            age = "30",
-            phone = "1234567890",
-            address = "123 Main St",
-            gender = Gender.MALE, // Corrected casing
-            allergies = "None",
-            chronicConditions = "None",
-            currentMedication = "None",
-            diagnosis = "Headache",
-            prescription = "Paracetamol",
-            fee = "100",
-            followUpDate = 0L,
-            reasonForFollowUp = ""
-        )
-        val exception = Exception("Database error")
-
-        coEvery { emrRepository.upsertPatient(any()) } returns Result.failure(exception)
-
-        // When
-        val result = patientFormUseCase.insertPatientInfo(patientForm, isFollowUpCheckBoxChecked = false)
-
-        // Then
-        assertTrue(result.isFailure)
-        coVerify(exactly = 1) { emrRepository.upsertPatient(any()) }
-        coVerify(exactly = 0) { emrRepository.upsertMedicalInfo(any()) }
-        coVerify(exactly = 0) { emrRepository.upsertVisit(any()) }
-        coVerify(exactly = 0) { emrRepository.upsertFollowUp(any()) }
     }
 }

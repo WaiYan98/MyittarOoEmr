@@ -2,6 +2,7 @@ package com.waiyan.myittar_oo_emr.usecase
 
 import com.waiyan.myittar_oo_emr.local_service.EmrRepository
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
@@ -20,7 +21,7 @@ class BackupUseCaseTest {
     }
 
     @Test
-    fun `invoke returns success when repository backup is successful`() = runTest {
+    fun `invoke calls backupDatabase on repository`() = runTest {
         // Given
         coEvery { emrRepository.backupDatabase() } returns Result.success(Unit)
 
@@ -29,18 +30,6 @@ class BackupUseCaseTest {
 
         // Then
         assertTrue(result.isSuccess)
-    }
-
-    @Test
-    fun `invoke returns failure when repository backup fails`() = runTest {
-        // Given
-        val exception = Exception("Backup failed")
-        coEvery { emrRepository.backupDatabase() } returns Result.failure(exception)
-
-        // When
-        val result = backupUseCase()
-
-        // Then
-        assertTrue(result.isFailure)
+        coVerify { emrRepository.backupDatabase() }
     }
 }

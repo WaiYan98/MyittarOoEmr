@@ -6,6 +6,8 @@ import com.waiyan.myittar_oo_emr.data.entity.Patient
 import com.waiyan.myittar_oo_emr.data.entity.Visit
 import com.waiyan.myittar_oo_emr.local_service.EmrRepository
 import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -26,76 +28,76 @@ class PatientUseCaseTest {
     }
 
     @Test
-    fun `getPatientsSortedByRecentVisit sorts by most recent activity`() = runTest {
+    fun `getPatientsSortedByRecentVisit sorts by most recent visit date`() = runTest {
         // Given
-        val patientA = Patient(id = 1, name = "Patient A", age = 30, phone = "123", address = "Add1", gender = "Male")
-        val patientB = Patient(id = 2, name = "Patient B", age = 40, phone = "456", address = "Add2", gender = "Male")
-        val patientC = Patient(id = 3, name = "Patient C", age = 50, phone = "789", address = "Add3", gender = "Female")
-        val patientD = Patient(id = 4, name = "Patient D", age = 60, phone = "012", address = "Add4", gender = "Male")
-
+        val patientA = Patient(id = 1, name = "A", age = 20, gender = "M", occupation = "Dev", phone = "1", address = "Add")
+        val patientB = Patient(id = 2, name = "B", age = 30, gender = "F", occupation = "Doc", phone = "2", address = "Add")
+        
         val data = listOf(
-            // Patient A: Most recent activity is a visit at time 100
             PatientWithVisitAndFollowUp(
                 patient = patientA,
-                visits = listOf(Visit(id = 1, patientId = 1, date = 100, diagnosis = "", prescription = "", fee = 0)),
-                followUp = listOf(FollowUp(id = 1, patientId = 1, date = 50, reasonForFollowUp = ""))
-            ),
-            // Patient B: Most recent activity is a visit at time 75
-            PatientWithVisitAndFollowUp(
-                patient = patientB,
-                visits = listOf(Visit(id = 2, patientId = 2, date = 75, diagnosis = "", prescription = "", fee = 0)),
-                followUp = listOf(FollowUp(id = 2, patientId = 2, date = 200, reasonForFollowUp = ""))
-            ),
-            // Patient C: Only has an old visit at time 25
-            PatientWithVisitAndFollowUp(
-                patient = patientC,
-                visits = listOf(Visit(id = 3, patientId = 3, date = 25, diagnosis = "", prescription = "", fee = 0)),
+                visits = listOf(Visit(id = 1, patientId = 1, date = 1000L, diagnosis = "D1", prescription = "P1", fee = 100)),
                 followUp = emptyList()
             ),
-            // Patient D: No activity
             PatientWithVisitAndFollowUp(
-                patient = patientD,
-                visits = emptyList(),
+                patient = patientB,
+                visits = listOf(Visit(id = 2, patientId = 2, date = 2000L, diagnosis = "D2", prescription = "P2", fee = 200)),
                 followUp = emptyList()
             )
         )
 
-        coEvery { emrRepository.getPatientWithVisitAndFollowUp() } returns flowOf(data)
+        // Repository returns Flow, so use 'every'
+        every { emrRepository.getPatientWithVisitAndFollowUp() } returns flowOf<List<PatientWithVisitAndFollowUp>>(data)
 
         // When
         val result = patientUseCase.getPatientsSortedByRecentVisit()
 
         // Then
         assertTrue(result.isSuccess)
-        val sortedPatients = result.getOrNull()
-        // Expected order: A (100), B (75), C (25), D (0)
-        assertEquals(listOf(patientA, patientB, patientC, patientD), sortedPatients)
+        val sortedList = result.getOrThrow()
+        assertEquals(2L, sortedList[0].patient.id) // Patient B (date 2000) should be first
+        assertEquals(1L, sortedList[1].patient.id) // Patient A (date 1000) should be second
     }
 
     @Test
-    fun `getPatientsSortedByRecentVisit returns success with empty list`() = runTest {
+    fun `getPatientsSortedByRecentVisit returns empty list when no patients`() = runTest {
         // Given
-        coEvery { emrRepository.getPatientWithVisitAndFollowUp() } returns flowOf(emptyList())
+        every { emrRepository.getPatientWithVisitAndFollowUp() } returns flowOf<List<PatientWithVisitAndFollowUp>>(emptyList())
 
         // When
         val result = patientUseCase.getPatientsSortedByRecentVisit()
 
         // Then
         assertTrue(result.isSuccess)
-        assertTrue(result.getOrNull()?.isEmpty() == true)
+        assertTrue(result.getOrThrow().isEmpty())
     }
 
     @Test
-    fun `getPatientsSortedByRecentVisit returns failure on repository error`() = runTest {
+    fun `deletePatients calls repository and returns success`() = runTest {
         // Given
-        val exception = Exception("Database error")
-        coEvery { emrRepository.getPatientWithVisitAndFollowUp() } throws exception
+        val ids = listOf(1L, 2L)
+        coEvery { emrRepository.deletePatients(ids) } returns Result.success(Unit)
 
         // When
-        val result = patientUseCase.getPatientsSortedByRecentVisit()
+        val result = patientUseCase.deletePatients(ids)
+
+        // Then
+        assertTrue(result.isSuccess)
+        coVerify { emrRepository.deletePatients(ids) }
+    }
+
+    @Test
+    fun `deletePatients returns failure when repository fails`() = runTest {
+        // Given
+        val ids = listOf(1L)
+        val error = Exception("Delete failed")
+        coEvery { emrRepository.deletePatients(ids) } throws error
+
+        // When
+        val result = patientUseCase.deletePatients(ids)
 
         // Then
         assertTrue(result.isFailure)
-        assertEquals(exception.message, result.exceptionOrNull()?.message)
+        assertEquals(error.message, result.exceptionOrNull()?.message)
     }
 }

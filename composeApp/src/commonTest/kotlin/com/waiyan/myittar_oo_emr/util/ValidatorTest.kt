@@ -7,57 +7,39 @@ import kotlin.test.assertTrue
 
 class ValidatorTest {
 
-    // --- Tests for validatePatientInfo ---
-
     @Test
     fun `validatePatientInfo with valid data returns Success`() {
-        val result = Validator.validatePatientInfo("Name", "30", "1234567890", "Address")
+        val result = Validator.validatePatientInfo("Name", 30, "Address")
         assertTrue(result is ValidationResult.Success)
     }
 
     @Test
     fun `validatePatientInfo with empty name returns Failure`() {
-        val result = Validator.validatePatientInfo("", "30", "1234567890", "Address")
+        val result = Validator.validatePatientInfo("", 30, "Address")
         assertTrue(result is ValidationResult.Failure)
         assertEquals("Please Input Name", result.message)
     }
 
     @Test
-    fun `validatePatientInfo with invalid age returns Failure`() {
-        val result = Validator.validatePatientInfo("Name", "abc", "1234567890", "Address")
-        assertTrue(result is ValidationResult.Failure)
-        assertEquals("please Input Valid Age", result.message)
-    }
-
-    @Test
     fun `validatePatientInfo with zero age returns Failure`() {
-        val result = Validator.validatePatientInfo("Name", "0", "1234567890", "Address")
+        val result = Validator.validatePatientInfo("Name", 0, "Address")
         assertTrue(result is ValidationResult.Failure)
         assertEquals("Age Cannot be zero!", result.message)
     }
 
     @Test
     fun `validatePatientInfo with negative age returns Failure`() {
-        val result = Validator.validatePatientInfo("Name", "-5", "1234567890", "Address")
+        val result = Validator.validatePatientInfo("Name", -5, "Address")
         assertTrue(result is ValidationResult.Failure)
         assertEquals("Age Cannot be zero!", result.message)
     }
 
     @Test
-    fun `validatePatientInfo with empty phone returns Failure`() {
-        val result = Validator.validatePatientInfo("Name", "30", "", "Address")
-        assertTrue(result is ValidationResult.Failure)
-        assertEquals("Enter Valid Number", result.message)
-    }
-
-    @Test
     fun `validatePatientInfo with empty address returns Failure`() {
-        val result = Validator.validatePatientInfo("Name", "30", "1234567890", "")
+        val result = Validator.validatePatientInfo("Name", 30, "")
         assertTrue(result is ValidationResult.Failure)
         assertEquals("Enter Valid Address!", result.message)
     }
-
-    // --- Tests for validateVisitAndFollowUp ---
 
     @Test
     fun `validateVisitAndFollowUp with valid data without follow-up returns Success`() {
