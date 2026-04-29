@@ -48,7 +48,9 @@ class ReportScreenViewModel(
     }
 
     private fun getMonthlyIncomes(startDate: Long, endDate: Long) = viewModelScope.launch {
-        reportUseCase.getMonthlyIncomes(startDate, endDate).collectLatest { monthlyIncomeList ->
+        val start = LocalTime.asStartOfDay(startDate)
+        val end = LocalTime.asEndOfDay(endDate)
+        reportUseCase.getMonthlyIncomes(start, end).collectLatest { monthlyIncomeList ->
             _monthlyIncomes.value = monthlyIncomeList
         }
     }

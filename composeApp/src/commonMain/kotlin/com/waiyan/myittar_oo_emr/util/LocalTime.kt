@@ -86,4 +86,21 @@ object LocalTime {
         timeStampToLocalDateTime(timeStamp)
             .day
 
+    @OptIn(ExperimentalTime::class)
+    fun asStartOfDay(timeStamp: Long): Long {
+        return timeStampToLocalDateTime(timeStamp)
+            .date
+            .atStartOfDayIn(timeZone)
+            .toEpochMilliseconds()
+    }
+
+    @OptIn(ExperimentalTime::class)
+    fun asEndOfDay(timeStamp: Long): Long {
+        return timeStampToLocalDateTime(timeStamp)
+            .date
+            .plus(1, DateTimeUnit.DAY)
+            .atStartOfDayIn(timeZone)
+            .toEpochMilliseconds() - 1
+    }
+
 }
