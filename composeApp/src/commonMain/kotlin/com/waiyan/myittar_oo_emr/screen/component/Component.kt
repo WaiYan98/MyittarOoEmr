@@ -85,7 +85,10 @@ fun MyittarOoEmrAppBar(
         actions = {
             OutlinedButton(
                 enabled = enabled,
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                    horizontal = 12.dp,
+                    vertical = 4.dp
+                ),
                 border = BorderStroke(
                     1.5.dp,
                     color = if (selectedPageIndex == 0) MaterialTheme.colorScheme.primary
@@ -101,7 +104,10 @@ fun MyittarOoEmrAppBar(
 
             OutlinedButton(
                 enabled = enabled,
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                    horizontal = 12.dp,
+                    vertical = 4.dp
+                ),
                 border = BorderStroke(
                     1.5.dp,
                     color = if (selectedPageIndex == 1) MaterialTheme.colorScheme.primary
@@ -360,7 +366,7 @@ fun TableBody(
         ) {
             Box(
                 modifier = modifier.fillMaxWidth(),
-                contentAlignment =alignment
+                contentAlignment = alignment
             ) {
                 if (isEditing) {
                     TextField(
@@ -600,11 +606,20 @@ fun GenderFilterChip(
 
 
 fun Int.readableAge(): String {
-    return if (this in 1..11) {
-        "$this Months"
-    } else {
-        "${this / 12} Years"
+    val years = this / 12
+    val months = this % 12
+
+    val parts = mutableListOf<String>()
+
+    if (years > 0) {
+        parts.add("$years ${if (years == 1) "Year" else "Years"}")
     }
+
+    if (months > 0 || (years == 0 && months == 0)) {
+        parts.add("$months ${if (months == 1) "Month" else "Months"}")
+    }
+
+    return parts.joinToString(" ")
 }
 
 
