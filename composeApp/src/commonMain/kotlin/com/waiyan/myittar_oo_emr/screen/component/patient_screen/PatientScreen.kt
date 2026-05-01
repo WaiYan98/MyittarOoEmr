@@ -83,7 +83,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.waiyan.myittar_oo_emr.screen.component.AgeUnit
+import androidx.compose.ui.text.input.KeyboardType
+import com.waiyan.myittar_oo_emr.screen.component.InputField
 import com.waiyan.myittar_oo_emr.screen.component.MyittarOoEmrAppBar
 import com.waiyan.myittar_oo_emr.screen.component.PatientHistoryScreen
 import com.waiyan.myittar_oo_emr.screen.component.ReportScreen
@@ -553,19 +554,18 @@ private fun AgeFilterButton(
     var ageMenuExpanded by remember { mutableStateOf(false) }
     val isAgeFilterActive = minAge.isNotEmpty() || maxAge.isNotEmpty()
 
-    var selectedUnit by remember { mutableStateOf(AgeUnit.YEARS) }
-
-    // This state will now hold the range for the *current* unit.
-    var sliderPosition by remember(selectedUnit) {
-        mutableStateOf(if (selectedUnit == AgeUnit.MONTHS) 1f..11f else 1f..100f)
+    // Initialize state from existing values when the menu expands
+    var minYears by remember(minAge, ageMenuExpanded) {
+        mutableStateOf(if (minAge.isNotEmpty()) (minAge.toInt() / 12).let { if (it > 0) it.toString() else "" } else "")
     }
-
-    // This is for displaying the current slider range in a readable format.
-    fun formatSliderLabel(value: Float, unit: AgeUnit): String {
-        return when (unit) {
-            AgeUnit.MONTHS -> "${value.toInt()} m"
-            AgeUnit.YEARS -> "${value.toInt()} y"
-        }
+    var minMonths by remember(minAge, ageMenuExpanded) {
+        mutableStateOf(if (minAge.isNotEmpty()) (minAge.toInt() % 12).let { if (it > 0) it.toString() else "" } else "")
+    }
+    var maxYears by remember(maxAge, ageMenuExpanded) {
+        mutableStateOf(if (maxAge.isNotEmpty()) (maxAge.toInt() / 12).let { if (it > 0) it.toString() else "" } else "")
+    }
+    var maxMonths by remember(maxAge, ageMenuExpanded) {
+        mutableStateOf(if (maxAge.isNotEmpty()) (maxAge.toInt() % 12).let { if (it > 0) it.toString() else "" } else "")
     }
 
     Box {
@@ -573,7 +573,7 @@ private fun AgeFilterButton(
             modifier = Modifier.height(48.dp),
             selected = isAgeFilterActive,
             onClick = { ageMenuExpanded = true },
-            label = { Text(getAgeFilterLabel(minAge, maxAge, selectedUnit), fontSize = 18.sp) },
+            label = { Text(getAgeFilterLabel(minAge, maxAge), fontSize = 18.sp) },
             leadingIcon = if (isAgeFilterActive) {
                 {
                     Icon(
@@ -593,63 +593,85 @@ private fun AgeFilterButton(
             Column(
                 modifier = Modifier
                     .padding(24.dp)
-                    .width(360.dp)
+                    .width(400.dp)
             ) {
                 Text(
-                    "Age Range: ${formatSliderLabel(sliderPosition.start, selectedUnit)} - ${
-                        formatSliderLabel(
-                            sliderPosition.endInclusive,
-                            selectedUnit
-                        )
-                    }",
-                    style = MaterialTheme.typography.titleLarge
+                    "Age Range",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Chips to select the unit
+                Text("From", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    FilterChip(
-                        modifier = Modifier.height(48.dp),
-                        selected = selectedUnit == AgeUnit.MONTHS,
-                        onClick = { selectedUnit = AgeUnit.MONTHS },
-                        label = { Text("Months", fontSize = 16.sp) }
+                    InputField(
+                        modifier = Modifier.weight(1f),
+                        label = "Years",
+                        value = minYears,
+                        onValueChange = { if (it.all { char -> char.isDigit() }) minYears = it },
+                        keyboardType = KeyboardType.Number,
+                        placeholder = "0"
                     )
-                    FilterChip(
-                        modifier = Modifier.height(48.dp),
-                        selected = selectedUnit == AgeUnit.YEARS,
-                        onClick = { selectedUnit = AgeUnit.YEARS },
-                        label = { Text("Years", fontSize = 16.sp) }
+                    InputField(
+                        modifier = Modifier.weight(1f),
+                        label = "Months",
+                        value = minMonths,
+                        onValueChange = {
+                            if (it.all { char -> char.isDigit() }) {
+                                val m = it.toIntOrNull() ?: 0
+                                if (m in 0..11 || it.isEmpty()) minMonths = it
+                            }
+                        },
+                        keyboardType = KeyboardType.Number,
+                        placeholder = "0"
                     )
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // The slider's range and steps depend on the selected unit.
-                val valueRange = if (selectedUnit == AgeUnit.MONTHS) 1f..11f else 1f..100f
-
-                RangeSlider(
-                    value = sliderPosition,
-                    onValueChange = { sliderPosition = it },
-                    valueRange = valueRange,
-                    steps = 0
-                )
 
                 Spacer(modifier = Modifier.height(16.dp))
+
+                Text("To", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    InputField(
+                        modifier = Modifier.weight(1f),
+                        label = "Years",
+                        value = maxYears,
+                        onValueChange = { if (it.all { char -> char.isDigit() }) maxYears = it },
+                        keyboardType = KeyboardType.Number,
+                        placeholder = "0"
+                    )
+                    InputField(
+                        modifier = Modifier.weight(1f),
+                        label = "Months",
+                        value = maxMonths,
+                        onValueChange = {
+                            if (it.all { char -> char.isDigit() }) {
+                                val m = it.toIntOrNull() ?: 0
+                                if (m in 0..11 || it.isEmpty()) maxMonths = it
+                            }
+                        },
+                        keyboardType = KeyboardType.Number,
+                        placeholder = "0"
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
                 Button(
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                     onClick = {
-                        val min = sliderPosition.start.toInt()
-                        val max = sliderPosition.endInclusive.toInt()
+                        val minTotal = (minYears.toIntOrNull() ?: 0) * 12 + (minMonths.toIntOrNull() ?: 0)
+                        val maxTotal = (maxYears.toIntOrNull() ?: 0) * 12 + (maxMonths.toIntOrNull() ?: 0)
 
-                        // Convert to months before calling the callback
+                        val minStr = if (minYears.isNotEmpty() || minMonths.isNotEmpty()) minTotal.toString() else ""
+                        val maxStr = if (maxYears.isNotEmpty() || maxMonths.isNotEmpty()) maxTotal.toString() else ""
 
-                        if (selectedUnit == AgeUnit.YEARS) {
-                            onAgeRangeSelected((min * 12).toString(), (max * 12).toString())
-                        } else {
-                            onAgeRangeSelected(min.toString(), max.toString())
-                        }
+                        onAgeRangeSelected(minStr, maxStr)
                         ageMenuExpanded = false
                     }
                 ) {
@@ -793,11 +815,11 @@ private fun DateFilterButton(
     }
 }
 
-private fun getAgeFilterLabel(minAge: String, maxAge: String, selectedUnit: AgeUnit): String {
+private fun getAgeFilterLabel(minAge: String, maxAge: String): String {
     return when {
-        minAge.isNotEmpty() && maxAge.isNotEmpty() -> if (selectedUnit == AgeUnit.MONTHS) "Age: $minAge M-$maxAge M" else "Age: ${minAge.toInt() / 12} Y-${maxAge.toInt() / 12} Y"
-        minAge.isNotEmpty() -> if (selectedUnit == AgeUnit.MONTHS) "Age: $minAge M+" else "Age: ${minAge.toInt() / 12} Y+"
-        maxAge.isNotEmpty() -> if (selectedUnit == AgeUnit.MONTHS) "Age: -$maxAge M" else "Age: -${maxAge.toInt() / 12} Y"
+        minAge.isNotEmpty() && maxAge.isNotEmpty() -> "Age: ${minAge.toInt().readableAge()} - ${maxAge.toInt().readableAge()}"
+        minAge.isNotEmpty() -> "Age: ${minAge.toInt().readableAge()}+"
+        maxAge.isNotEmpty() -> "Age: -${maxAge.toInt().readableAge()}"
         else -> "Age"
     }
 }
