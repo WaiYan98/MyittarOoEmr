@@ -24,9 +24,7 @@ class ReportScreenViewModel(
 
     init {
         getSummaryReport()
-        val endDate = LocalTime.getCurrentTimeMillis()
-        val startDate = endDate - 31536000000L // 365 days
-        getMonthlyIncomes(startDate, endDate)
+        getMonthlyIncomes(uiState.value.startDate, uiState.value.endDate)
     }
 
     private fun getSummaryReport() = viewModelScope.launch {
@@ -56,6 +54,7 @@ class ReportScreenViewModel(
     }
 
     fun onDateRangeChanged(startDate: Long, endDate: Long) {
+        _uiState.update { it.copy(startDate = startDate, endDate = endDate) }
         getMonthlyIncomes(startDate, endDate)
     }
 

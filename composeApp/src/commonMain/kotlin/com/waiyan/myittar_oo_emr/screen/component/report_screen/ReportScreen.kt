@@ -64,17 +64,8 @@ fun ReportScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackBarHostState = remember { SnackbarHostState() }
 
-    val initialEndDate = LocalTime.getCurrentTimeMillis()
-    val initialStartDate = initialEndDate - 31536000000L // 365 days, one year ago
-
-    var startDate by remember { mutableStateOf(initialStartDate) }
-    var endDate by remember { mutableStateOf(initialEndDate) }
     var showStartDatePicker by remember { mutableStateOf(false) }
     var showEndDatePicker by remember { mutableStateOf(false) }
-
-    LaunchedEffect(true) { // Initial call to load data with default dates
-        viewModel.onDateRangeChanged(startDate, endDate)
-    }
 
     val monthlyIncome by viewModel.monthlyIncomes.collectAsStateWithLifecycle()
 
@@ -86,8 +77,7 @@ fun ReportScreen(
                     content = { Text("Confirm") },
                     onClick = {
                         datePickerState.selectedDateMillis?.let { timeStamp ->
-                            startDate = timeStamp
-                            viewModel.onDateRangeChanged(startDate, endDate)
+                            viewModel.onDateRangeChanged(timeStamp, uiState.endDate)
                             showStartDatePicker = false
                         }
                     }
@@ -118,8 +108,7 @@ fun ReportScreen(
                     content = { Text("Confirm") },
                     onClick = {
                         datePickerState.selectedDateMillis?.let { timeStamp ->
-                            endDate = timeStamp
-                            viewModel.onDateRangeChanged(startDate, endDate)
+                            viewModel.onDateRangeChanged(uiState.startDate, timeStamp)
                             showEndDatePicker = false
                         }
                     }
@@ -184,8 +173,8 @@ fun ReportScreen(
                         thisYearIncome = report.thisYearIncome.toString(),
                         upcomingFollowUps = report.upcomingFollowUps,
                         monthlyIncomes = monthlyIncome,
-                        startDate = LocalTime.getHumanDate(startDate),
-                        endDate = LocalTime.getHumanDate(endDate),
+                        startDate = LocalTime.getHumanDate(uiState.startDate),
+                        endDate = LocalTime.getHumanDate(uiState.endDate),
                         onStartDateClick = { showStartDatePicker = true },
                         onEndDateClick = { showEndDatePicker = true }
                     )
