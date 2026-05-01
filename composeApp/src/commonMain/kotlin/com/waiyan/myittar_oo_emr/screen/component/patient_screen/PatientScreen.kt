@@ -1,7 +1,8 @@
+package com.waiyan.myittar_oo_emr.screen.component.patient_screen
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,14 +44,10 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.LargeFloatingActionButton
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -70,11 +67,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.Color.Companion.Red
-import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -91,7 +86,6 @@ import com.waiyan.myittar_oo_emr.screen.component.ReportScreen
 import com.waiyan.myittar_oo_emr.screen.component.ShowEmptyMessage
 import com.waiyan.myittar_oo_emr.screen.component.ShowLoading
 import com.waiyan.myittar_oo_emr.screen.component.patient_form_screen.Gender
-import com.waiyan.myittar_oo_emr.screen.component.patient_screen.PatientViewModel
 import com.waiyan.myittar_oo_emr.screen.component.readableAge
 import com.waiyan.myittar_oo_emr.ui.theme.MyAppTheme
 import com.waiyan.myittar_oo_emr.util.FilePicker
@@ -844,7 +838,7 @@ fun SearchBar(
         enabled = enabled,
         modifier = modifier,
         singleLine = true,
-        textStyle = androidx.compose.ui.text.TextStyle(fontSize = 20.sp),
+        textStyle = TextStyle(fontSize = 20.sp),
         value = value,
         onValueChange = onValueChange,
         leadingIcon = {
@@ -915,7 +909,7 @@ fun PatientCard(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            Column() {
+            Column {
                 Text(
                     text = name,
                     fontSize = 24.sp,

@@ -1,6 +1,6 @@
 package com.waiyan.myittar_oo_emr.screen.component
 
-import PatientScreen
+import com.waiyan.myittar_oo_emr.screen.component.patient_screen.PatientScreen
 import ReportScreen
 import TodayIncomeDetailsScreen
 import androidx.compose.runtime.Composable

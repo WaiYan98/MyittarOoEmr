@@ -48,7 +48,8 @@ class PatientViewModel(
             val filteredPatients = uiState.success
                 .filter { patientWithVisit ->
                     patientWithVisit.patient.name.contains(searchQuery, ignoreCase = true) ||
-                            patientWithVisit.patient.id == (searchQuery.toLongOrNull() ?: -1)
+                            patientWithVisit.patient.id == (searchQuery.toLongOrNull() ?: -1) ||
+                            patientWithVisit.patient.address.contains(searchQuery, ignoreCase = true)
                 }
                 .filter { patientWithVisit ->
                     genderQuery?.let { patientWithVisit.patient.gender == it } ?: true
