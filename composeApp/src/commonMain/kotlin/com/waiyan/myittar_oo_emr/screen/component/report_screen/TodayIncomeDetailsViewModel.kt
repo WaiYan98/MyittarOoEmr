@@ -44,6 +44,8 @@ class TodayIncomeDetailsViewModel(
 
             val filteredDetails = uiState.incomeDetails.filter { incomeDetail ->
                 incomeDetail.visitTime in startOfDay until endOfDay
+            }.sortedByDescending { incomeDetail ->
+                incomeDetail.visitTime
             }
 
             val totalIncome = filteredDetails.sumOf { it.fee } // Calculate total income

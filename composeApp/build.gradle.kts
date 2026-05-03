@@ -96,8 +96,8 @@ android {
         applicationId = "com.waiyan.myittar_oo_emr"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1.0"
     }
     packaging {
         resources {
